@@ -112,6 +112,20 @@ const Index = () => {
       <div className="pointer-events-none fixed left-1/2 top-0 -translate-x-1/2 h-[400px] w-[600px] bg-[radial-gradient(ellipse,hsl(45,90%,56%,0.06)_0%,transparent_70%)]" />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 pb-20 pt-16">
+        {/* Theme Toggle */}
+        <motion.button
+          onClick={() => setIsDark(!isDark)}
+          className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 font-mono text-xs text-muted-foreground shadow-lg backdrop-blur-sm transition-colors hover:border-primary hover:text-primary"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.8 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {isDark ? 'Light' : 'Dark'}
+        </motion.button>
+
         {/* Hero */}
         <motion.header
           className="mb-16 text-center"
