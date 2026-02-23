@@ -941,9 +941,34 @@ h1 {
 .glow-cyan { box-shadow: 0 0 15px rgba(0,212,255,0.3); border-color: var(--t1) !important; }
 .glow-orange { box-shadow: 0 0 15px rgba(255,107,53,0.3); border-color: var(--t2) !important; }
 .glow-green { box-shadow: 0 0 15px rgba(74,222,128,0.3); border-color: var(--t3) !important; }
+
+/* ── FLOATING TOOLBAR ── */
+.guide-toolbar{position:fixed;top:12px;left:12px;z-index:9999;display:flex;gap:6px;align-items:center;}
+.guide-toolbar button{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px);box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.guide-toolbar button:hover{border-color:var(--t1);color:var(--t1);transform:translateY(-1px);}
+.guide-toolbar .back-btn::before{content:'←';font-size:.9rem;}
+.guide-toolbar .theme-btn::before{content:'◑';font-size:1rem;}
+.guide-toolbar .font-btn{font-size:.8rem;padding:7px 10px;}
+
+/* ── LIGHT THEME ── */
+html.light-theme{--bg:#f5f5f0;--panel:#eeeee8;--card:#ffffff;--border:#d8d8d0;--border2:#c8c8c0;--t1:#0e7490;--t2:#c2410c;--t3:#047857;--t4:#a16207;--t5:#7c3aed;--lock:#a16207;--danger:#dc2626;--muted:#708090;--text:#1a2030;--dim:#5a6878;}
+html.light-theme body::before{background-image:radial-gradient(1px 1px at 20% 30%,rgba(14,116,144,.15) 0%,transparent 100%),radial-gradient(1px 1px at 80% 10%,rgba(194,65,12,.15) 0%,transparent 100%),radial-gradient(1px 1px at 60% 80%,rgba(4,120,87,.15) 0%,transparent 100%);}
+
+html.font-lg body{font-size:17.5px;}
+html.font-xl body{font-size:20px;}
 </style>
 </head>
 <body>
+<div class="guide-toolbar">
+  <button class="back-btn" onclick="window.location.href='/'"> Hub</button>
+  <button class="theme-btn" onclick="document.documentElement.classList.toggle('light-theme');localStorage.setItem('guide-theme',document.documentElement.classList.contains('light-theme')?'light':'dark')"> Theme</button>
+  <button class="font-btn" onclick="cycleFontSize()">A↑</button>
+</div>
+<script>
+if(localStorage.getItem('guide-theme')==='light')document.documentElement.classList.add('light-theme');
+var fSizes=['','font-lg','font-xl'];var fIdx=fSizes.indexOf(localStorage.getItem('guide-font')||'');if(fIdx<0)fIdx=0;if(fSizes[fIdx])document.documentElement.classList.add(fSizes[fIdx]);
+function cycleFontSize(){document.documentElement.classList.remove(...fSizes.filter(Boolean));fIdx=(fIdx+1)%fSizes.length;if(fSizes[fIdx])document.documentElement.classList.add(fSizes[fIdx]);localStorage.setItem('guide-font',fSizes[fIdx]);}
+</script>
 <div class="wrapper">
 
   <header>
