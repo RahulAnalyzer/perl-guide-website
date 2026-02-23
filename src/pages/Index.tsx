@@ -80,16 +80,6 @@ const GuideCard = ({ guide, index }: { guide: typeof guides[0]; index: number })
       <p className="text-sm leading-relaxed text-muted-foreground">
         {guide.description}
       </p>
-      <motion.div
-        className={`mt-4 font-mono text-xs ${guide.accentClass}`}
-        initial={{ opacity: 0, x: -8 }}
-        whileHover={{ opacity: 1, x: 0 }}
-        animate={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-      >
-        Open guide →
-      </motion.div>
-      {/* Show arrow on parent hover via CSS */}
       <div className={`mt-4 font-mono text-xs ${guide.accentClass} opacity-0 transition-all duration-300 translate-x-[-8px] group-hover:opacity-100 group-hover:translate-x-0`}>
         Open guide →
       </div>
