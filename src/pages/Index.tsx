@@ -1,4 +1,5 @@
 import { Database, FileCode2, Layers, Network, Cpu } from "lucide-react";
+import { motion } from "framer-motion";
 
 const guides = [
   {
@@ -53,15 +54,22 @@ const guides = [
   },
 ];
 
-const GuideCard = ({ guide }: { guide: typeof guides[0] }) => {
+const GuideCard = ({ guide, index }: { guide: typeof guides[0]; index: number }) => {
   const Icon = guide.icon;
   return (
-    <a
+    <motion.a
       href={guide.href}
-      className={`group block rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 ${guide.glowClass} ${guide.borderHover}`}
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15 + index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={`group block rounded-lg border border-border bg-card p-6 transition-shadow duration-300 ${guide.glowClass} ${guide.borderHover}`}
     >
       <div className="mb-4 flex items-center justify-between">
-        <Icon className={`h-6 w-6 ${guide.accentClass}`} />
+        <motion.div whileHover={{ rotate: 12, scale: 1.15 }} transition={{ type: "spring", stiffness: 300 }}>
+          <Icon className={`h-6 w-6 ${guide.accentClass}`} />
+        </motion.div>
         <span className={`font-mono text-[0.6rem] tracking-[0.2em] uppercase ${guide.accentClass} opacity-70`}>
           {guide.tag}
         </span>
@@ -72,28 +80,45 @@ const GuideCard = ({ guide }: { guide: typeof guides[0] }) => {
       <p className="text-sm leading-relaxed text-muted-foreground">
         {guide.description}
       </p>
-      <div className={`mt-4 font-mono text-xs ${guide.accentClass} opacity-0 transition-opacity group-hover:opacity-100`}>
+      <motion.div
+        className={`mt-4 font-mono text-xs ${guide.accentClass}`}
+        initial={{ opacity: 0, x: -8 }}
+        whileHover={{ opacity: 1, x: 0 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        Open guide →
+      </motion.div>
+      {/* Show arrow on parent hover via CSS */}
+      <div className={`mt-4 font-mono text-xs ${guide.accentClass} opacity-0 transition-all duration-300 translate-x-[-8px] group-hover:opacity-100 group-hover:translate-x-0`}>
         Open guide →
       </div>
-    </a>
+    </motion.a>
   );
 };
 
 const Index = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Grid background */}
       <div className="fixed inset-0 grid-bg pointer-events-none" />
-
-      {/* Ambient glow */}
       <div className="pointer-events-none fixed left-1/2 top-0 -translate-x-1/2 h-[400px] w-[600px] bg-[radial-gradient(ellipse,hsl(45,90%,56%,0.06)_0%,transparent_70%)]" />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 pb-20 pt-16">
         {/* Hero */}
-        <header className="mb-16 text-center">
-          <span className="mb-4 inline-block font-mono text-[0.65rem] tracking-[0.28em] uppercase text-primary">
+        <motion.header
+          className="mb-16 text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <motion.span
+            className="mb-4 inline-block font-mono text-[0.65rem] tracking-[0.28em] uppercase text-primary"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             Complete Visual Reference
-          </span>
+          </motion.span>
           <h1 className="mb-4 text-gradient-hero text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
             Perl Programming Guides
           </h1>
@@ -102,8 +127,12 @@ const Index = () => {
             file I/O, object-oriented programming, and threading.
           </p>
 
-          {/* Legend pills */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <motion.div
+            className="mt-6 flex flex-wrap items-center justify-center gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
             {[
               { label: "Interactive", color: "bg-glow-gold" },
               { label: "Visual Diagrams", color: "bg-glow-cyan" },
@@ -118,22 +147,26 @@ const Index = () => {
                 {pill.label}
               </span>
             ))}
-          </div>
-        </header>
+          </motion.div>
+        </motion.header>
 
         {/* Guide Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {guides.map((guide) => (
-            <GuideCard key={guide.title} guide={guide} />
+          {guides.map((guide, i) => (
+            <GuideCard key={guide.title} guide={guide} index={i} />
           ))}
         </div>
 
-        {/* Footer */}
-        <footer className="mt-16 text-center">
+        <motion.footer
+          className="mt-16 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
           <p className="font-mono text-xs text-muted-foreground/50">
             Built with Perl · Visual learning for developers
           </p>
-        </footer>
+        </motion.footer>
       </div>
     </div>
   );
