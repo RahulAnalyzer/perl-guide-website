@@ -1,5 +1,6 @@
-import { Database, FileCode2, Layers, Network, Cpu } from "lucide-react";
+import { Database, FileCode2, Layers, Network, Cpu, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 const guides = [
   {
