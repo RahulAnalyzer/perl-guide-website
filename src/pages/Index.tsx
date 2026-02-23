@@ -89,6 +89,23 @@ const GuideCard = ({ guide, index }: { guide: typeof guides[0]; index: number })
 };
 
 const Index = () => {
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('hub-theme') !== 'light';
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('hub-theme', 'dark');
+    } else {
+      document.documentElement.classList.add('light');
+      localStorage.setItem('hub-theme', 'light');
+    }
+  }, [isDark]);
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="fixed inset-0 grid-bg pointer-events-none" />
