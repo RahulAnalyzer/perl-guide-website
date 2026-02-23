@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perl OOP — Complete Visual Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap');
+
+:root {
+  --bg:       #060810;
+  --surface:  #0a0d18;
+  --card:     #0f1420;
+  --card2:    #131925;
+  --border:   #1a2438;
+  --border2:  #22304a;
+  --class-c:  #e2b96a;   /* class/package — gold */
+  --obj-c:    #5db8f5;   /* object/instance — sky */
+  --method-c: #7ee8a2;   /* method — mint */
+  --inherit-c:#d97cf5;   /* inheritance — violet */
+  --poly-c:   #f97066;   /* polymorphism — coral */
+  --encap-c:  #f59e42;   /* encapsulation — amber */
+  --role-c:   #38e8d8;   /* roles/mixins — teal */
+  --moose-c:  #a78bfa;   /* Moose — purple */
+  --text:     #c8d8f0;
+  --muted:    #3d5070;
+  --dim:      #506080;
+  --white:    #eef4ff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Lato',sans-serif;
+  font-size:15px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* ── GRID BACKGROUND ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(93,184,245,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(93,184,245,0.025) 1px,transparent 1px);
+  background-size:52px 52px;
+  pointer-events:none;z-index:0;
+}
+
+.page{max-width:1180px;margin:0 auto;padding:2rem 1.5rem 8rem;position:relative;z-index:1;}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;
+  padding:3rem 2rem 2.5rem;
+  margin-bottom:0;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;
+  top:-80px;left:50%;transform:translateX(-50%);
+  width:600px;height:200px;
+  background:radial-gradient(ellipse,rgba(226,185,106,0.1) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-family:'Fira Code',monospace;font-size:0.65rem;
+  letter-spacing:0.25em;color:var(--class-c);text-transform:uppercase;
+  margin-bottom:0.75rem;
+}
+.hero h1{
+  font-family:'Oxanium',sans-serif;
+  font-size:clamp(2rem,4vw,3rem);font-weight:800;
+  letter-spacing:-0.02em;margin-bottom:0.75rem;
+  background:linear-gradient(120deg,var(--white) 20%,var(--class-c) 50%,var(--inherit-c) 85%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-family:'Fira Code',monospace;font-size:0.78rem;
+  color:var(--muted);max-width:600px;margin:0 auto 1.5rem;line-height:1.7;
+}
+
+/* Level pills */
+.level-pills{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;}
+.lpill{
+  font-family:'Fira Code',monospace;font-size:0.62rem;
+  padding:0.3rem 0.8rem;border-radius:20px;border:1px solid;
+  letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;
+}
+.lpill:hover,.lpill.active{filter:brightness(1.3);}
+.lpill-basic{color:var(--obj-c);border-color:rgba(93,184,245,0.4);background:rgba(93,184,245,0.07);}
+.lpill-inter{color:var(--inherit-c);border-color:rgba(217,124,245,0.4);background:rgba(217,124,245,0.07);}
+.lpill-adv{color:var(--moose-c);border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.07);}
+.lpill-deep{color:var(--poly-c);border-color:rgba(249,112,102,0.4);background:rgba(249,112,102,0.07);}
+
+/* ── SIDEBAR + CONTENT LAYOUT ── */
+.layout{display:grid;grid-template-columns:240px 1fr;gap:2rem;align-items:start;margin-top:2rem;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  position:sticky;top:1.5rem;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  max-height:calc(100vh - 3rem);
+  overflow-y:auto;
+}
+.sb-section{margin-bottom:0;}
+.sb-section-label{
+  font-family:'Fira Code',monospace;font-size:0.58rem;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);
+  padding:0.65rem 1rem 0.3rem;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.2);
+}
+.sb-section:first-child .sb-section-label{border-top:none;}
+.sb-link{
+  display:flex;align-items:center;gap:0.6rem;
+  padding:0.38rem 1rem;
+  font-family:'Lato',sans-serif;font-size:0.8rem;
+  color:var(--dim);cursor:pointer;
+  transition:all 0.15s;
+  border-left:2px solid transparent;
+  text-decoration:none;
+}
+.sb-link:hover{color:var(--text);background:rgba(255,255,255,0.03);}
+.sb-link.active{color:var(--class-c);border-left-color:var(--class-c);background:rgba(226,185,106,0.05);}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.6;}
+
+/* ── CONTENT ── */
+.content{display:flex;flex-direction:column;gap:2.5rem;}
+
+/* ── SECTION CARD ── */
+.section-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  scroll-margin-top:1.5rem;
+}
+
+.section-header{
+  padding:1.5rem 1.75rem 1.2rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:1rem;
+}
+.section-icon{font-size:1.6rem;flex-shrink:0;margin-top:2px;}
+.section-meta{}
+.section-level{
+  font-family:'Fira Code',monospace;font-size:0.58rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  margin-bottom:0.3rem;display:inline-block;
+  padding:0.15rem 0.5rem;border-radius:3px;border:1px solid;
+}
+.lvl-basic{color:var(--obj-c);border-color:rgba(93,184,245,0.4);background:rgba(93,184,245,0.08);}
+.lvl-inter{color:var(--inherit-c);border-color:rgba(217,124,245,0.4);background:rgba(217,124,245,0.08);}
+.lvl-adv  {color:var(--moose-c);border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.08);}
+.lvl-deep {color:var(--poly-c);border-color:rgba(249,112,102,0.4);background:rgba(249,112,102,0.08);}
+
+.section-title{
+  font-family:'Oxanium',sans-serif;font-size:1.25rem;font-weight:700;
+  color:var(--white);margin-bottom:0.2rem;
+}
+.section-desc{font-size:0.82rem;color:var(--dim);font-family:'Fira Code',monospace;line-height:1.6;}
+
+.section-body{padding:1.75rem;}
+
+/* ── VIZ CANVAS ── */
+.viz-canvas{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  position:relative;overflow:hidden;
+  margin-bottom:1.25rem;
+}
+
+/* ── CODE BLOCK ── */
+.cblock{
+  background:#050810;border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;margin:1rem 0;
+}
+.cblock-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.45rem 0.9rem;
+  background:rgba(255,255,255,0.025);
+  border-bottom:1px solid var(--border);
+}
+.cblock-label{font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;}
+.cpy-btn{
+  font-family:'Fira Code',monospace;font-size:0.58rem;
+  color:var(--muted);background:none;border:1px solid var(--border2);
+  padding:0.15rem 0.5rem;border-radius:3px;cursor:pointer;transition:all 0.2s;
+}
+.cpy-btn:hover{color:var(--text);border-color:var(--class-c);}
+.cpy-btn.ok{color:var(--method-c);border-color:var(--method-c);}
+
+pre{
+  padding:1.1rem 1.2rem;overflow-x:auto;
+  font-family:'Fira Code',monospace;font-size:0.77rem;
+  line-height:1.75;color:#c0d4e8;
+}
+.kw {color:#e2b96a;}
+.fn {color:#7ee8a2;}
+.str{color:#86d8a0;}
+.cmt{color:#2d4060;font-style:italic;}
+.num{color:#f9a8d4;}
+.var{color:#c0d4e8;}
+.pkg{color:#d97cf5;}
+.mod{color:#5db8f5;}
+.op {color:#e2b96a;}
+
+/* ── CONCEPT TABLE ── */
+.ctable{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.82rem;}
+.ctable th{
+  text-align:left;font-family:'Fira Code',monospace;
+  font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);padding:0.5rem 0.75rem;border-bottom:2px solid var(--border2);
+}
+.ctable td{padding:0.55rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+.ctable tr:hover td{background:rgba(255,255,255,0.02);}
+.ctable code{
+  font-family:'Fira Code',monospace;font-size:0.72rem;
+  background:rgba(0,0,0,0.4);padding:0.1rem 0.4rem;border-radius:3px;
+  color:var(--class-c);
+}
+
+/* ── CALLOUT ── */
+.callout{
+  border-radius:7px;padding:0.9rem 1.1rem;margin:1rem 0;
+  font-size:0.82rem;border-left:3px solid;
+}
+.callout strong{
+  font-family:'Fira Code',monospace;font-size:0.62rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  display:block;margin-bottom:0.3rem;opacity:0.8;
+}
+.callout-tip  {background:rgba(126,232,162,0.06);border-color:var(--method-c);color:#c0e8d0;}
+.callout-warn {background:rgba(226,185,106,0.07);border-color:var(--class-c);color:#e0d0a0;}
+.callout-info {background:rgba(93,184,245,0.06);border-color:var(--obj-c);color:#a0c8e8;}
+
+/* ── CONTROLS ── */
+.ctrl-row{display:flex;gap:0.7rem;align-items:center;flex-wrap:wrap;margin-top:1.25rem;}
+.btn{
+  font-family:'Fira Code',monospace;font-size:0.68rem;
+  padding:0.48rem 1.1rem;border-radius:5px;cursor:pointer;
+  border:1px solid;transition:all 0.2s;letter-spacing:0.04em;background:none;
+}
+.btn-go   {color:var(--method-c);border-color:rgba(126,232,162,0.4);}
+.btn-go:hover{background:rgba(126,232,162,0.1);}
+.btn-warn {color:var(--poly-c);border-color:rgba(249,112,102,0.4);}
+.btn-warn:hover{background:rgba(249,112,102,0.1);}
+.btn-rst  {color:var(--muted);border-color:var(--border2);}
+.btn-rst:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+
+.status-bar{
+  font-family:'Fira Code',monospace;font-size:0.67rem;
+  color:var(--muted);padding:0.38rem 0.7rem;
+  background:rgba(0,0,0,0.3);border:1px solid var(--border);
+  border-radius:4px;flex:1;min-width:180px;
+}
+
+/* ── LOG ── */
+.log-box{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;overflow:hidden;
+}
+.log-head{
+  padding:0.4rem 0.8rem;background:rgba(255,255,255,0.02);
+  border-bottom:1px solid var(--border);
+  font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted);
+}
+.log-body{padding:0.4rem;height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.log-line{
+  font-family:'Fira Code',monospace;font-size:0.67rem;
+  padding:0.18rem 0.5rem;border-radius:3px;
+  animation:logIn 0.2s ease;
+}
+@keyframes logIn{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:translateX(0)}}
+.ll-class  {color:var(--class-c);}
+.ll-obj    {color:var(--obj-c);}
+.ll-method {color:var(--method-c);}
+.ll-inherit{color:var(--inherit-c);}
+.ll-poly   {color:var(--poly-c);}
+.ll-info   {color:var(--dim);}
+.ll-ok     {color:#5ae0a0;}
+.ll-err    {color:#f87171;}
+
+/* ── OOP DIAGRAM COMMONS ── */
+.oop-box{
+  background:var(--card2);border:1px solid;border-radius:10px;
+  overflow:hidden;transition:all 0.3s;
+}
+.oop-box-head{
+  padding:0.5rem 0.9rem;border-bottom:1px solid;
+  font-family:'Fira Code',monospace;font-size:0.65rem;
+  letter-spacing:0.08em;font-weight:600;
+}
+.oop-box-body{padding:0.6rem 0.9rem;}
+.oop-row{
+  font-family:'Fira Code',monospace;font-size:0.68rem;
+  padding:0.22rem 0;color:var(--dim);
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.oop-row:last-child{border-bottom:none;}
+.oop-row .vis{font-size:0.7rem;flex-shrink:0;}
+
+/* ── INHERITANCE TREE ── */
+.inh-tree{display:flex;flex-direction:column;align-items:center;gap:0;padding:1.5rem;}
+.inh-node{
+  background:var(--card2);border:1px solid;border-radius:8px;
+  padding:0.6rem 1.2rem;text-align:center;
+  font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:600;
+  transition:all 0.3s;min-width:160px;
+  cursor:pointer;
+}
+.inh-connector{
+  width:2px;height:28px;margin:0 auto;
+  background:var(--border2);transition:all 0.4s;
+}
+.inh-connector.lit{background:var(--inherit-c);box-shadow:0 0 8px var(--inherit-c);}
+.inh-siblings{display:flex;gap:2rem;justify-content:center;}
+.inh-sibling-wrap{display:flex;flex-direction:column;align-items:center;}
+
+/* ── SCROLL PROGRESS ── */
+.scroll-prog{
+  position:fixed;top:0;left:0;right:0;height:3px;
+  background:var(--border);z-index:100;
+}
+.scroll-prog-fill{height:100%;background:linear-gradient(90deg,var(--class-c),var(--inherit-c));transition:width 0.1s;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:780px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes glow{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px currentColor}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+
+.pulsing{animation:pulse 1.2s infinite;}
+.glowing{animation:glow 1.5s infinite;}
+
+/* ── MOOSE ATTRIBUTE VIZ ── */
+.attr-row{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.55rem 0.8rem;
+  background:var(--card2);border:1px solid var(--border2);border-radius:6px;
+  margin-bottom:0.5rem;font-family:'Fira Code',monospace;font-size:0.7rem;
+  transition:all 0.3s;cursor:pointer;
+}
+.attr-row:hover{border-color:var(--moose-c);background:rgba(167,139,250,0.05);}
+.attr-type{padding:0.15rem 0.5rem;border-radius:3px;border:1px solid;font-size:0.6rem;}
+
+/* ── ROLE VIZ ── */
+.role-badge{
+  padding:0.4rem 0.9rem;border-radius:20px;
+  font-family:'Fira Code',monospace;font-size:0.65rem;
+  border:1px solid var(--role-c);color:var(--role-c);
+  background:rgba(56,232,216,0.08);display:inline-block;
+  cursor:pointer;transition:all 0.2s;margin:0.25rem;
+}
+.role-badge:hover,.role-badge.active{background:rgba(56,232,216,0.15);box-shadow:0 0 12px rgba(56,232,216,0.2);}
+
+/* ── DISPATCH TABLE ── */
+.dispatch-row{
+  display:flex;align-items:center;padding:0.5rem 0.8rem;
+  gap:1rem;font-family:'Fira Code',monospace;font-size:0.7rem;
+  border-bottom:1px solid var(--border);transition:all 0.3s;
+}
+.dispatch-row:hover{background:rgba(255,255,255,0.02);}
+.dispatch-row.active-dispatch{background:rgba(249,112,102,0.07);border-left:2px solid var(--poly-c);}
+.dispatch-arrow{flex:1;height:2px;background:var(--border2);position:relative;}
+.dispatch-arrow::after{
+  content:'►';position:absolute;right:-6px;top:50%;transform:translateY(-50%);
+  font-size:0.5rem;color:var(--border2);
+}
+.dispatch-row.active-dispatch .dispatch-arrow{background:var(--poly-c);}
+.dispatch-row.active-dispatch .dispatch-arrow::after{color:var(--poly-c);}
+
+/* ── OVERLOAD DEMO ── */
+.overload-demo{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+}
+
+/* ── META VIZ ── */
+.meta-pill{
+  padding:0.35rem 0.8rem;border-radius:5px;
+  font-family:'Fira Code',monospace;font-size:0.65rem;
+  border:1px solid var(--border2);color:var(--dim);
+  transition:all 0.3s;cursor:pointer;background:var(--card2);
+  display:inline-block;margin:0.2rem;
+}
+.meta-pill:hover,.meta-pill.active-meta{
+  color:#fff;border-color:var(--moose-c);
+  background:rgba(167,139,250,0.1);
+}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ── SECTION DIVIDERS ── */
+.section-divider{
+  display:flex;align-items:center;gap:1rem;
+  margin:1rem 0;
+}
+.div-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
+.div-label{
+  font-family:'Fira Code',monospace;font-size:0.6rem;
+  letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;white-space:nowrap;
+}
+
+/* grid helper */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+
+/* Output box */
+.out-box{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;padding:0.8rem 1rem;
+  font-family:'Fira Code',monospace;font-size:0.72rem;
+  line-height:1.8;color:var(--dim);min-height:60px;
+  transition:all 0.3s;
+}
+.out-box .out-line{display:block;animation:logIn 0.2s ease;}
+</style>
+</head>
+<body>
+<div class="scroll-prog"><div class="scroll-prog-fill" id="spfill"></div></div>
+
+<div class="page">
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">// Perl OOP — Complete Visual Guide</div>
+  <h1>Object-Oriented Perl</h1>
+  <p class="hero-sub">package · bless · inheritance · polymorphism · encapsulation · Moose · roles · metaprogramming</p>
+  <div class="level-pills">
+    <div class="lpill lpill-basic active">Basic</div>
+    <div class="lpill lpill-inter">Intermediate</div>
+    <div class="lpill lpill-adv">Advanced</div>
+    <div class="lpill lpill-deep">Deep / Expert</div>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-section">
+      <div class="sb-section-label">Basic</div>
+      <a class="sb-link active" onclick="scrollToSection('s1')"><span class="sb-dot"></span>What is OOP?</a>
+      <a class="sb-link" onclick="scrollToSection('s2')"><span class="sb-dot"></span>package & namespace</a>
+      <a class="sb-link" onclick="scrollToSection('s3')"><span class="sb-dot"></span>bless — Creating Objects</a>
+      <a class="sb-link" onclick="scrollToSection('s4')"><span class="sb-dot"></span>Constructor Pattern</a>
+      <a class="sb-link" onclick="scrollToSection('s5')"><span class="sb-dot"></span>Methods & $self</a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-label">Intermediate</div>
+      <a class="sb-link" onclick="scrollToSection('s6')"><span class="sb-dot"></span>Getters & Setters</a>
+      <a class="sb-link" onclick="scrollToSection('s7')"><span class="sb-dot"></span>Inheritance (@ISA)</a>
+      <a class="sb-link" onclick="scrollToSection('s8')"><span class="sb-dot"></span>Method Resolution</a>
+      <a class="sb-link" onclick="scrollToSection('s9')"><span class="sb-dot"></span>SUPER:: calls</a>
+      <a class="sb-link" onclick="scrollToSection('s10')"><span class="sb-dot"></span>Encapsulation</a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-label">Advanced</div>
+      <a class="sb-link" onclick="scrollToSection('s11')"><span class="sb-dot"></span>Polymorphism</a>
+      <a class="sb-link" onclick="scrollToSection('s12')"><span class="sb-dot"></span>Operator Overloading</a>
+      <a class="sb-link" onclick="scrollToSection('s13')"><span class="sb-dot"></span>DESTROY & Cleanup</a>
+      <a class="sb-link" onclick="scrollToSection('s14')"><span class="sb-dot"></span>Moose Framework</a>
+      <a class="sb-link" onclick="scrollToSection('s15')"><span class="sb-dot"></span>Moose Attributes</a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-label">Expert / Deep</div>
+      <a class="sb-link" onclick="scrollToSection('s16')"><span class="sb-dot"></span>Roles (Moo/Moose)</a>
+      <a class="sb-link" onclick="scrollToSection('s17')"><span class="sb-dot"></span>Method Modifiers</a>
+      <a class="sb-link" onclick="scrollToSection('s18')"><span class="sb-dot"></span>Metaprogramming</a>
+      <a class="sb-link" onclick="scrollToSection('s19')"><span class="sb-dot"></span>AUTOLOAD & Dispatch</a>
+      <a class="sb-link" onclick="scrollToSection('s20')"><span class="sb-dot"></span>Design Patterns</a>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+<!-- ════════════════════════════════════════
+  S1: WHAT IS OOP?
+════════════════════════════════════════ -->
+<div class="section-card" id="s1">
+  <div class="section-header">
+    <div class="section-icon">🧩</div>
+    <div class="section-meta">
+      <div class="section-level lvl-basic">Basic — Concept</div>
+      <div class="section-title">What is Object-Oriented Programming?</div>
+      <div class="section-desc"># The core idea: bundle data + behavior together into reusable objects</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem">
+      <div class="grid2" id="oop-pillars">
+        <div class="oop-pillar-card" id="pillar-class" onclick="showPillar('class')" style="background:var(--card2);border:1px solid rgba(226,185,106,0.3);border-radius:10px;padding:1.1rem;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem">📦</div>
+          <div style="font-family:'Oxanium',sans-serif;font-weight:700;color:var(--class-c);margin-bottom:0.3rem">Class</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim)">The blueprint — defines what data and methods an object has</div>
+        </div>
+        <div class="oop-pillar-card" id="pillar-obj" onclick="showPillar('obj')" style="background:var(--card2);border:1px solid rgba(93,184,245,0.3);border-radius:10px;padding:1.1rem;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem">🔵</div>
+          <div style="font-family:'Oxanium',sans-serif;font-weight:700;color:var(--obj-c);margin-bottom:0.3rem">Object / Instance</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim)">A real thing created from a class — has its own data values</div>
+        </div>
+        <div class="oop-pillar-card" id="pillar-method" onclick="showPillar('method')" style="background:var(--card2);border:1px solid rgba(126,232,162,0.3);border-radius:10px;padding:1.1rem;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem">⚙️</div>
+          <div style="font-family:'Oxanium',sans-serif;font-weight:700;color:var(--method-c);margin-bottom:0.3rem">Method</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim)">A function belonging to a class — always receives $self as first arg</div>
+        </div>
+        <div class="oop-pillar-card" id="pillar-inherit" onclick="showPillar('inherit')" style="background:var(--card2);border:1px solid rgba(217,124,245,0.3);border-radius:10px;padding:1.1rem;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem">🧬</div>
+          <div style="font-family:'Oxanium',sans-serif;font-weight:700;color:var(--inherit-c);margin-bottom:0.3rem">Inheritance</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim)">A child class extends a parent, gaining all its methods</div>
+        </div>
+      </div>
+      <div id="pillar-explain" style="margin-top:1rem;padding:1rem;background:rgba(0,0,0,0.3);border-radius:8px;font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--dim);min-height:50px;transition:all 0.3s;">
+        ← Click any pillar to understand the concept
+      </div>
+    </div>
+
+    <p style="margin-bottom:0.75rem;font-size:0.88rem;color:var(--text)">Perl implements OOP using three foundational mechanisms — no special <code style="font-family:'Fira Code',monospace;font-size:0.8rem;background:rgba(0,0,0,0.4);padding:0.1rem 0.35rem;border-radius:3px;color:var(--class-c)">class</code> keyword needed:</p>
+
+    <table class="ctable">
+      <tr><th>Perl Mechanism</th><th>OOP Concept</th><th>What it means</th></tr>
+      <tr><td><code>package Foo</code></td><td>Class definition</td><td>Creates a namespace for your class's methods and data</td></tr>
+      <tr><td><code>bless $ref, 'Foo'</code></td><td>Object creation</td><td>Tags a hash/array ref with a class name → makes it an object</td></tr>
+      <tr><td><code>sub method { my $self = shift }</code></td><td>Method</td><td>Any sub in a package; first argument is always the object</td></tr>
+      <tr><td><code>@ISA = ('Parent')</code></td><td>Inheritance</td><td>Tells Perl where to look for methods not found in this class</td></tr>
+    </table>
+
+    <div class="callout callout-info">
+      <strong>💡 Perl's Philosophy</strong>
+      In Perl, OOP is built on top of normal hashes, refs, and subroutines. There is no magic — a Perl object is literally just a hash reference that has been <code>bless</code>ed with a class name. This gives you total control.
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S2: PACKAGE & NAMESPACE
+════════════════════════════════════════ -->
+<div class="section-card" id="s2">
+  <div class="section-header">
+    <div class="section-icon">📂</div>
+    <div class="section-meta">
+      <div class="section-level lvl-basic">Basic</div>
+      <div class="section-title">package — The Class Namespace</div>
+      <div class="section-desc"># package declares a new namespace. Every sub defined after it belongs to that namespace.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="pkg-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem;letter-spacing:0.1em">NAMESPACE MAP — click a package to explore</div>
+      <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap">
+        <div class="oop-box" style="border-color:rgba(226,185,106,0.4);min-width:180px;cursor:pointer" id="pkg-main" onclick="selectPkg('main')">
+          <div class="oop-box-head" style="color:var(--class-c);border-color:rgba(226,185,106,0.2);background:rgba(226,185,106,0.05)">package main</div>
+          <div class="oop-box-body">
+            <div class="oop-row"><span class="vis">▸</span>$name (scalar)</div>
+            <div class="oop-row"><span class="vis">▸</span>@args (array)</div>
+            <div class="oop-row"><span class="vis">▸</span>sub greet {}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim);justify-content:center;align-self:center">
+          <div>── namespace ──►</div>
+          <div>── namespace ──►</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div class="oop-box" style="border-color:rgba(93,184,245,0.4);min-width:180px;cursor:pointer" id="pkg-animal" onclick="selectPkg('animal')">
+            <div class="oop-box-head" style="color:var(--obj-c);border-color:rgba(93,184,245,0.2);background:rgba(93,184,245,0.05)">package Animal</div>
+            <div class="oop-box-body">
+              <div class="oop-row"><span class="vis">▸</span>sub new {}</div>
+              <div class="oop-row"><span class="vis">▸</span>sub speak {}</div>
+              <div class="oop-row"><span class="vis">▸</span>sub name {}</div>
+            </div>
+          </div>
+          <div class="oop-box" style="border-color:rgba(126,232,162,0.4);min-width:180px;cursor:pointer" id="pkg-dog" onclick="selectPkg('dog')">
+            <div class="oop-box-head" style="color:var(--method-c);border-color:rgba(126,232,162,0.2);background:rgba(126,232,162,0.05)">package Dog</div>
+            <div class="oop-box-body">
+              <div class="oop-row"><span class="vis">▸</span>our @ISA = ('Animal')</div>
+              <div class="oop-row"><span class="vis">▸</span>sub speak {}</div>
+              <div class="oop-row"><span class="vis">▸</span>sub fetch {}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="pkg-explain" style="margin-top:1rem;padding:0.75rem 1rem;background:rgba(0,0,0,0.3);border-radius:7px;font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim);min-height:36px">
+        Click a package above to see what it contains
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — package basics</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">#!/usr/bin/perl</span>
+<span class="kw">use strict</span>; <span class="kw">use warnings</span>;
+
+<span class="cmt"># Define the Animal class (package = class in Perl)</span>
+<span class="kw">package</span> <span class="pkg">Animal</span>;
+
+<span class="cmt"># All subs defined here belong to Animal:: namespace</span>
+<span class="kw">sub</span> <span class="fn">new</span>   { ... }
+<span class="kw">sub</span> <span class="fn">speak</span> { ... }
+<span class="kw">sub</span> <span class="fn">name</span>  { ... }
+
+<span class="cmt"># Switch back to main namespace</span>
+<span class="kw">package</span> <span class="pkg">main</span>;
+
+<span class="cmt"># Fully qualified name: Package::method</span>
+<span class="fn">Animal::speak</span>(<span class="var">$animal</span>);   <span class="cmt"># same as $animal->speak()</span>
+
+<span class="cmt"># Better: use separate files</span>
+<span class="cmt"># Animal.pm → package Animal; ... 1;</span>
+<span class="cmt"># Dog.pm    → package Dog;    ... 1;</span>
+<span class="kw">use</span> <span class="mod">Animal</span>;   <span class="cmt"># loads Animal.pm</span></pre>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>⚠️ Convention</strong>
+      Package names should match their filename: <code>package Animal</code> lives in <code>Animal.pm</code>, <code>package My::App::User</code> lives in <code>My/App/User.pm</code>. Always end a .pm file with <code>1;</code> (a true value) or Perl won't load it.
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S3: BLESS — CREATING OBJECTS
+════════════════════════════════════════ -->
+<div class="section-card" id="s3">
+  <div class="section-header">
+    <div class="section-icon">✨</div>
+    <div class="section-meta">
+      <div class="section-level lvl-basic">Basic</div>
+      <div class="section-title">bless — Turning a Reference into an Object</div>
+      <div class="section-desc"># bless($ref, $class) tags a reference with a class name. That's literally all it does.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem;min-height:280px" id="bless-canvas">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">BLESS ANIMATION — watch a hash ref become an object</div>
+      <div style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap">
+
+        <div style="text-align:center">
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem">BEFORE bless()</div>
+          <div id="bless-before" style="background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:1rem;min-width:170px;transition:all 0.4s">
+            <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:0.4rem">plain HASH ref</div>
+            <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);line-height:1.8">
+              { name => "Rex",<br>&nbsp; age  => 3,<br>&nbsp; breed => "Lab" }
+            </div>
+            <div style="margin-top:0.5rem;font-family:'Fira Code',monospace;font-size:0.6rem;color:#3d5070">ref($obj) = "HASH"</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;flex:1">
+          <div id="bless-arrow" style="font-family:'Fira Code',monospace;font-size:0.8rem;color:var(--border2);transition:all 0.4s;text-align:center">
+            ──────────────►
+          </div>
+          <div id="bless-code-inline" style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--class-c);text-align:center;margin-top:0.3rem;opacity:0.4;transition:all 0.4s">
+            bless($ref, 'Dog')
+          </div>
+        </div>
+
+        <div style="text-align:center">
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem">AFTER bless()</div>
+          <div id="bless-after" style="background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:1rem;min-width:170px;transition:all 0.4s;opacity:0.3">
+            <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:0.4rem" id="bless-after-tag">blessed Dog object</div>
+            <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);line-height:1.8">
+              { name => "Rex",<br>&nbsp; age  => 3,<br>&nbsp; breed => "Lab" }
+            </div>
+            <div style="margin-top:0.5rem;font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--class-c)" id="bless-after-ref">ref($obj) = "Dog" ✓</div>
+          </div>
+        </div>
+
+      </div>
+      <div id="bless-note" style="margin-top:1rem;font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--muted);text-align:center">
+        Click ▶ Animate to see bless() in action
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — bless in detail</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;
+
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">%args</span>) = <span class="var">@_</span>;   <span class="cmt"># $class = "Dog"</span>
+
+    <span class="cmt"># 1. Create a plain hash ref with data</span>
+    <span class="kw">my</span> <span class="var">$self</span> = {
+        name  => <span class="var">$args</span>{name},
+        age   => <span class="var">$args</span>{age},
+        breed => <span class="var">$args</span>{breed} // <span class="str">'Unknown'</span>,
+    };
+
+    <span class="cmt"># 2. bless tags $self with the class name</span>
+    <span class="cmt">#    Now $self->method() works!</span>
+    <span class="kw">return</span> <span class="fn">bless</span> <span class="var">$self</span>, <span class="var">$class</span>;
+    <span class="cmt"># NOTE: use $class not 'Dog' — supports inheritance!</span>
+}
+
+<span class="kw">package</span> <span class="pkg">main</span>;
+<span class="kw">my</span> <span class="var">$rex</span> = <span class="pkg">Dog</span>-><span class="fn">new</span>(name => <span class="str">'Rex'</span>, age => <span class="num">3</span>);
+<span class="kw">print</span> <span class="fn">ref</span>(<span class="var">$rex</span>);  <span class="cmt"># "Dog"</span>
+<span class="kw">print</span> <span class="var">$rex</span>->{name}; <span class="cmt"># "Rex"  (raw hash access)</span></pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="animateBless()">▶ Animate bless()</button>
+      <button class="btn btn-rst" onclick="resetBless()">↺ Reset</button>
+      <div class="status-bar" id="bless-status">Click ▶ to watch a hash become a Dog object</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S4: CONSTRUCTOR
+════════════════════════════════════════ -->
+<div class="section-card" id="s4">
+  <div class="section-header">
+    <div class="section-icon">🏗️</div>
+    <div class="section-meta">
+      <div class="section-level lvl-basic">Basic</div>
+      <div class="section-title">Constructor Pattern — new()</div>
+      <div class="section-desc"># new() is just a convention. It's a regular sub that returns a blessed ref.</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="viz-canvas" style="padding:1.5rem" id="constructor-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">OBJECT FACTORY — each call to new() creates an independent instance</div>
+      <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap" id="obj-factory">
+        <div style="text-align:center">
+          <div style="background:rgba(226,185,106,0.08);border:1px solid rgba(226,185,106,0.3);border-radius:8px;padding:0.8rem 1.2rem">
+            <div style="font-family:'Fira Code',monospace;font-size:0.8rem;color:var(--class-c);font-weight:700">Dog</div>
+            <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-top:0.3rem">CLASS (blueprint)</div>
+          </div>
+        </div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim)">──new()──►</div>
+        <div id="obj-instances" style="display:flex;gap:0.75rem;flex-wrap:wrap"></div>
+      </div>
+      <div id="factory-log" style="margin-top:1rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);min-height:24px"></div>
+    </div>
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — robust constructor with defaults + validation</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use strict</span>; <span class="kw">use warnings</span>;
+<span class="kw">use</span> <span class="mod">Carp</span> <span class="str">qw(croak)</span>;   <span class="cmt"># better error reporting</span>
+
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">%args</span>) = <span class="var">@_</span>;
+
+    <span class="cmt"># Validation</span>
+    <span class="fn">croak</span> <span class="str">"name is required"</span> <span class="kw">unless</span> <span class="var">$args</span>{name};
+    <span class="fn">croak</span> <span class="str">"age must be positive"</span>
+        <span class="kw">if</span> <span class="kw">defined</span> <span class="var">$args</span>{age} && <span class="var">$args</span>{age} < <span class="num">0</span>;
+
+    <span class="kw">my</span> <span class="var">$self</span> = {
+        name    => <span class="var">$args</span>{name},
+        age     => <span class="var">$args</span>{age}   // <span class="num">0</span>,
+        breed   => <span class="var">$args</span>{breed} // <span class="str">'Mixed'</span>,
+        _tricks => [],            <span class="cmt"># private: prefix with _</span>
+    };
+
+    <span class="kw">return</span> <span class="fn">bless</span> <span class="var">$self</span>, <span class="var">$class</span>;
+}
+
+<span class="kw">package</span> <span class="pkg">main</span>;
+<span class="kw">my</span> <span class="var">$rex</span>  = <span class="pkg">Dog</span>-><span class="fn">new</span>(name=><span class="str">'Rex'</span>,  age=><span class="num">3</span>);
+<span class="kw">my</span> <span class="var">$luna</span> = <span class="pkg">Dog</span>-><span class="fn">new</span>(name=><span class="str">'Luna'</span>, age=><span class="num">5</span>, breed=><span class="str">'Husky'</span>);
+<span class="cmt"># Each $rex and $luna are INDEPENDENT objects</span>
+<span class="cmt"># with their own copies of the data hash</span></pre>
+    </div>
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="addInstance()">+ Create Instance</button>
+      <button class="btn btn-rst" onclick="clearInstances()">↺ Clear</button>
+      <div class="status-bar" id="constructor-status">Click + Create Instance to see objects being created</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S5: METHODS & $SELF
+════════════════════════════════════════ -->
+<div class="section-card" id="s5">
+  <div class="section-header">
+    <div class="section-icon">⚙️</div>
+    <div class="section-meta">
+      <div class="section-level lvl-basic">Basic</div>
+      <div class="section-title">Methods & $self — How Objects Talk</div>
+      <div class="section-desc"># $obj->method() passes $obj as the first argument. By convention: my $self = shift;</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="method-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">METHOD CALL CHAIN — click a method to trace the call</div>
+      <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap">
+
+        <div style="background:rgba(93,184,245,0.06);border:1px solid rgba(93,184,245,0.3);border-radius:10px;padding:1rem;min-width:160px">
+          <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--obj-c);margin-bottom:0.5rem;font-weight:700">$rex (Dog object)</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.67rem;color:var(--dim);line-height:1.8">
+            name => "Rex"<br>age  => 3<br>breed => "Lab"<br>_tricks => [...]
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.5rem;flex:1;min-width:200px">
+          <div class="dispatch-row" id="m-speak" onclick="traceMethod('speak')" style="cursor:pointer">
+            <span style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.7rem">$rex-></span>
+            <span style="color:var(--method-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:600">speak()</span>
+            <div class="dispatch-arrow"></div>
+            <span style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.68rem">Dog::speak($rex)</span>
+          </div>
+          <div class="dispatch-row" id="m-name" onclick="traceMethod('name')" style="cursor:pointer">
+            <span style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.7rem">$rex-></span>
+            <span style="color:var(--method-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:600">name()</span>
+            <div class="dispatch-arrow"></div>
+            <span style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.68rem">Dog::name($rex)</span>
+          </div>
+          <div class="dispatch-row" id="m-learn" onclick="traceMethod('learn')" style="cursor:pointer">
+            <span style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.7rem">$rex-></span>
+            <span style="color:var(--method-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:600">learn_trick('sit')</span>
+            <div class="dispatch-arrow"></div>
+            <span style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.68rem">Dog::learn_trick($rex,'sit')</span>
+          </div>
+          <div class="dispatch-row" id="m-tricks" onclick="traceMethod('tricks')" style="cursor:pointer">
+            <span style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.7rem">$rex-></span>
+            <span style="color:var(--method-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:600">show_tricks()</span>
+            <div class="dispatch-arrow"></div>
+            <span style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.68rem">Dog::show_tricks($rex)</span>
+          </div>
+        </div>
+
+        <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border2);border-radius:8px;padding:0.75rem;min-width:140px">
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.4rem">OUTPUT</div>
+          <div id="method-output" style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--method-c);min-height:80px;line-height:1.8"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — methods with $self</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;
+
+<span class="cmt"># Accessor (getter/setter combined)</span>
+<span class="kw">sub</span> <span class="fn">name</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="cmt"># If argument given: set. Otherwise: get.</span>
+    <span class="var">$self</span>->{name} = <span class="kw">shift</span> <span class="kw">if</span> <span class="var">@_</span>;
+    <span class="kw">return</span> <span class="var">$self</span>->{name};
+}
+
+<span class="kw">sub</span> <span class="fn">speak</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">printf</span> <span class="str">"%s says: Woof!\n"</span>, <span class="var">$self</span>-><span class="fn">name</span>();
+}
+
+<span class="kw">sub</span> <span class="fn">learn_trick</span> {
+    <span class="kw">my</span> (<span class="var">$self</span>, <span class="var">$trick</span>) = <span class="var">@_</span>;
+    <span class="kw">push</span> @{<span class="var">$self</span>->{_tricks}}, <span class="var">$trick</span>;
+    <span class="kw">print</span> <span class="var">$self</span>-><span class="fn">name</span>() . <span class="str">" learned: $trick\n"</span>;
+}
+
+<span class="kw">sub</span> <span class="fn">show_tricks</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">my</span> <span class="var">@t</span> = @{<span class="var">$self</span>->{_tricks}};
+    <span class="kw">print</span> <span class="var">$self</span>-><span class="fn">name</span>() . <span class="str">"'s tricks: "</span> . <span class="fn">join</span>(<span class="str">', '</span>, <span class="var">@t</span>) . <span class="str">"\n"</span>;
+}
+
+<span class="cmt"># Key rule: $obj->method() == Package::method($obj)</span>
+<span class="cmt"># $self is just the first @_ argument — not special syntax</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S6: GETTERS & SETTERS
+════════════════════════════════════════ -->
+<div class="section-card" id="s6">
+  <div class="section-header">
+    <div class="section-icon">🔧</div>
+    <div class="section-meta">
+      <div class="section-level lvl-inter">Intermediate</div>
+      <div class="section-title">Getters, Setters & Accessors</div>
+      <div class="section-desc"># Control how attributes are read and written. Generate them automatically with AUTOLOAD or closures.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="accessor-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">ACCESSOR PATTERNS — click to try each style</div>
+      <div class="grid3" id="accessor-patterns">
+        <div onclick="showAccessor('combined')" style="background:var(--card2);border:1px solid rgba(226,185,106,0.3);border-radius:8px;padding:0.9rem;cursor:pointer;transition:all 0.2s" id="acc-combined">
+          <div style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.7rem;font-weight:700;margin-bottom:0.3rem">Combined</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--dim)">get + set in one sub</div>
+        </div>
+        <div onclick="showAccessor('separate')" style="background:var(--card2);border:1px solid rgba(93,184,245,0.3);border-radius:8px;padding:0.9rem;cursor:pointer;transition:all 0.2s" id="acc-separate">
+          <div style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.7rem;font-weight:700;margin-bottom:0.3rem">Separate</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--dim)">get_name / set_name</div>
+        </div>
+        <div onclick="showAccessor('closure')" style="background:var(--card2);border:1px solid rgba(126,232,162,0.3);border-radius:8px;padding:0.9rem;cursor:pointer;transition:all 0.2s" id="acc-closure">
+          <div style="color:var(--method-c);font-family:'Fira Code',monospace;font-size:0.7rem;font-weight:700;margin-bottom:0.3rem">Auto-generate</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--dim)">closure factory</div>
+        </div>
+      </div>
+      <div id="accessor-code" style="margin-top:1rem;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:7px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.7rem;color:#a0c8e8;min-height:80px;line-height:1.8">
+        Click a pattern above to see the code
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — accessor generation with closure factory</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;
+
+<span class="cmt"># Method 1: Combined getter/setter (Perl idiom)</span>
+<span class="kw">sub</span> <span class="fn">name</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="var">$self</span>->{name} = <span class="kw">shift</span> <span class="kw">if</span> <span class="var">@_</span>;
+    <span class="kw">return</span> <span class="var">$self</span>->{name};
+}
+
+<span class="cmt"># Method 2: Auto-generate accessors via closure factory</span>
+<span class="kw">for my</span> <span class="var">$attr</span> (<span class="str">qw(name age breed)</span>) {
+    <span class="kw">no strict</span> <span class="str">'refs'</span>;   <span class="cmt"># allow dynamic sub creation</span>
+    *{"<span class="pkg">Dog</span>::<span class="var">$attr</span>"} = <span class="kw">sub</span> {
+        <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+        <span class="var">$self</span>->{<span class="var">$attr</span>} = <span class="kw">shift</span> <span class="kw">if</span> <span class="var">@_</span>;
+        <span class="kw">return</span> <span class="var">$self</span>->{<span class="var">$attr</span>};
+    };
+}
+
+<span class="cmt"># Now Dog::name, Dog::age, Dog::breed all work!</span>
+<span class="kw">my</span> <span class="var">$dog</span> = <span class="pkg">Dog</span>-><span class="fn">new</span>(name=><span class="str">'Rex'</span>);
+<span class="kw">print</span> <span class="var">$dog</span>-><span class="fn">name</span>();          <span class="cmt"># getter: "Rex"</span>
+<span class="var">$dog</span>-><span class="fn">name</span>(<span class="str">'Rufus'</span>);         <span class="cmt"># setter</span>
+<span class="kw">print</span> <span class="var">$dog</span>-><span class="fn">age</span>(<span class="num">4</span>)-><span class="fn">breed</span>(); <span class="cmt"># chaining!</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S7: INHERITANCE
+════════════════════════════════════════ -->
+<div class="section-card" id="s7">
+  <div class="section-header">
+    <div class="section-icon">🧬</div>
+    <div class="section-meta">
+      <div class="section-level lvl-inter">Intermediate</div>
+      <div class="section-title">Inheritance — @ISA & parent classes</div>
+      <div class="section-desc"># @ISA lists parent classes. Perl searches them in order when a method isn't found in the current class.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem;min-height:360px" id="inherit-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">INHERITANCE HIERARCHY — click nodes to explore, ▶ to animate method lookup</div>
+      <div class="inh-tree">
+        <div class="inh-node" style="border-color:rgba(226,185,106,0.5);color:var(--class-c);background:rgba(226,185,106,0.05)" id="inh-animal" onclick="highlightInherit('animal')">
+          Animal<br><span style="font-size:0.6rem;opacity:0.6">speak() · name() · eat()</span>
+        </div>
+        <div class="inh-connector" id="inh-conn-1"></div>
+        <div class="inh-siblings">
+          <div class="inh-sibling-wrap">
+            <div class="inh-node" style="border-color:rgba(93,184,245,0.5);color:var(--obj-c);background:rgba(93,184,245,0.05)" id="inh-dog" onclick="highlightInherit('dog')">
+              Dog<br><span style="font-size:0.6rem;opacity:0.6">fetch() · bark()</span>
+            </div>
+            <div class="inh-connector" id="inh-conn-2"></div>
+            <div class="inh-node" style="border-color:rgba(126,232,162,0.5);color:var(--method-c);background:rgba(126,232,162,0.05);font-size:0.7rem" id="inh-poodle" onclick="highlightInherit('poodle')">
+              Poodle<br><span style="font-size:0.58rem;opacity:0.6">groom()</span>
+            </div>
+          </div>
+          <div class="inh-sibling-wrap">
+            <div class="inh-node" style="border-color:rgba(249,112,102,0.5);color:var(--poly-c);background:rgba(249,112,102,0.05)" id="inh-cat" onclick="highlightInherit('cat')">
+              Cat<br><span style="font-size:0.6rem;opacity:0.6">purr() · scratch()</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="inherit-explain" style="margin-top:1rem;padding:0.75rem 1rem;background:rgba(0,0,0,0.3);border-radius:7px;font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim);min-height:36px">
+        Click a class node to see its @ISA chain and inherited methods
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — inheritance with 'use parent' (modern)</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Animal</span>;
+<span class="kw">use strict</span>; <span class="kw">use warnings</span>;
+
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">%args</span>) = <span class="var">@_</span>;
+    <span class="kw">return</span> <span class="fn">bless</span> { name => <span class="var">$args</span>{name} }, <span class="var">$class</span>;
+}
+<span class="kw">sub</span> <span class="fn">name</span>  { <span class="kw">return</span> <span class="var">$_</span>[<span class="num">0</span>]->{name} }
+<span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]-><span class="fn">name</span>() . <span class="str">" says something\n"</span> }
+<span class="kw">sub</span> <span class="fn">eat</span>   { <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]-><span class="fn">name</span>() . <span class="str">" is eating\n"</span> }
+
+<span class="cmt"># ─── Dog inherits from Animal ───</span>
+<span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use parent</span> <span class="str">'-norequire'</span>, <span class="str">'Animal'</span>;  <span class="cmt"># sets @ISA = ('Animal')</span>
+
+<span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]-><span class="fn">name</span>() . <span class="str">" says: Woof!\n"</span> }  <span class="cmt"># override</span>
+<span class="kw">sub</span> <span class="fn">fetch</span> { <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]-><span class="fn">name</span>() . <span class="str">" fetches the ball!\n"</span> }
+
+<span class="cmt"># ─── Poodle inherits from Dog (multi-level) ───</span>
+<span class="kw">package</span> <span class="pkg">Poodle</span>;
+<span class="kw">use parent</span> <span class="str">'-norequire'</span>, <span class="str">'Dog'</span>;
+
+<span class="kw">sub</span> <span class="fn">groom</span> { <span class="kw">print</span> <span class="str">"Getting a fancy haircut!\n"</span> }
+
+<span class="kw">package</span> <span class="pkg">main</span>;
+<span class="kw">my</span> <span class="var">$p</span> = <span class="pkg">Poodle</span>-><span class="fn">new</span>(name=><span class="str">'Coco'</span>);
+<span class="var">$p</span>-><span class="fn">speak</span>();  <span class="cmt"># Dog::speak (overridden from Animal)</span>
+<span class="var">$p</span>-><span class="fn">fetch</span>();  <span class="cmt"># Dog::fetch (inherited)</span>
+<span class="var">$p</span>-><span class="fn">eat</span>();    <span class="cmt"># Animal::eat (inherited from grandparent)</span>
+<span class="var">$p</span>-><span class="fn">groom</span>(); <span class="cmt"># Poodle::groom (own method)</span></pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="animateMRO()">▶ Animate Method Lookup</button>
+      <button class="btn btn-rst" onclick="resetMRO()">↺ Reset</button>
+      <div class="status-bar" id="inherit-status">Click ▶ to watch Poodle->eat() search through the hierarchy</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S8: METHOD RESOLUTION ORDER
+════════════════════════════════════════ -->
+<div class="section-card" id="s8">
+  <div class="section-header">
+    <div class="section-icon">🔍</div>
+    <div class="section-meta">
+      <div class="section-level lvl-inter">Intermediate</div>
+      <div class="section-title">Method Resolution Order (MRO)</div>
+      <div class="section-desc"># How Perl searches for a method: current class → @ISA parents → their @ISA → UNIVERSAL</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="mro-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">MRO SEARCH PATH — watch Perl find eat() for a Poodle instance</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem" id="mro-steps">
+        <div class="mro-step" id="mro-0" style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.9rem;background:var(--card2);border:1px solid var(--border2);border-radius:7px;opacity:0.35;transition:all 0.4s">
+          <span style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);width:28px">①</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--method-c)">Poodle</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim)">→ check for eat() ... not found</span>
+          <span id="mro-0-result" style="margin-left:auto;font-size:0.7rem"></span>
+        </div>
+        <div class="mro-step" id="mro-1" style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.9rem;background:var(--card2);border:1px solid var(--border2);border-radius:7px;opacity:0.35;transition:all 0.4s">
+          <span style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);width:28px">②</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--obj-c)">Dog</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim)">→ check for eat() ... not found</span>
+          <span id="mro-1-result" style="margin-left:auto;font-size:0.7rem"></span>
+        </div>
+        <div class="mro-step" id="mro-2" style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.9rem;background:var(--card2);border:1px solid var(--border2);border-radius:7px;opacity:0.35;transition:all 0.4s">
+          <span style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);width:28px">③</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--class-c)">Animal</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim)">→ check for eat() ... <strong style="color:var(--method-c)">FOUND! ✓</strong></span>
+          <span id="mro-2-result" style="margin-left:auto;font-size:0.7rem"></span>
+        </div>
+        <div class="mro-step" id="mro-3" style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.9rem;background:var(--card2);border:1px solid var(--border2);border-radius:7px;opacity:0.35;transition:all 0.4s">
+          <span style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);width:28px">④</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--dim)">UNIVERSAL</span>
+          <span style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim)">→ isa(), can(), DOES() — always last resort</span>
+          <span id="mro-3-result" style="margin-left:auto;font-size:0.7rem"></span>
+        </div>
+      </div>
+      <div id="mro-explain" style="margin-top:0.75rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);padding:0.6rem 0.8rem;background:rgba(0,0,0,0.3);border-radius:6px;min-height:32px">
+        Click ▶ to animate the MRO search
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — MRO: DFS (default) vs C3 linearization</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt"># Default: Depth-First Search (DFS) — left to right through @ISA</span>
+<span class="kw">package</span> <span class="pkg">Poodle</span>;
+<span class="kw">our</span> <span class="var">@ISA</span> = (<span class="str">'Dog'</span>);        <span class="cmt"># Dog → Animal → UNIVERSAL</span>
+
+<span class="cmt"># C3 linearization (modern, recommended for complex hierarchies)</span>
+<span class="kw">use</span> <span class="mod">mro</span> <span class="str">'c3'</span>;
+
+<span class="cmt"># Inspect the MRO at runtime:</span>
+<span class="kw">use</span> <span class="mod">mro</span>;
+<span class="kw">my</span> <span class="var">@order</span> = @{<span class="fn">mro::get_linear_isa</span>(<span class="str">'Poodle'</span>)};
+<span class="cmt"># => ('Poodle', 'Dog', 'Animal', 'UNIVERSAL')</span>
+
+<span class="cmt"># Check if object IS-A something:</span>
+<span class="kw">print</span> <span class="var">$p</span>-><span class="fn">isa</span>(<span class="str">'Animal'</span>);   <span class="cmt"># 1 (true)</span>
+<span class="kw">print</span> <span class="var">$p</span>-><span class="fn">can</span>(<span class="str">'fetch'</span>);   <span class="cmt"># code ref (method exists)</span>
+<span class="kw">print</span> <span class="var">$p</span>-><span class="fn">can</span>(<span class="str">'fly'</span>);     <span class="cmt"># undef (not a bird)</span></pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="animateMROSearch()">▶ Animate MRO</button>
+      <button class="btn btn-rst" onclick="resetMROSearch()">↺ Reset</button>
+      <div class="status-bar" id="mro-status">Click ▶ to watch Perl search for eat() through Poodle→Dog→Animal</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S9: SUPER:: CALLS
+════════════════════════════════════════ -->
+<div class="section-card" id="s9">
+  <div class="section-header">
+    <div class="section-icon">⬆️</div>
+    <div class="section-meta">
+      <div class="section-level lvl-inter">Intermediate</div>
+      <div class="section-title">SUPER:: — Calling Parent Methods</div>
+      <div class="section-desc"># Override a method in a child but still call the parent's version with SUPER::</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="super-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">SUPER:: CALL CHAIN — Dog::new() calls Animal::new() via SUPER</div>
+      <div style="display:flex;flex-direction:column;gap:0;position:relative">
+        <div id="super-dog-box" style="background:rgba(93,184,245,0.06);border:1px solid rgba(93,184,245,0.4);border-radius:8px;padding:1rem;transition:all 0.4s;margin-bottom:0.5rem">
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--obj-c);font-weight:700;margin-bottom:0.4rem">Dog::new($class, %args)</div>
+          <div id="super-dog-steps" style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim);line-height:2">
+            <span id="sd1" style="opacity:0.3">1. my ($class, %args) = @_;</span><br>
+            <span id="sd2" style="opacity:0.3">2. my $self = $class->SUPER::new(%args);  ← calls Animal::new</span><br>
+            <span id="sd3" style="opacity:0.3">3. $self->{breed} = $args{breed};</span><br>
+            <span id="sd4" style="opacity:0.3">4. return $self;</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;margin:0.3rem 0">
+          <div id="super-arrow" style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--border2);transition:all 0.4s">↕ SUPER::</div>
+        </div>
+        <div id="super-animal-box" style="background:rgba(226,185,106,0.04);border:1px solid rgba(226,185,106,0.3);border-radius:8px;padding:1rem;transition:all 0.4s;opacity:0.4">
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--class-c);font-weight:700;margin-bottom:0.4rem">Animal::new($class, %args)  ← invoked via SUPER</div>
+          <div id="super-animal-steps" style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim);line-height:2">
+            <span id="sa1" style="opacity:0.3">1. my $self = { name => $args{name}, age => $args{age} };</span><br>
+            <span id="sa2" style="opacity:0.3">2. return bless $self, $class;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — SUPER:: constructor chaining</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Animal</span>;
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">%args</span>) = <span class="var">@_</span>;
+    <span class="kw">return</span> <span class="fn">bless</span> {
+        name => <span class="var">$args</span>{name},
+        age  => <span class="var">$args</span>{age} // <span class="num">0</span>,
+    }, <span class="var">$class</span>;
+}
+<span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]->{name} . <span class="str">" speaks\n"</span> }
+
+<span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use parent</span> <span class="str">'-norequire'</span>, <span class="str">'Animal'</span>;
+
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">%args</span>) = <span class="var">@_</span>;
+    <span class="cmt"># 1. Call parent constructor to build base object</span>
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="var">$class</span>->SUPER::<span class="fn">new</span>(<span class="var">%args</span>);
+    <span class="cmt"># 2. Add Dog-specific attributes</span>
+    <span class="var">$self</span>->{breed}   = <span class="var">$args</span>{breed} // <span class="str">'Mixed'</span>;
+    <span class="var">$self</span>->{_tricks} = [];
+    <span class="kw">return</span> <span class="var">$self</span>;
+}
+
+<span class="kw">sub</span> <span class="fn">speak</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="cmt"># Call parent speak() AND add Dog behavior</span>
+    <span class="var">$self</span>->SUPER::<span class="fn">speak</span>(@_);   <span class="cmt"># "Rex speaks"</span>
+    <span class="kw">print</span> <span class="str">"...and barks!\n"</span>;     <span class="cmt"># additional</span>
+}</pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="animateSuper()">▶ Animate SUPER:: chain</button>
+      <button class="btn btn-rst" onclick="resetSuper()">↺ Reset</button>
+      <div class="status-bar" id="super-status">Click ▶ to watch Dog::new() call Animal::new() via SUPER</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S10: ENCAPSULATION
+════════════════════════════════════════ -->
+<div class="section-card" id="s10">
+  <div class="section-header">
+    <div class="section-icon">🔒</div>
+    <div class="section-meta">
+      <div class="section-level lvl-inter">Intermediate</div>
+      <div class="section-title">Encapsulation — Private Data & Methods</div>
+      <div class="section-desc"># Perl uses conventions and closures to enforce privacy. Prefix _ means "private by convention".</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="encap-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">ENCAPSULATION LAYERS — click to toggle visibility</div>
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.5rem;letter-spacing:0.08em">PUBLIC INTERFACE</div>
+          <div id="public-methods">
+            <div class="attr-row" style="border-color:rgba(126,232,162,0.3)">
+              <span style="color:var(--method-c)">🟢</span>
+              <span style="color:var(--method-c)">name()</span>
+              <span style="color:var(--dim);margin-left:auto">getter/setter</span>
+            </div>
+            <div class="attr-row" style="border-color:rgba(126,232,162,0.3)">
+              <span style="color:var(--method-c)">🟢</span>
+              <span style="color:var(--method-c)">speak()</span>
+              <span style="color:var(--dim);margin-left:auto">public method</span>
+            </div>
+            <div class="attr-row" style="border-color:rgba(126,232,162,0.3)">
+              <span style="color:var(--method-c)">🟢</span>
+              <span style="color:var(--method-c)">learn_trick()</span>
+              <span style="color:var(--dim);margin-left:auto">public method</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.5rem;letter-spacing:0.08em">PRIVATE (convention)</div>
+          <div id="private-methods">
+            <div class="attr-row" style="border-color:rgba(245,158,66,0.3)">
+              <span style="color:var(--encap-c)">🟡</span>
+              <span style="color:var(--encap-c)">_tricks</span>
+              <span style="color:var(--dim);margin-left:auto">_prefix = private</span>
+            </div>
+            <div class="attr-row" style="border-color:rgba(245,158,66,0.3)">
+              <span style="color:var(--encap-c)">🟡</span>
+              <span style="color:var(--encap-c)">_validate()</span>
+              <span style="color:var(--dim);margin-left:auto">internal helper</span>
+            </div>
+            <div class="attr-row" style="border-color:rgba(245,158,66,0.3)">
+              <span style="color:var(--encap-c)">🟡</span>
+              <span style="color:var(--encap-c)">__id</span>
+              <span style="color:var(--dim);margin-left:auto">__ = very private</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.5rem;letter-spacing:0.08em">TRULY PRIVATE (closure)</div>
+          <div id="closure-methods">
+            <div class="attr-row" style="border-color:rgba(249,112,102,0.3)">
+              <span style="color:var(--poly-c)">🔴</span>
+              <span style="color:var(--poly-c)">$secret_key</span>
+              <span style="color:var(--dim);margin-left:auto">lexical scope</span>
+            </div>
+            <div class="attr-row" style="border-color:rgba(249,112,102,0.3)">
+              <span style="color:var(--poly-c)">🔴</span>
+              <span style="color:var(--poly-c)">$counter</span>
+              <span style="color:var(--dim);margin-left:auto">closure variable</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — encapsulation: convention vs true closure privacy</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">BankAccount</span>;
+
+<span class="cmt"># Truly private via closure — NO external access possible</span>
+{
+    <span class="kw">my</span> <span class="var">%_balance</span>;  <span class="cmt"># lexical — invisible outside this block</span>
+    <span class="kw">my</span> <span class="var">$_next_id</span> = <span class="num">1</span>;
+
+    <span class="kw">sub</span> <span class="fn">new</span> {
+        <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">%args</span>) = <span class="var">@_</span>;
+        <span class="kw">my</span> <span class="var">$self</span> = <span class="fn">bless</span> {
+            id    => <span class="var">$_next_id</span>++,
+            owner => <span class="var">$args</span>{owner},
+        }, <span class="var">$class</span>;
+        <span class="cmt"># Store balance outside $self — unreachable via hash!</span>
+        <span class="var">%_balance</span>{<span class="var">$self</span>->{id}} = <span class="var">$args</span>{balance} // <span class="num">0</span>;
+        <span class="kw">return</span> <span class="var">$self</span>;
+    }
+
+    <span class="kw">sub</span> <span class="fn">balance</span>  { <span class="kw">return</span> <span class="var">$_balance</span>{<span class="var">$_</span>[<span class="num">0</span>]->{id}} }
+
+    <span class="kw">sub</span> <span class="fn">deposit</span>  {
+        <span class="kw">my</span> (<span class="var">$self</span>, <span class="var">$amt</span>) = <span class="var">@_</span>;
+        <span class="fn">die</span> <span class="str">"Amount must be positive"</span> <span class="kw">if</span> <span class="var">$amt</span> <= <span class="num">0</span>;
+        <span class="var">$_balance</span>{<span class="var">$self</span>->{id}} += <span class="var">$amt</span>;
+    }
+}
+<span class="cmt"># Outside this block, $_balance is completely inaccessible!</span>
+<span class="cmt"># Even $acc->{balance} doesn't work — it's not in the hash</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S11: POLYMORPHISM
+════════════════════════════════════════ -->
+<div class="section-card" id="s11">
+  <div class="section-header">
+    <div class="section-icon">🎭</div>
+    <div class="section-meta">
+      <div class="section-level lvl-adv">Advanced</div>
+      <div class="section-title">Polymorphism — Same Interface, Different Behavior</div>
+      <div class="section-desc"># Call the same method on different objects — each does its own thing. Duck typing in action.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="poly-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">POLYMORPHISM — same speak() call, different outputs. Click animals to call speak()</div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem" id="poly-animals">
+        <div onclick="polySpeak('dog')" style="background:rgba(93,184,245,0.08);border:1px solid rgba(93,184,245,0.4);border-radius:10px;padding:1rem 1.3rem;cursor:pointer;text-align:center;transition:all 0.2s;flex:1;min-width:100px" id="poly-dog">
+          <div style="font-size:1.5rem;margin-bottom:0.3rem">🐕</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--obj-c);font-weight:700">$dog</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--dim)">Dog</div>
+        </div>
+        <div onclick="polySpeak('cat')" style="background:rgba(249,112,102,0.08);border:1px solid rgba(249,112,102,0.4);border-radius:10px;padding:1rem 1.3rem;cursor:pointer;text-align:center;transition:all 0.2s;flex:1;min-width:100px" id="poly-cat">
+          <div style="font-size:1.5rem;margin-bottom:0.3rem">🐈</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--poly-c);font-weight:700">$cat</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--dim)">Cat</div>
+        </div>
+        <div onclick="polySpeak('duck')" style="background:rgba(56,232,216,0.08);border:1px solid rgba(56,232,216,0.4);border-radius:10px;padding:1rem 1.3rem;cursor:pointer;text-align:center;transition:all 0.2s;flex:1;min-width:100px" id="poly-duck">
+          <div style="font-size:1.5rem;margin-bottom:0.3rem">🦆</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--role-c);font-weight:700">$duck</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--dim)">Duck</div>
+        </div>
+        <div onclick="polySpeak('robot')" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.4);border-radius:10px;padding:1rem 1.3rem;cursor:pointer;text-align:center;transition:all 0.2s;flex:1;min-width:100px" id="poly-robot">
+          <div style="font-size:1.5rem;margin-bottom:0.3rem">🤖</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--moose-c);font-weight:700">$robot</div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--dim)">Robot</div>
+        </div>
+      </div>
+      <div style="background:rgba(0,0,0,0.4);border:1px solid var(--border2);border-radius:7px;padding:0.75rem 1rem;font-family:'Fira Code',monospace;min-height:80px" id="poly-output">
+        <span style="color:var(--muted)">Click an animal above — all have speak(), each behaves differently</span>
+      </div>
+      <div style="margin-top:0.75rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim)" id="poly-code-show">
+        Code: <span style="color:var(--poly-c)">for my $animal (@animals) { $animal->speak(); }</span>
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — polymorphism & duck typing</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;  <span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="str">"$_[0]->{name}: Woof! 🐕\n"</span> }
+<span class="kw">package</span> <span class="pkg">Cat</span>;  <span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="str">"$_[0]->{name}: Meow~ 🐈\n"</span> }
+<span class="kw">package</span> <span class="pkg">Duck</span>; <span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="str">"$_[0]->{name}: Quack! 🦆\n"</span> }
+<span class="kw">package</span> <span class="pkg">Robot</span>;<span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="str">"$_[0]->{name}: BEEP BOOP 🤖\n"</span> }
+
+<span class="kw">package</span> <span class="pkg">main</span>;
+<span class="cmt"># These objects have NO shared base class — just the same method name</span>
+<span class="kw">my</span> <span class="var">@animals</span> = (
+    <span class="fn">bless</span>({name=><span class="str">'Rex'</span>},  <span class="str">'Dog'</span>),
+    <span class="fn">bless</span>({name=><span class="str">'Luna'</span>}, <span class="str">'Cat'</span>),
+    <span class="fn">bless</span>({name=><span class="str">'Daffy'</span>},<span class="str">'Duck'</span>),
+    <span class="fn">bless</span>({name=><span class="str">'R2D2'</span>}, <span class="str">'Robot'</span>),
+);
+
+<span class="cmt"># Polymorphism: same call, different behavior per class</span>
+<span class="kw">for my</span> <span class="var">$animal</span> (<span class="var">@animals</span>) {
+    <span class="var">$animal</span>-><span class="fn">speak</span>();   <span class="cmt"># dispatches to the right class</span>
+}
+
+<span class="cmt"># Duck typing: if it has speak(), we can call it — no isa() needed</span>
+<span class="kw">sub</span> <span class="fn">make_noise</span> {
+    <span class="kw">my</span> <span class="var">$thing</span> = <span class="kw">shift</span>;
+    <span class="var">$thing</span>-><span class="fn">speak</span>() <span class="kw">if</span> <span class="var">$thing</span>-><span class="fn">can</span>(<span class="str">'speak'</span>);
+}</pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="polyAll()">▶ Call speak() on all</button>
+      <button class="btn btn-rst" onclick="clearPolyOutput()">↺ Clear</button>
+      <div class="status-bar" id="poly-status">Click an animal or ▶ to see polymorphism</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S12: OPERATOR OVERLOADING
+════════════════════════════════════════ -->
+<div class="section-card" id="s12">
+  <div class="section-header">
+    <div class="section-icon">🔢</div>
+    <div class="section-meta">
+      <div class="section-level lvl-adv">Advanced</div>
+      <div class="section-title">Operator Overloading — use overload</div>
+      <div class="section-desc"># Make your objects work with +, -, *, ==, ., "" etc. using the overload pragma.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="overload-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">VECTOR MATH with overloaded operators — click to compute</div>
+      <div class="overload-demo" id="ol-demo">
+        <div style="background:var(--card2);border:1px solid rgba(226,185,106,0.3);border-radius:8px;padding:1rem">
+          <div style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.68rem;font-weight:700;margin-bottom:0.5rem">$v1 = Vector(3, 4)</div>
+          <div id="ol-v1" style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim);line-height:1.8">x=3, y=4<br>|v1| = 5.0</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(93,184,245,0.3);border-radius:8px;padding:1rem">
+          <div style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.68rem;font-weight:700;margin-bottom:0.5rem">$v2 = Vector(1, 2)</div>
+          <div id="ol-v2" style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim);line-height:1.8">x=1, y=2<br>|v2| = 2.24</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap" id="ol-btns">
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="olOp('add')">$v1 + $v2</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="olOp('sub')">$v1 - $v2</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="olOp('mul')">$v1 * 2</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="olOp('eq')">$v1 == $v2</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="olOp('str')">print $v1</button>
+      </div>
+      <div id="ol-result" style="margin-top:0.75rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.8rem;font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--method-c);min-height:32px">
+        Click an operation above
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — use overload for a Vector class</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Vector</span>;
+<span class="kw">use overload</span>
+    <span class="str">'+'</span>  => \&<span class="fn">add</span>,
+    <span class="str">'-'</span>  => \&<span class="fn">subtract</span>,
+    <span class="str">'*'</span>  => \&<span class="fn">multiply</span>,
+    <span class="str">'=='</span> => \&<span class="fn">equal</span>,
+    <span class="str">'""'</span> => \&<span class="fn">to_string</span>;   <span class="cmt"># string overload</span>
+
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">$x</span>, <span class="var">$y</span>) = <span class="var">@_</span>;
+    <span class="kw">return</span> <span class="fn">bless</span> { x => <span class="var">$x</span>, y => <span class="var">$y</span> }, <span class="var">$class</span>;
+}
+
+<span class="kw">sub</span> <span class="fn">add</span>       { <span class="pkg">Vector</span>-><span class="fn">new</span>(<span class="var">$_</span>[<span class="num">0</span>]{x}+<span class="var">$_</span>[<span class="num">1</span>]{x}, <span class="var">$_</span>[<span class="num">0</span>]{y}+<span class="var">$_</span>[<span class="num">1</span>]{y}) }
+<span class="kw">sub</span> <span class="fn">subtract</span>  { <span class="pkg">Vector</span>-><span class="fn">new</span>(<span class="var">$_</span>[<span class="num">0</span>]{x}-<span class="var">$_</span>[<span class="num">1</span>]{x}, <span class="var">$_</span>[<span class="num">0</span>]{y}-<span class="var">$_</span>[<span class="num">1</span>]{y}) }
+<span class="kw">sub</span> <span class="fn">multiply</span>  { <span class="pkg">Vector</span>-><span class="fn">new</span>(<span class="var">$_</span>[<span class="num">0</span>]{x}*<span class="var">$_</span>[<span class="num">1</span>],   <span class="var">$_</span>[<span class="num">0</span>]{y}*<span class="var">$_</span>[<span class="num">1</span>]) }
+<span class="kw">sub</span> <span class="fn">equal</span>     { <span class="var">$_</span>[<span class="num">0</span>]{x}==<span class="var">$_</span>[<span class="num">1</span>]{x} && <span class="var">$_</span>[<span class="num">0</span>]{y}==<span class="var">$_</span>[<span class="num">1</span>]{y} }
+<span class="kw">sub</span> <span class="fn">to_string</span> { <span class="str">"Vector($_[0]{x}, $_[0]{y})"</span> }
+<span class="kw">sub</span> <span class="fn">magnitude</span> { <span class="fn">sqrt</span>(<span class="var">$_</span>[<span class="num">0</span>]{x}**<span class="num">2</span> + <span class="var">$_</span>[<span class="num">0</span>]{y}**<span class="num">2</span>) }
+
+<span class="kw">package</span> <span class="pkg">main</span>;
+<span class="kw">my</span> <span class="var">$v1</span> = <span class="pkg">Vector</span>-><span class="fn">new</span>(<span class="num">3</span>, <span class="num">4</span>);
+<span class="kw">my</span> <span class="var">$v2</span> = <span class="pkg">Vector</span>-><span class="fn">new</span>(<span class="num">1</span>, <span class="num">2</span>);
+<span class="kw">my</span> <span class="var">$v3</span> = <span class="var">$v1</span> + <span class="var">$v2</span>;   <span class="cmt"># calls Vector::add($v1,$v2)</span>
+<span class="kw">print</span> <span class="var">$v3</span>;            <span class="cmt"># "Vector(4, 6)" — calls to_string</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S13: DESTROY
+════════════════════════════════════════ -->
+<div class="section-card" id="s13">
+  <div class="section-header">
+    <div class="section-icon">💀</div>
+    <div class="section-meta">
+      <div class="section-level lvl-adv">Advanced</div>
+      <div class="section-title">DESTROY — Destructors & Resource Cleanup</div>
+      <div class="section-desc"># DESTROY is called automatically when an object goes out of scope. Use it to free resources.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="destroy-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">OBJECT LIFECYCLE — scope entry → use → scope exit → DESTROY</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem" id="destroy-timeline">
+        <div id="dst-0" style="padding:0.55rem 0.85rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-left:3px solid var(--border2)">
+          <span style="color:var(--method-c)">①</span> <span style="color:var(--dim)">{ # enter scope</span>
+        </div>
+        <div id="dst-1" style="padding:0.55rem 0.85rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-left:3px solid var(--border2);margin-left:1rem">
+          <span style="color:var(--method-c)">②</span> <span style="color:var(--dim)">my $conn = DB::Connection->new(...);  # constructor called</span>
+        </div>
+        <div id="dst-2" style="padding:0.55rem 0.85rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-left:3px solid var(--border2);margin-left:1rem">
+          <span style="color:var(--method-c)">③</span> <span style="color:var(--dim)">$conn->execute(...);  # use the object</span>
+        </div>
+        <div id="dst-3" style="padding:0.55rem 0.85rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-left:3px solid var(--border2)">
+          <span style="color:var(--poly-c)">④</span> <span style="color:var(--dim)">} # scope ends — $conn reference count → 0</span>
+        </div>
+        <div id="dst-4" style="padding:0.55rem 0.85rem;background:rgba(249,112,102,0.06);border:1px solid rgba(249,112,102,0.3);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-left:3px solid var(--poly-c)">
+          <span style="color:var(--poly-c)">⑤</span> <span style="color:var(--poly-c)">DESTROY() called automatically! → closes DB connection, frees memory</span>
+        </div>
+      </div>
+      <div id="destroy-log" style="margin-top:0.75rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;min-height:30px"></div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — DESTROY for file handle / DB cleanup</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">TempFile</span>;
+<span class="kw">use</span> <span class="mod">File::Temp</span>;
+
+<span class="kw">sub</span> <span class="fn">new</span> {
+    <span class="kw">my</span> <span class="var">$class</span> = <span class="kw">shift</span>;
+    <span class="kw">my</span> <span class="var">$fh</span> = <span class="mod">File::Temp</span>-><span class="fn">new</span>(UNLINK => <span class="num">0</span>);
+    <span class="kw">print</span> <span class="str">"Created temp file: "</span> . <span class="var">$fh</span>-><span class="fn">filename</span>() . <span class="str">"\n"</span>;
+    <span class="kw">return</span> <span class="fn">bless</span> { fh => <span class="var">$fh</span>, filename => <span class="var">$fh</span>-><span class="fn">filename</span>() }, <span class="var">$class</span>;
+}
+
+<span class="kw">sub</span> <span class="fn">write_data</span> {
+    <span class="kw">my</span> (<span class="var">$self</span>, <span class="var">$data</span>) = <span class="var">@_</span>;
+    <span class="kw">print</span> {<span class="var">$self</span>->{fh}} <span class="var">$data</span>;
+}
+
+<span class="cmt"># DESTROY = destructor — called when object is garbage collected</span>
+<span class="kw">sub</span> <span class="fn">DESTROY</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="fn">close</span>(<span class="var">$self</span>->{fh}) <span class="kw">if</span> <span class="var">$self</span>->{fh};
+    <span class="fn">unlink</span>(<span class="var">$self</span>->{filename}) <span class="kw">if</span> -<span class="fn">f</span> <span class="var">$self</span>->{filename};
+    <span class="kw">print</span> <span class="str">"Cleaned up: $self->{filename}\n"</span>;
+}
+
+<span class="cmt"># DESTROY is called automatically at end of scope or when undef-ed</span>
+{
+    <span class="kw">my</span> <span class="var">$tmp</span> = <span class="pkg">TempFile</span>-><span class="fn">new</span>();
+    <span class="var">$tmp</span>-><span class="fn">write_data</span>(<span class="str">"hello\n"</span>);
+} <span class="cmt"># ← DESTROY called here: file closed + deleted</span></pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="animateDestroy()">▶ Animate Lifecycle</button>
+      <button class="btn btn-rst" onclick="resetDestroy()">↺ Reset</button>
+      <div class="status-bar" id="destroy-status">Click ▶ to watch the full object lifecycle</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S14: MOOSE
+════════════════════════════════════════ -->
+<div class="section-card" id="s14">
+  <div class="section-header">
+    <div class="section-icon">🫎</div>
+    <div class="section-meta">
+      <div class="section-level lvl-adv">Advanced</div>
+      <div class="section-title">Moose — Modern OOP for Perl</div>
+      <div class="section-desc"># Moose gives you attributes, type constraints, roles, and meta-programming. Far less boilerplate.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="moose-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">MOOSE vs RAW PERL — same class, radically less code</div>
+      <div class="grid2">
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.4rem;letter-spacing:0.08em">RAW PERL (40+ lines)</div>
+          <div style="background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:7px;padding:0.8rem;font-family:'Fira Code',monospace;font-size:0.65rem;color:#5a7a9a;line-height:1.75">
+            package Point;<br>
+            sub new {<br>
+            &nbsp;&nbsp;my ($class,%a)=@_;<br>
+            &nbsp;&nbsp;die "x required" unless defined $a{x};<br>
+            &nbsp;&nbsp;die "x not a number" unless $a{x} =~ /^\d+$/<br>
+            &nbsp;&nbsp;# ... same for y ...<br>
+            &nbsp;&nbsp;return bless {x=>$a{x},y=>$a{y}},$class<br>
+            }<br>
+            sub x { ... } # getter/setter<br>
+            sub y { ... } # getter/setter<br>
+            # ... DESTROY ... validation ... 40 lines total
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--moose-c);margin-bottom:0.4rem;letter-spacing:0.08em">WITH MOOSE (8 lines)</div>
+          <div style="background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:7px;padding:0.8rem;font-family:'Fira Code',monospace;font-size:0.65rem;color:#b0a0e0;line-height:1.75">
+            package Point;<br>
+            use Moose;<br>
+            <br>
+            has 'x' => (is=>'rw', isa=>'Num', required=>1);<br>
+            has 'y' => (is=>'rw', isa=>'Num', required=>1);<br>
+            <br>
+            # new(), accessors, validation,<br>
+            # DESTROY all auto-generated!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — full Moose class with inheritance</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Animal</span>;
+<span class="kw">use</span> <span class="mod">Moose</span>;
+
+<span class="cmt"># has = declare an attribute</span>
+<span class="fn">has</span> <span class="str">'name'</span>  => (is => <span class="str">'rw'</span>, isa => <span class="str">'Str'</span>,  required => <span class="num">1</span>);
+<span class="fn">has</span> <span class="str">'age'</span>   => (is => <span class="str">'rw'</span>, isa => <span class="str">'Int'</span>,  default  => <span class="num">0</span>);
+<span class="fn">has</span> <span class="str">'sound'</span> => (is => <span class="str">'ro'</span>, isa => <span class="str">'Str'</span>,  default  => <span class="str">'...'</span>);
+
+<span class="kw">sub</span> <span class="fn">speak</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">printf</span> <span class="str">"%s says: %s\n"</span>, <span class="var">$self</span>-><span class="fn">name</span>(), <span class="var">$self</span>-><span class="fn">sound</span>();
+}
+
+<span class="fn">no Moose</span>;  <span class="cmt"># optional cleanup</span>
+__PACKAGE__-><span class="fn">meta</span>-><span class="fn">make_immutable</span>();  <span class="cmt"># optimization!</span>
+
+<span class="cmt">──────────────────────────────────────────────</span>
+<span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use</span> <span class="mod">Moose</span>;
+<span class="kw">extends</span> <span class="str">'Animal'</span>;  <span class="cmt"># Moose way of inheritance</span>
+
+<span class="fn">has</span> <span class="str">'breed'</span>  => (is => <span class="str">'rw'</span>, isa => <span class="str">'Str'</span>, default => <span class="str">'Mixed'</span>);
+<span class="fn">has</span> <span class="str">'tricks'</span> => (is => <span class="str">'rw'</span>, isa => <span class="str">'ArrayRef'</span>, default => <span class="kw">sub</span> { [] });
+
+<span class="kw">override</span> <span class="str">'speak'</span> => <span class="kw">sub</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="fn">super</span>();  <span class="cmt"># calls Animal::speak</span>
+    <span class="kw">print</span> <span class="str">"...and wags tail!\n"</span>;
+};
+
+__PACKAGE__-><span class="fn">meta</span>-><span class="fn">make_immutable</span>();
+
+<span class="kw">package</span> <span class="pkg">main</span>;
+<span class="kw">my</span> <span class="var">$d</span> = <span class="pkg">Dog</span>-><span class="fn">new</span>(name=><span class="str">'Rex'</span>, age=><span class="num">3</span>, sound=><span class="str">'Woof'</span>);
+<span class="var">$d</span>-><span class="fn">speak</span>();   <span class="cmt"># Rex says: Woof\n...and wags tail!</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S15: MOOSE ATTRIBUTES
+════════════════════════════════════════ -->
+<div class="section-card" id="s15">
+  <div class="section-header">
+    <div class="section-icon">🏷️</div>
+    <div class="section-meta">
+      <div class="section-level lvl-adv">Advanced</div>
+      <div class="section-title">Moose Attributes — Types, Validation & Coercion</div>
+      <div class="section-desc"># has() is incredibly powerful: types, defaults, builders, triggers, lazy loading, coercion.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="mooseattr-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">has() ATTRIBUTE OPTIONS — click each to see what it does</div>
+      <div id="attr-options" style="display:flex;flex-direction:column;gap:0.5rem">
+        <div class="attr-row" onclick="showAttrOption('is')">
+          <div class="attr-type" style="color:var(--class-c);border-color:rgba(226,185,106,0.4)">is</div>
+          <span style="color:var(--text)">is => 'rw' | 'ro' | 'wo'</span>
+          <span style="color:var(--dim);margin-left:auto">read-write / read-only / write-only</span>
+        </div>
+        <div class="attr-row" onclick="showAttrOption('isa')">
+          <div class="attr-type" style="color:var(--inherit-c);border-color:rgba(217,124,245,0.4)">isa</div>
+          <span style="color:var(--text)">isa => 'Str' | 'Int' | 'ArrayRef' | 'MyClass'</span>
+          <span style="color:var(--dim);margin-left:auto">type constraint</span>
+        </div>
+        <div class="attr-row" onclick="showAttrOption('default')">
+          <div class="attr-type" style="color:var(--method-c);border-color:rgba(126,232,162,0.4)">default</div>
+          <span style="color:var(--text)">default => 0 | sub { [] } | sub { MyObj->new }</span>
+          <span style="color:var(--dim);margin-left:auto">default value or factory</span>
+        </div>
+        <div class="attr-row" onclick="showAttrOption('lazy')">
+          <div class="attr-type" style="color:var(--obj-c);border-color:rgba(93,184,245,0.4)">lazy</div>
+          <span style="color:var(--text)">lazy => 1, builder => '_build_name'</span>
+          <span style="color:var(--dim);margin-left:auto">computed on first access</span>
+        </div>
+        <div class="attr-row" onclick="showAttrOption('trigger')">
+          <div class="attr-type" style="color:var(--encap-c);border-color:rgba(245,158,66,0.4)">trigger</div>
+          <span style="color:var(--text)">trigger => sub { my ($self,$new,$old)=@_ }</span>
+          <span style="color:var(--dim);margin-left:auto">called when value changes</span>
+        </div>
+        <div class="attr-row" onclick="showAttrOption('coerce')">
+          <div class="attr-type" style="color:var(--poly-c);border-color:rgba(249,112,102,0.4)">coerce</div>
+          <span style="color:var(--text)">coerce => 1  (with type coercion defined)</span>
+          <span style="color:var(--dim);margin-left:auto">auto-convert types</span>
+        </div>
+      </div>
+      <div id="attr-explain" style="margin-top:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:7px;font-family:'Fira Code',monospace;font-size:0.7rem;color:#a0c8e8;min-height:36px;line-height:1.8">
+        Click an attribute option above to see a code example
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — advanced Moose attributes with types & triggers</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use</span> <span class="mod">Moose</span>;
+<span class="kw">use</span> <span class="mod">Moose::Util::TypeConstraints</span>;
+
+<span class="cmt"># Custom type</span>
+<span class="fn">subtype</span> <span class="str">'PositiveInt'</span>,
+    <span class="str">as</span>      <span class="str">'Int'</span>,
+    <span class="str">where</span>   { <span class="var">$_</span> > <span class="num">0</span> },
+    <span class="str">message</span> { <span class="str">"$_ is not a positive integer"</span> };
+
+<span class="fn">has</span> <span class="str">'name'</span>  => (is=><span class="str">'rw'</span>, isa=><span class="str">'Str'</span>, required=><span class="num">1</span>);
+<span class="fn">has</span> <span class="str">'age'</span>   => (is=><span class="str">'rw'</span>, isa=><span class="str">'PositiveInt'</span>);
+
+<span class="cmt"># Lazy attribute — built on first access</span>
+<span class="fn">has</span> <span class="str">'full_desc'</span> => (
+    is      => <span class="str">'ro'</span>,
+    isa     => <span class="str">'Str'</span>,
+    lazy    => <span class="num">1</span>,
+    builder => <span class="str">'_build_full_desc'</span>,
+);
+<span class="kw">sub</span> <span class="fn">_build_full_desc</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">return</span> <span class="var">$self</span>-><span class="fn">name</span>() . <span class="str">" age "</span> . <span class="var">$self</span>-><span class="fn">age</span>();
+}
+
+<span class="cmt"># Trigger: runs when attribute is set/changed</span>
+<span class="fn">has</span> <span class="str">'weight'</span> => (
+    is      => <span class="str">'rw'</span>, isa => <span class="str">'Num'</span>,
+    trigger => <span class="kw">sub</span> {
+        <span class="kw">my</span> (<span class="var">$self</span>, <span class="var">$new</span>, <span class="var">$old</span>) = <span class="var">@_</span>;
+        <span class="kw">warn</span> <span class="str">"Weight changed: $old → $new kg\n"</span> <span class="kw">if</span> <span class="kw">defined</span> <span class="var">$old</span>;
+    },
+);</pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S16: ROLES
+════════════════════════════════════════ -->
+<div class="section-card" id="s16">
+  <div class="section-header">
+    <div class="section-icon">🎭</div>
+    <div class="section-meta">
+      <div class="section-level lvl-deep">Expert</div>
+      <div class="section-title">Roles — Composable Behaviors (Moose::Role)</div>
+      <div class="section-desc"># Roles are like mixins: reusable bundles of methods that can be applied to any class.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="roles-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">ROLE COMPOSITION — drag roles onto classes to see what methods they get</div>
+
+      <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.4rem">AVAILABLE ROLES:</div>
+          <div>
+            <span class="role-badge" onclick="toggleRole('printable')">Printable</span>
+            <span class="role-badge" onclick="toggleRole('serializable')">Serializable</span>
+            <span class="role-badge" onclick="toggleRole('comparable')">Comparable</span>
+            <span class="role-badge" onclick="toggleRole('loggable')">Loggable</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:1rem;flex-wrap:wrap" id="roles-classes">
+        <div style="flex:1;min-width:180px;background:rgba(93,184,245,0.05);border:1px solid rgba(93,184,245,0.3);border-radius:8px;padding:1rem">
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--obj-c);font-weight:700;margin-bottom:0.5rem">Dog class</div>
+          <div id="dog-methods-list" style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim);line-height:1.8">
+            speak()<br>fetch()<br>name()
+          </div>
+          <div style="margin-top:0.4rem;font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted)">+ consumed roles:</div>
+          <div id="dog-roles" style="font-size:0.65rem;margin-top:0.2rem"></div>
+        </div>
+        <div style="flex:1;min-width:180px;background:rgba(249,112,102,0.05);border:1px solid rgba(249,112,102,0.3);border-radius:8px;padding:1rem">
+          <div style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--poly-c);font-weight:700;margin-bottom:0.5rem">User class</div>
+          <div id="user-methods-list" style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--dim);line-height:1.8">
+            username()<br>email()<br>login()
+          </div>
+          <div style="margin-top:0.4rem;font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--muted)">+ consumed roles:</div>
+          <div id="user-roles" style="font-size:0.65rem;margin-top:0.2rem"></div>
+        </div>
+      </div>
+
+      <div id="role-explain" style="margin-top:0.75rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);background:rgba(0,0,0,0.3);border-radius:6px;padding:0.6rem 0.8rem;min-height:28px">
+        Click a role to toggle it onto all classes
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — Moose::Role definition and consumption</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt"># Define a Role</span>
+<span class="kw">package</span> <span class="pkg">Role::Printable</span>;
+<span class="kw">use</span> <span class="mod">Moose::Role</span>;
+
+<span class="cmt"># requires = method that consuming class MUST provide</span>
+<span class="fn">requires</span> <span class="str">'to_string'</span>;
+
+<span class="kw">sub</span> <span class="fn">print_info</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">print</span> <span class="var">$self</span>-><span class="fn">to_string</span>() . <span class="str">"\n"</span>;
+}
+
+<span class="kw">sub</span> <span class="fn">print_debug</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">use</span> <span class="mod">Data::Dumper</span>;
+    <span class="kw">print</span> <span class="fn">Dumper</span>(<span class="var">$self</span>);
+}
+
+<span class="cmt">──────────────────────────────────────────────</span>
+<span class="cmt"># Consume the role in a class</span>
+<span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use</span> <span class="mod">Moose</span>;
+<span class="fn">with</span> <span class="str">'Role::Printable'</span>, <span class="str">'Role::Serializable'</span>;  <span class="cmt"># consume multiple!</span>
+
+<span class="fn">has</span> <span class="str">'name'</span> => (is => <span class="str">'rw'</span>, isa => <span class="str">'Str'</span>);
+
+<span class="cmt"># Must implement required method:</span>
+<span class="kw">sub</span> <span class="fn">to_string</span> { <span class="str">"Dog: $_[0]->{name}"</span> }
+
+<span class="cmt"># Now Dog has: speak, print_info, print_debug, to_json...</span>
+<span class="cmt"># Roles enforce interface — if to_string missing: COMPILE ERROR</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S17: METHOD MODIFIERS
+════════════════════════════════════════ -->
+<div class="section-card" id="s17">
+  <div class="section-header">
+    <div class="section-icon">🔀</div>
+    <div class="section-meta">
+      <div class="section-level lvl-deep">Expert</div>
+      <div class="section-title">Method Modifiers — before, after, around</div>
+      <div class="section-desc"># Wrap existing methods with before/after/around — like AOP (Aspect Oriented Programming).</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="modifier-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem">METHOD MODIFIER FLOW — click ▶ to see before/after/around in action</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem" id="modifier-steps">
+        <div id="mod-before" style="padding:0.55rem 0.85rem;border-radius:6px;border:1px solid;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-color:var(--border2);background:var(--card2)">
+          <span style="color:var(--class-c)">before</span> <span style="color:var(--dim)">'speak' → runs FIRST: logging, validation, setup</span>
+        </div>
+        <div id="mod-around-pre" style="padding:0.55rem 0.85rem;border-radius:6px;border:1px solid;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-color:var(--border2);background:var(--card2);margin-left:0.75rem">
+          <span style="color:var(--moose-c)">around</span> <span style="color:var(--dim)">'speak' → wraps method, can modify args</span>
+        </div>
+        <div id="mod-orig" style="padding:0.55rem 0.85rem;border-radius:6px;border:1px solid;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-color:var(--border2);background:var(--card2);margin-left:1.5rem">
+          <span style="color:var(--method-c)">original</span> <span style="color:var(--dim)">'speak' → the actual method body runs here</span>
+        </div>
+        <div id="mod-around-post" style="padding:0.55rem 0.85rem;border-radius:6px;border:1px solid;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-color:var(--border2);background:var(--card2);margin-left:0.75rem">
+          <span style="color:var(--moose-c)">around</span> <span style="color:var(--dim)">'speak' → can modify return value</span>
+        </div>
+        <div id="mod-after" style="padding:0.55rem 0.85rem;border-radius:6px;border:1px solid;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;border-color:var(--border2);background:var(--card2)">
+          <span style="color:var(--obj-c)">after</span> <span style="color:var(--dim)">'speak' → runs LAST: cleanup, logging, side effects</span>
+        </div>
+      </div>
+      <div id="modifier-out" style="margin-top:0.75rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--dim);background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;min-height:28px"></div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — before, after, around modifiers</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">Dog</span>;
+<span class="kw">use</span> <span class="mod">Moose</span>;
+<span class="fn">has</span> <span class="str">'name'</span> => (is=><span class="str">'rw'</span>, isa=><span class="str">'Str'</span>);
+<span class="kw">sub</span> <span class="fn">speak</span> { <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]-><span class="fn">name</span>() . <span class="str">": Woof!\n"</span> }
+
+<span class="cmt"># Runs BEFORE the method — can't stop it</span>
+<span class="fn">before</span> <span class="str">'speak'</span> => <span class="kw">sub</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="kw">print</span> <span class="str">"[LOG] "</span> . <span class="var">$self</span>-><span class="fn">name</span>() . <span class="str">" is about to speak\n"</span>;
+};
+
+<span class="cmt"># Runs AFTER the method</span>
+<span class="fn">after</span> <span class="str">'speak'</span> => <span class="kw">sub</span> {
+    <span class="kw">print</span> <span class="str">"[LOG] speak() completed\n"</span>;
+};
+
+<span class="cmt"># WRAPS the method — most powerful, can modify args + return</span>
+<span class="fn">around</span> <span class="str">'speak'</span> => <span class="kw">sub</span> {
+    <span class="kw">my</span> (<span class="var">$orig</span>, <span class="var">$self</span>, <span class="var">@args</span>) = <span class="var">@_</span>;
+    <span class="kw">print</span> <span class="str">"[TIMER] Starting...\n"</span>;
+    <span class="kw">my</span> <span class="var">$result</span> = <span class="var">$self</span>-><span class="var">$orig</span>(<span class="var">@args</span>);  <span class="cmt"># call original</span>
+    <span class="kw">print</span> <span class="str">"[TIMER] Done.\n"</span>;
+    <span class="kw">return</span> <span class="var">$result</span>;
+};
+
+<span class="cmt"># Execution order: before → around_pre → original → around_post → after</span></pre>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn btn-go" onclick="animateModifiers()">▶ Animate Modifiers</button>
+      <button class="btn btn-rst" onclick="resetModifiers()">↺ Reset</button>
+      <div class="status-bar" id="modifier-status">Click ▶ to see the modifier execution order</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S18: METAPROGRAMMING
+════════════════════════════════════════ -->
+<div class="section-card" id="s18">
+  <div class="section-header">
+    <div class="section-icon">🧠</div>
+    <div class="section-meta">
+      <div class="section-level lvl-deep">Expert</div>
+      <div class="section-title">Metaprogramming — Inspecting & Modifying Classes at Runtime</div>
+      <div class="section-desc"># Moose's Meta API lets you inspect classes, add methods, list attributes — all at runtime.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="meta-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">META API EXPLORER — click to introspect the Dog class</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+        <div class="meta-pill" onclick="metaQuery('attrs')">get_all_attributes()</div>
+        <div class="meta-pill" onclick="metaQuery('methods')">get_all_methods()</div>
+        <div class="meta-pill" onclick="metaQuery('roles')">calculate_all_roles()</div>
+        <div class="meta-pill" onclick="metaQuery('isa')">linearized_isa()</div>
+        <div class="meta-pill" onclick="metaQuery('add')">add_method() dynamic</div>
+        <div class="meta-pill" onclick="metaQuery('clone')">clone_object()</div>
+      </div>
+      <div id="meta-output" style="background:rgba(0,0,0,0.5);border:1px solid rgba(167,139,250,0.3);border-radius:7px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.7rem;color:#a090d8;line-height:1.9;min-height:80px">
+        Click a meta method above to see the output
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — Moose meta API + runtime class modification</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt"># Access the metaclass object</span>
+<span class="kw">my</span> <span class="var">$meta</span> = <span class="pkg">Dog</span>-><span class="fn">meta</span>();
+
+<span class="cmt"># Introspect attributes</span>
+<span class="kw">for my</span> <span class="var">$attr</span> (<span class="var">$meta</span>-><span class="fn">get_all_attributes</span>()) {
+    <span class="kw">printf</span> <span class="str">"  %-12s %-5s %s\n"</span>,
+        <span class="var">$attr</span>-><span class="fn">name</span>(),
+        <span class="var">$attr</span>-><span class="fn">is_required</span>() ? <span class="str">'req'</span> : <span class="str">'opt'</span>,
+        <span class="var">$attr</span>-><span class="fn">type_constraint</span>() // <span class="str">'Any'</span>;
+}
+
+<span class="cmt"># Introspect methods</span>
+<span class="kw">my</span> <span class="var">@methods</span> = <span class="kw">map</span> { <span class="var">$_</span>-><span class="fn">name</span>() } <span class="var">$meta</span>-><span class="fn">get_all_methods</span>();
+
+<span class="cmt"># Add a method to a class AT RUNTIME</span>
+<span class="var">$meta</span>-><span class="fn">add_method</span>(<span class="str">'dance'</span> => <span class="kw">sub</span> {
+    <span class="kw">print</span> <span class="var">$_</span>[<span class="num">0</span>]-><span class="fn">name</span>() . <span class="str">" is dancing!\n"</span>
+});
+
+<span class="cmt"># Now ALL Dog instances have dance() — even ones created before!</span>
+<span class="var">$existing_dog</span>-><span class="fn">dance</span>();
+
+<span class="cmt"># Clone an object (deep copy via meta)</span>
+<span class="kw">my</span> <span class="var">$clone</span> = <span class="var">$dog</span>-><span class="fn">meta</span>-><span class="fn">clone_object</span>(<span class="var">$dog</span>, name => <span class="str">'Rex2'</span>);
+
+<span class="cmt"># Check roles at runtime</span>
+<span class="kw">print</span> <span class="var">$dog</span>-><span class="fn">does</span>(<span class="str">'Role::Printable'</span>);  <span class="cmt"># 1 if role consumed</span></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S19: AUTOLOAD & DISPATCH TABLES
+════════════════════════════════════════ -->
+<div class="section-card" id="s19">
+  <div class="section-header">
+    <div class="section-icon">🤖</div>
+    <div class="section-meta">
+      <div class="section-level lvl-deep">Expert</div>
+      <div class="section-title">AUTOLOAD & Dispatch Tables</div>
+      <div class="section-desc"># AUTOLOAD catches unknown method calls. Dispatch tables are hash-based method routers.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="autoload-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">AUTOLOAD FLOW — method not found → AUTOLOAD catches it</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem">
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="autoloadCall('speak')">$d->speak()</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="autoloadCall('get_name')">$d->get_name()</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="autoloadCall('set_age')">$d->set_age(5)</button>
+        <button class="btn btn-go" style="font-size:0.65rem" onclick="autoloadCall('fly')">$d->fly()</button>
+      </div>
+      <div id="autoload-flow" style="display:flex;flex-direction:column;gap:0.4rem">
+        <div id="al-step1" style="padding:0.5rem 0.8rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s">
+          ① Method called on object
+        </div>
+        <div id="al-step2" style="padding:0.5rem 0.8rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;margin-left:0.5rem">
+          ② Perl searches package + @ISA chain
+        </div>
+        <div id="al-step3" style="padding:0.5rem 0.8rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;margin-left:1rem">
+          ③ Not found → AUTOLOAD called (if it exists)
+        </div>
+        <div id="al-step4" style="padding:0.5rem 0.8rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;margin-left:1.5rem">
+          ④ AUTOLOAD inspects $AUTOLOAD variable
+        </div>
+        <div id="al-step5" style="padding:0.5rem 0.8rem;background:var(--card2);border:1px solid var(--border2);border-radius:6px;font-family:'Fira Code',monospace;font-size:0.7rem;opacity:0.3;transition:all 0.4s;margin-left:1rem">
+          ⑤ Dispatches or dies with "Can't locate method"
+        </div>
+      </div>
+      <div id="autoload-out" style="margin-top:0.75rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.8rem;font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--dim);min-height:28px">
+        Click a method above to trace the call
+      </div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — AUTOLOAD + dispatch table</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">package</span> <span class="pkg">FlexObject</span>;
+
+<span class="cmt"># Dispatch table: hash of method_name → code ref</span>
+<span class="kw">my</span> <span class="var">%dispatch</span> = (
+    speak     => <span class="kw">sub</span> { <span class="kw">print</span> <span class="str">"Woof!\n"</span> },
+    sit       => <span class="kw">sub</span> { <span class="kw">print</span> <span class="str">"Sits.\n"</span> },
+    fetch     => <span class="kw">sub</span> { <span class="kw">print</span> <span class="str">"Fetches!\n"</span> },
+);
+
+<span class="kw">our</span> <span class="var">$AUTOLOAD</span>;  <span class="cmt"># package var set by Perl before AUTOLOAD runs</span>
+
+<span class="kw">sub</span> <span class="fn">AUTOLOAD</span> {
+    <span class="kw">my</span> <span class="var">$self</span> = <span class="kw">shift</span>;
+    <span class="cmt"># $AUTOLOAD = "FlexObject::method_name"</span>
+    <span class="kw">my</span> <span class="var">$method</span> = <span class="var">$AUTOLOAD</span>;
+    <span class="var">$method</span> =~ <span class="fn">s/.*:://</span>;  <span class="cmt"># strip package name</span>
+
+    <span class="cmt"># Skip DESTROY</span>
+    <span class="kw">return if</span> <span class="var">$method</span> eq <span class="str">'DESTROY'</span>;
+
+    <span class="cmt"># Auto-generate get_/set_ accessors</span>
+    <span class="kw">if</span> (<span class="var">$method</span> =~ <span class="fn">/^get_(.+)$/</span>) {
+        <span class="kw">return</span> <span class="var">$self</span>->{<span class="var">$1</span>};
+    } <span class="kw">elsif</span> (<span class="var">$method</span> =~ <span class="fn">/^set_(.+)$/</span>) {
+        <span class="var">$self</span>->{<span class="var">$1</span>} = <span class="kw">shift</span>; <span class="kw">return</span>;
+    }
+
+    <span class="cmt"># Try dispatch table</span>
+    <span class="kw">if</span> (<span class="kw">exists</span> <span class="var">$dispatch</span>{<span class="var">$method</span>}) {
+        <span class="kw">return</span> <span class="var">$dispatch</span>{<span class="var">$method</span>}->(<span class="var">$self</span>, <span class="var">@_</span>);
+    }
+
+    <span class="fn">die</span> <span class="str">"Method $method not found in "</span> . <span class="fn">ref</span>(<span class="var">$self</span>);
+}</pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  S20: DESIGN PATTERNS
+════════════════════════════════════════ -->
+<div class="section-card" id="s20">
+  <div class="section-header">
+    <div class="section-icon">📐</div>
+    <div class="section-meta">
+      <div class="section-level lvl-deep">Expert</div>
+      <div class="section-title">OOP Design Patterns in Perl</div>
+      <div class="section-desc"># Singleton, Factory, Observer, Strategy — classic patterns in idiomatic Perl.</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="viz-canvas" style="padding:1.5rem" id="patterns-viz">
+      <div style="font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">DESIGN PATTERNS — click each to see implementation</div>
+      <div class="grid2" id="pattern-cards">
+        <div onclick="showPattern('singleton')" style="background:var(--card2);border:1px solid rgba(226,185,106,0.3);border-radius:8px;padding:1rem;cursor:pointer;transition:all 0.2s" class="pattern-card">
+          <div style="font-size:1.2rem;margin-bottom:0.3rem">☝️</div>
+          <div style="color:var(--class-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:700">Singleton</div>
+          <div style="color:var(--dim);font-size:0.75rem;margin-top:0.2rem">Only one instance ever exists</div>
+        </div>
+        <div onclick="showPattern('factory')" style="background:var(--card2);border:1px solid rgba(93,184,245,0.3);border-radius:8px;padding:1rem;cursor:pointer;transition:all 0.2s" class="pattern-card">
+          <div style="font-size:1.2rem;margin-bottom:0.3rem">🏭</div>
+          <div style="color:var(--obj-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:700">Factory</div>
+          <div style="color:var(--dim);font-size:0.75rem;margin-top:0.2rem">Create objects without specifying exact class</div>
+        </div>
+        <div onclick="showPattern('observer')" style="background:var(--card2);border:1px solid rgba(126,232,162,0.3);border-radius:8px;padding:1rem;cursor:pointer;transition:all 0.2s" class="pattern-card">
+          <div style="font-size:1.2rem;margin-bottom:0.3rem">👁️</div>
+          <div style="color:var(--method-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:700">Observer</div>
+          <div style="color:var(--dim);font-size:0.75rem;margin-top:0.2rem">Pub/Sub — objects notify subscribers</div>
+        </div>
+        <div onclick="showPattern('strategy')" style="background:var(--card2);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:1rem;cursor:pointer;transition:all 0.2s" class="pattern-card">
+          <div style="font-size:1.2rem;margin-bottom:0.3rem">♟️</div>
+          <div style="color:var(--moose-c);font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:700">Strategy</div>
+          <div style="color:var(--dim);font-size:0.75rem;margin-top:0.2rem">Swap algorithms at runtime</div>
+        </div>
+      </div>
+      <div id="pattern-code" style="margin-top:1rem;background:#050810;border:1px solid var(--border);border-radius:7px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.68rem;color:#a0c8e8;line-height:1.8;min-height:80px;display:none"></div>
+    </div>
+
+    <div class="cblock">
+      <div class="cblock-head"><span class="cblock-label">perl — all 4 patterns in one file</span><button class="cpy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt"># ── SINGLETON ──────────────────────────────────</span>
+<span class="kw">package</span> <span class="pkg">Config</span>;
+<span class="kw">my</span> <span class="var">$_instance</span>;
+<span class="kw">sub</span> <span class="fn">instance</span> {
+    <span class="var">$_instance</span> //= <span class="fn">bless</span> {}, <span class="kw">shift</span>;
+    <span class="kw">return</span> <span class="var">$_instance</span>;
+}
+
+<span class="cmt"># ── FACTORY ────────────────────────────────────</span>
+<span class="kw">package</span> <span class="pkg">AnimalFactory</span>;
+<span class="kw">my</span> <span class="var">%registry</span> = (dog=><span class="str">'Dog'</span>, cat=><span class="str">'Cat'</span>, duck=><span class="str">'Duck'</span>);
+<span class="kw">sub</span> <span class="fn">create</span> {
+    <span class="kw">my</span> (<span class="var">$class</span>, <span class="var">$type</span>, <span class="var">%args</span>) = <span class="var">@_</span>;
+    <span class="kw">my</span> <span class="var">$pkg</span> = <span class="var">$registry</span>{<span class="fn">lc</span>(<span class="var">$type</span>)} // <span class="fn">die</span> <span class="str">"Unknown: $type"</span>;
+    <span class="kw">return</span> <span class="var">$pkg</span>-><span class="fn">new</span>(<span class="var">%args</span>);
+}
+
+<span class="cmt"># ── OBSERVER ───────────────────────────────────</span>
+<span class="kw">package</span> <span class="pkg">EventEmitter</span>;
+<span class="kw">sub</span> <span class="fn">new</span>  { <span class="fn">bless</span> {_listeners=>{}}, <span class="kw">shift</span> }
+<span class="kw">sub</span> <span class="fn">on</span>   { <span class="kw">push</span> @{<span class="var">$_</span>[<span class="num">0</span>]{_listeners}{<span class="var">$_</span>[<span class="num">1</span>]}}, <span class="var">$_</span>[<span class="num">2</span>] }
+<span class="kw">sub</span> <span class="fn">emit</span> {
+    <span class="kw">my</span> (<span class="var">$self</span>,<span class="var">$event</span>,<span class="var">@data</span>)=<span class="var">@_</span>;
+    <span class="var">$_</span>->(<span class="var">@data</span>) <span class="kw">for</span> @{<span class="var">$self</span>{_listeners}{<span class="var">$event</span>}//[]};
+}
+
+<span class="cmt"># ── STRATEGY ───────────────────────────────────</span>
+<span class="kw">package</span> <span class="pkg">Sorter</span>;
+<span class="kw">sub</span> <span class="fn">new</span>      { <span class="fn">bless</span> {strategy=><span class="var">$_</span>[<span class="num">1</span>]}, <span class="var">$_</span>[<span class="num">0</span>] }
+<span class="kw">sub</span> <span class="fn">set_algo</span> { <span class="var">$_</span>[<span class="num">0</span>]{strategy} = <span class="var">$_</span>[<span class="num">1</span>] }  <span class="cmt"># swap at runtime</span>
+<span class="kw">sub</span> <span class="fn">sort</span>     { <span class="var">$_</span>[<span class="num">0</span>]{strategy}->(<span class="var">$_</span>[<span class="num">1</span>]) }</pre>
+    </div>
+
+  </div>
+</div>
+
+  </div><!-- end .content -->
+</div><!-- end .layout -->
+</div><!-- end .page -->
+
+<script>
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+// ── SCROLL PROGRESS ──
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const pct = d.scrollTop / (d.scrollHeight - d.clientHeight);
+  document.getElementById('spfill').style.width = (pct * 100) + '%';
+
+  // Sidebar active state
+  const sections = document.querySelectorAll('.section-card');
+  const links = document.querySelectorAll('.sb-link');
+  let current = '';
+  sections.forEach(s => { if (s.getBoundingClientRect().top < 200) current = s.id; });
+  links.forEach(l => {
+    const id = l.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    l.classList.toggle('active', id === current);
+  });
+});
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.cblock').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+// ── S1: OOP PILLARS ──
+const pillarData = {
+  class: { title: '📦 Class — The Blueprint', color: 'var(--class-c)', text: 'In Perl: <strong style="color:var(--class-c)">package Dog;</strong> — a namespace that holds methods. The class is the template. It defines what attributes (data) and methods (behavior) all Dog objects will have. Analogy: a cookie cutter — not a cookie itself, but the mold.' },
+  obj: { title: '🔵 Object — A Real Instance', color: 'var(--obj-c)', text: 'Created by: <strong style="color:var(--obj-c)">my $rex = Dog->new(name=>"Rex");</strong> — $rex is a blessed hash ref. It has its OWN copy of the data. $rex and $luna are two different objects of the same Dog class. Changing $rex->name() does NOT affect $luna.' },
+  method: { title: '⚙️ Method — Behavior', color: 'var(--method-c)', text: 'Any subroutine defined in a package. Called as <strong style="color:var(--method-c)">$obj->speak()</strong> which is equivalent to <strong style="color:var(--method-c)">Dog::speak($obj)</strong>. Perl automatically passes the object as the first argument — <strong>my $self = shift</strong> retrieves it.' },
+  inherit: { title: '🧬 Inheritance — Reuse', color: 'var(--inherit-c)', text: 'A Dog class can <strong style="color:var(--inherit-c)">extend Animal</strong> to inherit all its methods. Dog gets eat(), sleep(), name() for free. It only needs to define what makes it DIFFERENT (speak, fetch). Set via <strong style="color:var(--inherit-c)">use parent "Animal"</strong> or @ISA.' },
+};
+
+function showPillar(id) {
+  const d = pillarData[id];
+  document.getElementById('pillar-explain').innerHTML = `<span style="color:${d.color};font-weight:700">${d.title}</span><br><br>${d.text}`;
+  document.querySelectorAll('.oop-pillar-card').forEach(c => c.style.transform = '');
+  document.getElementById('pillar-' + id).style.transform = 'translateY(-3px)';
+}
+
+// ── S2: PACKAGE ──
+const pkgData = {
+  main: { title: 'package main', color: 'var(--class-c)', text: 'The default namespace. All code outside a package declaration lives here. Variables and subs here are $main::name, &main::greet. In a script, you rarely declare "package main" explicitly — it\'s automatic.' },
+  animal: { title: 'package Animal', color: 'var(--obj-c)', text: 'A class namespace. Animal::new, Animal::speak, Animal::eat are all fully qualified names. From within the package you call them as just new(), speak() etc. OR as $self->method() from an object.' },
+  dog: { title: 'package Dog', color: 'var(--method-c)', text: 'Child class. our @ISA = ("Animal") (or use parent "Animal") makes Perl search Animal\'s methods when Dog\'s are not found. Dog overrides speak() and adds fetch() — Animal::eat() still inherited.' },
+};
+
+function selectPkg(id) {
+  const d = pkgData[id];
+  document.getElementById('pkg-explain').innerHTML = `<span style="color:${d.color}">${d.title}</span>: ${d.text}`;
+}
+
+// ── S3: BLESS ──
+let blessAnimRunning = false;
+async function animateBless() {
+  if (blessAnimRunning) return;
+  blessAnimRunning = true;
+  resetBless();
+
+  const before = document.getElementById('bless-before');
+  const after = document.getElementById('bless-after');
+  const arrow = document.getElementById('bless-arrow');
+  const codeInline = document.getElementById('bless-code-inline');
+  const note = document.getElementById('bless-note');
+  const status = document.getElementById('bless-status');
+
+  status.textContent = 'Step 1: We have a plain hash reference...';
+  before.style.borderColor = 'rgba(93,184,245,0.6)';
+  before.style.boxShadow = '0 0 15px rgba(93,184,245,0.15)';
+  await delay(800);
+
+  status.textContent = 'Step 2: Calling bless($ref, "Dog")...';
+  arrow.style.color = 'var(--class-c)';
+  codeInline.style.opacity = '1';
+  codeInline.style.color = 'var(--class-c)';
+  note.textContent = '→ bless() adds a hidden tag to the reference: "this is a Dog"';
+  await delay(1000);
+
+  status.textContent = 'Step 3: The hash is now a blessed Dog object!';
+  after.style.opacity = '1';
+  after.style.borderColor = 'rgba(226,185,106,0.6)';
+  after.style.boxShadow = '0 0 15px rgba(226,185,106,0.15)';
+  document.getElementById('bless-after-tag').style.color = 'var(--class-c)';
+  document.getElementById('bless-after-ref').style.color = 'var(--class-c)';
+  await delay(800);
+
+  status.textContent = '✓ bless() complete! ref($rex) = "Dog". Methods now dispatch to Dog::*';
+  note.textContent = '✓ Same data, but now $rex->speak() dispatches to Dog::speak($rex)';
+  blessAnimRunning = false;
+}
+
+function resetBless() {
+  blessAnimRunning = false;
+  document.getElementById('bless-before').style.borderColor = '';
+  document.getElementById('bless-before').style.boxShadow = '';
+  document.getElementById('bless-after').style.opacity = '0.3';
+  document.getElementById('bless-after').style.borderColor = 'var(--border2)';
+  document.getElementById('bless-after').style.boxShadow = '';
+  document.getElementById('bless-after-tag').style.color = 'var(--muted)';
+  document.getElementById('bless-after-ref').style.color = 'var(--class-c)';
+  document.getElementById('bless-arrow').style.color = 'var(--border2)';
+  document.getElementById('bless-code-inline').style.opacity = '0.4';
+  document.getElementById('bless-note').textContent = 'Click ▶ Animate to see bless() in action';
+  document.getElementById('bless-status').textContent = 'Click ▶ to watch a hash become a Dog object';
+}
+
+// ── S4: CONSTRUCTOR ──
+const dogNames = ['Rex','Luna','Max','Bella','Charlie','Daisy','Rocky','Molly','Bear','Coco'];
+const dogBreeds = ['Labrador','Husky','Poodle','Bulldog','Beagle','Corgi','GSD','Dalmatian'];
+let instanceCount = 0;
+
+function addInstance() {
+  instanceCount++;
+  const name = dogNames[Math.floor(Math.random() * dogNames.length)];
+  const breed = dogBreeds[Math.floor(Math.random() * dogBreeds.length)];
+  const age = Math.floor(Math.random() * 10) + 1;
+
+  const container = document.getElementById('obj-instances');
+  const el = document.createElement('div');
+  el.style.cssText = 'background:rgba(93,184,245,0.06);border:1px solid rgba(93,184,245,0.35);border-radius:8px;padding:0.75rem;min-width:130px;animation:popIn 0.3s ease;text-align:center;';
+  el.innerHTML = `
+    <div style="font-size:1.2rem;margin-bottom:0.3rem">🐕</div>
+    <div style="font-family:Fira Code,monospace;font-size:0.68rem;color:var(--obj-c);font-weight:700">$dog_${instanceCount}</div>
+    <div style="font-family:Fira Code,monospace;font-size:0.6rem;color:var(--dim);line-height:1.7;margin-top:0.3rem">name: ${name}<br>age: ${age}<br>breed: ${breed}</div>
+    <div style="font-family:Fira Code,monospace;font-size:0.55rem;color:var(--muted);margin-top:0.3rem">ref = "Dog"</div>
+  `;
+  container.appendChild(el);
+  document.getElementById('factory-log').textContent = `Dog->new(name=>'${name}', age=>${age}) → created $dog_${instanceCount} at 0x${Math.floor(Math.random()*0xFFFFFF).toString(16)}`;
+  document.getElementById('constructor-status').textContent = `${instanceCount} independent Dog object${instanceCount > 1 ? 's' : ''} created — each has its own data`;
+}
+
+function clearInstances() {
+  document.getElementById('obj-instances').innerHTML = '';
+  instanceCount = 0;
+  document.getElementById('factory-log').textContent = '';
+  document.getElementById('constructor-status').textContent = 'Click + Create Instance to see objects being created';
+}
+
+// ── S5: METHODS ──
+const methodData = {
+  speak: { out: 'Rex says: Woof! 🐕', color: 'var(--method-c)' },
+  name:  { out: 'Returns: "Rex"', color: 'var(--obj-c)' },
+  learn: { out: 'Rex learned: sit ✓\n(added to $self->{_tricks} array)', color: 'var(--class-c)' },
+  tricks:{ out: "Rex's tricks: sit, shake, roll over", color: 'var(--inherit-c)' },
+};
+
+function traceMethod(id) {
+  document.querySelectorAll('.dispatch-row').forEach(r => r.classList.remove('active-dispatch'));
+  document.getElementById('m-' + id).classList.add('active-dispatch');
+  const d = methodData[id];
+  document.getElementById('method-output').innerHTML = `<span style="color:${d.color}">${d.out.replace(/\n/g,'<br>')}</span>`;
+}
+
+// ── S6: ACCESSORS ──
+const accessorCode = {
+  combined: `sub name {
+    my $self = shift;
+    # If argument given → SET
+    $self->{name} = shift if @_;
+    # Always return value
+    return $self->{name};
+}
+# Usage:
+print $dog->name();       # get: "Rex"
+$dog->name("Rufus");      # set
+print $dog->name();       # get: "Rufus"`,
+  separate: `sub get_name { return $_[0]->{name} }
+sub set_name {
+    my ($self, $val) = @_;
+    die "name required" unless $val;
+    $self->{name} = $val;
+}
+# Usage:
+print $dog->get_name();
+$dog->set_name("Rufus");`,
+  closure: `# Generate multiple accessors at once
+for my $attr (qw(name age breed)) {
+    no strict 'refs';
+    *{"Dog::$attr"} = sub {
+        my $self = shift;
+        $self->{$attr} = shift if @_;
+        return $self->{$attr};
+    };
+}
+# All three accessors auto-created:
+$dog->name("Rex");  $dog->age(3);
+print $dog->breed(); # "Lab"`
+};
+
+function showAccessor(type) {
+  document.getElementById('accessor-code').textContent = accessorCode[type];
+  document.querySelectorAll('#accessor-patterns > div').forEach(d => d.style.transform = '');
+  document.getElementById('acc-' + type).style.transform = 'translateY(-3px)';
+}
+
+// ── S7: INHERITANCE ──
+const inheritData = {
+  animal: { color:'var(--class-c)', title:'Animal (Root Class)', text:'@ISA = () — no parent. Provides: new(), name(), speak(), eat(). All other classes in this hierarchy inherit from Animal directly or indirectly.' },
+  dog:    { color:'var(--obj-c)',   title:'Dog extends Animal', text:'@ISA = ("Animal"). Dog OVERRIDES speak() (Woof instead of generic), ADDS fetch(). Inherits: new(), name(), eat() from Animal.' },
+  poodle: { color:'var(--method-c)',title:'Poodle extends Dog', text:'@ISA = ("Dog"). MRO: Poodle → Dog → Animal. Gets ALL of Dog and Animal\'s methods. Adds groom(). Inherits speak() from Dog (not Animal).' },
+  cat:    { color:'var(--poly-c)',  title:'Cat extends Animal', text:'@ISA = ("Animal"). Separate branch from Dog. OVERRIDES speak() (Meow), ADDS purr(), scratch(). Shares eat() with Dog via Animal.' },
+};
+
+function highlightInherit(id) {
+  const d = inheritData[id];
+  document.getElementById('inherit-explain').innerHTML = `<span style="color:${d.color}">${d.title}</span> — ${d.text}`;
+  ['animal','dog','poodle','cat'].forEach(n => {
+    const el = document.getElementById('inh-' + n);
+    if (el) el.style.opacity = n === id ? '1' : '0.4';
+  });
+}
+
+let mroAnim = null;
+async function animateMRO() {
+  resetMRO();
+  const msgs = [
+    'Poodle->eat() called... searching Poodle namespace...',
+    'Not in Poodle — searching Dog...',
+    'Not in Dog — searching Animal...',
+    '✓ Found Animal::eat! Executing.',
+  ];
+  const nodes = ['inh-poodle','inh-dog','inh-animal'];
+  const conns = ['inh-conn-2','inh-conn-1'];
+
+  document.getElementById('inh-poodle').style.boxShadow = '0 0 15px rgba(126,232,162,0.3)';
+  document.getElementById('inherit-status').textContent = msgs[0];
+  await delay(900);
+  document.getElementById('inh-conn-2').classList.add('lit');
+  document.getElementById('inh-dog').style.opacity = '1';
+  document.getElementById('inherit-status').textContent = msgs[1];
+  await delay(900);
+  document.getElementById('inh-conn-1').classList.add('lit');
+  document.getElementById('inh-animal').style.opacity = '1';
+  document.getElementById('inh-animal').style.boxShadow = '0 0 15px rgba(226,185,106,0.3)';
+  document.getElementById('inherit-status').textContent = msgs[2];
+  await delay(900);
+  document.getElementById('inherit-status').textContent = msgs[3];
+}
+
+function resetMRO() {
+  ['inh-animal','inh-dog','inh-poodle','inh-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = '1'; el.style.boxShadow = ''; }
+  });
+  document.getElementById('inh-conn-1').classList.remove('lit');
+  document.getElementById('inh-conn-2').classList.remove('lit');
+  document.getElementById('inherit-explain').textContent = 'Click a class node to see its @ISA chain and inherited methods';
+  document.getElementById('inherit-status').textContent = 'Click ▶ to watch Poodle->eat() search through the hierarchy';
+}
+
+// ── S8: MRO SEARCH ──
+let mroSearchRunning = false;
+async function animateMROSearch() {
+  if (mroSearchRunning) return;
+  mroSearchRunning = true;
+  resetMROSearch();
+
+  const steps = [
+    { id: 'mro-0', color: 'rgba(126,232,162,0.1)', bc: 'rgba(126,232,162,0.5)', msg: '❌ Not in Poodle namespace', result: '✗' },
+    { id: 'mro-1', color: 'rgba(93,184,245,0.1)', bc: 'rgba(93,184,245,0.5)', msg: '❌ Not in Dog namespace', result: '✗' },
+    { id: 'mro-2', color: 'rgba(126,232,162,0.15)', bc: 'rgba(126,232,162,0.5)', msg: '✓ Found Animal::eat! Calling it.', result: '✓' },
+  ];
+
+  for (let s of steps) {
+    document.getElementById(s.id).style.opacity = '1';
+    document.getElementById(s.id).style.background = s.color;
+    document.getElementById(s.id).style.borderColor = s.bc;
+    document.getElementById(s.id + '-result').textContent = s.result;
+    document.getElementById(s.id + '-result').style.color = s.result === '✓' ? 'var(--method-c)' : 'var(--poly-c)';
+    document.getElementById('mro-status').textContent = s.msg;
+    document.getElementById('mro-explain').textContent = s.msg;
+    await delay(1000);
+  }
+  mroSearchRunning = false;
+}
+
+function resetMROSearch() {
+  mroSearchRunning = false;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('mro-' + i);
+    if (el) { el.style.opacity = '0.35'; el.style.background = ''; el.style.borderColor = ''; }
+    const res = document.getElementById(`mro-${i}-result`);
+    if (res) res.textContent = '';
+  }
+  document.getElementById('mro-status').textContent = 'Click ▶ to animate the MRO search';
+  document.getElementById('mro-explain').textContent = 'Click ▶ to animate the MRO search';
+}
+
+// ── S9: SUPER ──
+let superRunning = false;
+async function animateSuper() {
+  if (superRunning) return;
+  superRunning = true;
+  resetSuper();
+
+  const steps = [
+    { el:'sd1', color:'var(--obj-c)', msg:'Step 1: Dog::new receives ($class, %args)' },
+    { el:'sd2', color:'var(--moose-c)', msg:'Step 2: Dog::new calls SUPER::new — control transfers to Animal::new' },
+    { el:'sa1', color:'var(--class-c)', msg:'Animal::new builds the base $self hash with name + age' },
+    { el:'sa2', color:'var(--method-c)', msg:'Animal::new blesses and RETURNS the object to Dog::new' },
+    { el:'sd3', color:'var(--obj-c)', msg:'Dog::new adds breed to the returned $self' },
+    { el:'sd4', color:'var(--method-c)', msg:'Dog::new returns the fully built Dog object' },
+  ];
+
+  document.getElementById('super-dog-box').style.borderColor = 'rgba(93,184,245,0.6)';
+
+  for (let s of steps) {
+    if (['sa1','sa2'].includes(s.el)) {
+      document.getElementById('super-animal-box').style.opacity = '1';
+      document.getElementById('super-arrow').style.color = 'var(--moose-c)';
+      document.getElementById('super-arrow').textContent = '↕ SUPER:: (calling Animal::new)';
+    }
+    document.getElementById(s.el).style.opacity = '1';
+    document.getElementById(s.el).style.color = s.color;
+    document.getElementById('super-status').textContent = s.msg;
+    await delay(1000);
+  }
+  document.getElementById('super-status').textContent = '✓ SUPER:: chain complete — Dog object has both Animal + Dog attributes';
+  superRunning = false;
+}
+
+function resetSuper() {
+  superRunning = false;
+  ['sd1','sd2','sd3','sd4','sa1','sa2'].forEach(id => {
+    document.getElementById(id).style.opacity = '0.3';
+    document.getElementById(id).style.color = '';
+  });
+  document.getElementById('super-dog-box').style.borderColor = '';
+  document.getElementById('super-animal-box').style.opacity = '0.4';
+  document.getElementById('super-arrow').style.color = 'var(--border2)';
+  document.getElementById('super-arrow').textContent = '↕ SUPER::';
+  document.getElementById('super-status').textContent = 'Click ▶ to watch Dog::new() call Animal::new() via SUPER';
+}
+
+// ── S11: POLYMORPHISM ──
+const polyData = {
+  dog:   { icon:'🐕', color:'var(--obj-c)',   lines:['$dog->speak() called','→ Perl dispatches to Dog::speak()','Output: Rex says: Woof! 🐕'] },
+  cat:   { icon:'🐈', color:'var(--poly-c)',  lines:['$cat->speak() called','→ Perl dispatches to Cat::speak()','Output: Luna says: Meow~ 🐈'] },
+  duck:  { icon:'🦆', color:'var(--role-c)',  lines:['$duck->speak() called','→ Perl dispatches to Duck::speak()','Output: Daffy says: Quack! 🦆'] },
+  robot: { icon:'🤖', color:'var(--moose-c)', lines:['$robot->speak() called','→ Perl dispatches to Robot::speak()','Output: R2D2 says: BEEP BOOP 🤖'] },
+};
+
+function polySpeak(id) {
+  const d = polyData[id];
+  const out = document.getElementById('poly-output');
+  out.innerHTML = d.lines.map(l => `<span style="display:block;animation:logIn 0.2s ease;color:${d.color}">${l}</span>`).join('');
+  document.getElementById('poly-status').textContent = `${id} speak() called → dispatched to ${id.charAt(0).toUpperCase()+id.slice(1)}::speak()`;
+}
+
+async function polyAll() {
+  const out = document.getElementById('poly-output');
+  out.innerHTML = '';
+  for (let id of ['dog','cat','duck','robot']) {
+    const d = polyData[id];
+    const line = document.createElement('span');
+    line.style.cssText = `display:block;animation:logIn 0.2s ease;color:${d.color}`;
+    line.textContent = d.lines[2];
+    out.appendChild(line);
+    await delay(450);
+  }
+}
+
+function clearPolyOutput() {
+  document.getElementById('poly-output').innerHTML = '<span style="color:var(--muted)">Click an animal above — all have speak(), each behaves differently</span>';
+}
+
+// ── S12: OPERATOR OVERLOAD ──
+function olOp(op) {
+  const ops = {
+    add: () => `$v1 + $v2\n→ calls Vector::add($v1, $v2)\n→ returns Vector(3+1, 4+2) = Vector(4, 6)`,
+    sub: () => `$v1 - $v2\n→ calls Vector::subtract($v1, $v2)\n→ returns Vector(3-1, 4-2) = Vector(2, 2)`,
+    mul: () => `$v1 * 2\n→ calls Vector::multiply($v1, 2)\n→ returns Vector(3*2, 4*2) = Vector(6, 8)`,
+    eq:  () => `$v1 == $v2\n→ calls Vector::equal($v1, $v2)\n→ (3==1 && 4==2) = false (0)`,
+    str: () => `print $v1\n→ string overload calls Vector::to_string($v1)\n→ prints: "Vector(3, 4)"`,
+  };
+  document.getElementById('ol-result').innerHTML = `<span style="color:var(--method-c);white-space:pre-line">${ops[op]()}</span>`;
+}
+
+// ── S13: DESTROY ──
+let destroyRunning = false;
+async function animateDestroy() {
+  if (destroyRunning) return;
+  destroyRunning = true;
+  resetDestroy();
+
+  const steps = [
+    { id:'dst-0', color:'rgba(93,184,245,0.1)', bc:'rgba(93,184,245,0.5)', log:'[SCOPE] Entering block {', type:'obj' },
+    { id:'dst-1', color:'rgba(126,232,162,0.08)', bc:'rgba(126,232,162,0.4)', log:'[NEW] DB::Connection->new() called → TCP handshake, auth OK', type:'method' },
+    { id:'dst-2', color:'rgba(126,232,162,0.05)', bc:'rgba(126,232,162,0.3)', log:'[USE] $conn->execute("SELECT * FROM users") → 4 rows', type:'ok' },
+    { id:'dst-3', color:'rgba(249,112,102,0.06)', bc:'rgba(249,112,102,0.3)', log:'[SCOPE] Block ends } → $conn ref count drops to 0', type:'warn' },
+    { id:'dst-4', color:'rgba(249,112,102,0.1)', bc:'rgba(249,112,102,0.5)', log:'[DESTROY] DB::Connection::DESTROY() called → socket closed, resources freed!', type:'err' },
+  ];
+
+  for (let s of steps) {
+    document.getElementById(s.id).style.opacity = '1';
+    document.getElementById(s.id).style.background = s.color;
+    document.getElementById(s.id).style.borderLeftColor = s.bc;
+    document.getElementById('destroy-log').innerHTML = `<span style="font-family:Fira Code,monospace;font-size:0.68rem;color:${s.type==='err'?'var(--poly-c)':s.type==='ok'?'var(--method-c)':'var(--obj-c)'}">${s.log}</span>`;
+    document.getElementById('destroy-status').textContent = s.log;
+    await delay(1000);
+  }
+  destroyRunning = false;
+}
+
+function resetDestroy() {
+  destroyRunning = false;
+  for (let i = 0; i < 5; i++) {
+    const el = document.getElementById('dst-' + i);
+    if (el) { el.style.opacity = '0.3'; el.style.background = ''; el.style.borderLeftColor = 'var(--border2)'; }
+  }
+  document.getElementById('destroy-log').innerHTML = '';
+  document.getElementById('destroy-status').textContent = 'Click ▶ to watch the full object lifecycle';
+}
+
+// ── S15: MOOSE ATTRIBUTES ──
+const attrOptionCode = {
+  is: `has 'name' => (is => 'rw');  # rw: readable + writable
+has 'id'   => (is => 'ro');  # ro: read-only (no setter)
+has 'pass' => (is => 'wo');  # wo: write-only (no getter)
+# rw creates: name() getter + name($val) setter
+# ro creates: name() getter only — die on write attempt`,
+
+  isa: `has 'name'   => (isa => 'Str');       # any string
+has 'age'    => (isa => 'Int');       # integer
+has 'score'  => (isa => 'Num');       # number
+has 'tags'   => (isa => 'ArrayRef');  # array ref
+has 'meta'   => (isa => 'HashRef');   # hash ref
+has 'friend' => (isa => 'Dog');       # must be a Dog object
+# Moose validates type on every write — dies if wrong type`,
+
+  default: `has 'count' => (default => 0);          # scalar default
+has 'name'  => (default => 'Unknown');   # string default
+# IMPORTANT: refs need sub {} to avoid sharing!
+has 'items' => (default => sub { [] }); # each obj gets own []
+has 'data'  => (default => sub { {} }); # each obj gets own {}
+has 'log'   => (default => sub { Logger->new() }); # factory`,
+
+  lazy: `# Lazy: computed only when first accessed (not at new())
+has 'full_name' => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_full_name',
+);
+sub _build_full_name {
+    my $self = shift;
+    return $self->first . ' ' . $self->last; # computed
+}
+# first/last must exist first — lazy ensures ordering`,
+
+  trigger: `has 'temperature' => (
+    is      => 'rw',
+    isa     => 'Num',
+    trigger => sub {
+        my ($self, $new_val, $old_val) = @_;
+        print "Temp changed from $old_val to $new_val\n";
+        $self->alert() if $new_val > 100; # side effect
+    },
+);
+# Trigger fires every time: $obj->temperature(98.6)`,
+
+  coerce: `use Moose::Util::TypeConstraints;
+# Define coercion: auto-convert ArrayRef from Str
+coerce 'ArrayRef[Str]',
+    from 'Str', via { [$_] };  # "foo" → ["foo"]
+has 'tags' => (is=>'rw', isa=>'ArrayRef[Str]', coerce=>1);
+# Now both work:
+$obj->tags(["perl","oop"]);  # already ArrayRef — OK
+$obj->tags("perl");          # auto-coerced to ["perl"]`,
+};
+
+function showAttrOption(key) {
+  document.getElementById('attr-explain').innerHTML = `<span style="color:var(--moose-c)">${key}:</span>\n\n${attrOptionCode[key]}`;
+}
+
+// ── S16: ROLES ──
+const activeRoles = new Set();
+const roleData = {
+  printable:    { methods: ['print_info()', 'print_debug()'], desc:'Adds print_info() and print_debug() — requires to_string() to be implemented' },
+  serializable: { methods: ['to_json()', 'to_yaml()', 'from_json()'], desc:'Adds JSON/YAML serialization methods' },
+  comparable:   { methods: ['equals()', 'compare()'], desc:'Adds equality and comparison methods' },
+  loggable:     { methods: ['log_info()', 'log_warn()', 'log_error()'], desc:'Adds structured logging methods' },
+};
+
+function toggleRole(name) {
+  if (activeRoles.has(name)) {
+    activeRoles.delete(name);
+    document.querySelector(`[onclick="toggleRole('${name}')"]`).classList.remove('active');
+  } else {
+    activeRoles.add(name);
+    document.querySelector(`[onclick="toggleRole('${name}')"]`).classList.add('active');
+  }
+  updateRoleViz();
+}
+
+function updateRoleViz() {
+  const roleHtml = (target) => {
+    if (activeRoles.size === 0) return '<span style="color:var(--muted);font-size:0.62rem;font-family:Fira Code,monospace">none</span>';
+    return [...activeRoles].map(r => `<span style="color:var(--role-c);font-family:Fira Code,monospace;font-size:0.62rem;display:block">with '${r.charAt(0).toUpperCase()+r.slice(1)}'<br>${roleData[r].methods.map(m => '  ✓ '+m).join('<br>')}</span>`).join('');
+  };
+
+  document.getElementById('dog-roles').innerHTML = roleHtml('dog');
+  document.getElementById('user-roles').innerHTML = roleHtml('user');
+  document.getElementById('role-explain').innerHTML = activeRoles.size > 0
+    ? [...activeRoles].map(r => `<span style="color:var(--role-c)">${r}</span>: ${roleData[r].desc}`).join('<br>')
+    : 'Click a role to toggle it onto all classes';
+}
+
+// ── S17: METHOD MODIFIERS ──
+let modRunning = false;
+async function animateModifiers() {
+  if (modRunning) return;
+  modRunning = true;
+  resetModifiers();
+
+  const mods = [
+    { id:'mod-before', color:'rgba(226,185,106,0.12)', bc:'var(--class-c)', out:'[LOG] Rex is about to speak' },
+    { id:'mod-around-pre', color:'rgba(167,139,250,0.1)', bc:'var(--moose-c)', out:'[TIMER] Starting... (around pre)' },
+    { id:'mod-orig', color:'rgba(126,232,162,0.1)', bc:'var(--method-c)', out:'Rex: Woof!  (original method)' },
+    { id:'mod-around-post', color:'rgba(167,139,250,0.08)', bc:'var(--moose-c)', out:'[TIMER] Done. (around post)' },
+    { id:'mod-after', color:'rgba(93,184,245,0.1)', bc:'var(--obj-c)', out:'[LOG] speak() completed (after)' },
+  ];
+
+  for (let m of mods) {
+    document.getElementById(m.id).style.opacity = '1';
+    document.getElementById(m.id).style.background = m.color;
+    document.getElementById(m.id).style.borderColor = m.bc;
+    document.getElementById('modifier-out').innerHTML = (document.getElementById('modifier-out').innerHTML || '') + `<span style="display:block;animation:logIn 0.2s ease;color:var(--text)">> ${m.out}</span>`;
+    document.getElementById('modifier-status').textContent = m.out;
+    await delay(850);
+  }
+  modRunning = false;
+}
+
+function resetModifiers() {
+  modRunning = false;
+  ['mod-before','mod-around-pre','mod-orig','mod-around-post','mod-after'].forEach(id => {
+    document.getElementById(id).style.opacity = '0.3';
+    document.getElementById(id).style.background = '';
+    document.getElementById(id).style.borderColor = 'var(--border2)';
+  });
+  document.getElementById('modifier-out').innerHTML = '';
+  document.getElementById('modifier-status').textContent = 'Click ▶ to see the modifier execution order';
+}
+
+// ── S18: META ──
+const metaResults = {
+  attrs:   `Dog->meta->get_all_attributes():
+
+  name    rw  Str     required=yes
+  age     rw  Int     default=0
+  breed   rw  Str     default="Mixed"
+  tricks  rw  ArrayRef  default=sub{[]}
+  weight  rw  Num     (with trigger)
+  full_desc ro Str    lazy, built by _build_full_desc`,
+
+  methods: `Dog->meta->get_all_methods():
+
+  new          speak         name
+  age          breed         tricks
+  fetch        learn_trick   DESTROY
+  meta         does          isa
+  can          DOES          (+ inherited from Animal)`,
+
+  roles:   `Dog->meta->calculate_all_roles():
+
+  Role::Printable   → print_info, print_debug
+  Role::Serializable → to_json, from_json
+  (requires: to_string — implemented by Dog)`,
+
+  isa:     `mro::get_linear_isa('Dog'):
+[
+  'Dog',          # self
+  'Animal',       # via extends
+  'Moose::Object',# Moose injects this
+  'UNIVERSAL',    # always last
+]`,
+
+  add:     `# Add method to class AT RUNTIME:
+Dog->meta->add_method('dance' => sub {
+    print $_[0]->name() . " is dancing!\n"
+});
+
+# IMMEDIATELY available on all Dog objects:
+$rex->dance();   # "Rex is dancing!"
+$luna->dance();  # "Luna is dancing!"
+# Even objects created BEFORE this call!`,
+
+  clone:   `# Deep-clone an object with overrides:
+my $rex2 = $rex->meta->clone_object($rex,
+    name => 'Rex Clone',
+    age  => $rex->age() + 1,
+);
+
+# $rex2 is a new object with copied data
+# Modifying $rex2 does NOT affect $rex
+print $rex2->name();  # "Rex Clone"
+print $rex->name();   # "Rex" (unchanged)`
+};
+
+function metaQuery(key) {
+  document.querySelectorAll('.meta-pill').forEach(p => p.classList.remove('active-meta'));
+  event.target.classList.add('active-meta');
+  document.getElementById('meta-output').textContent = metaResults[key];
+}
+
+// ── S19: AUTOLOAD ──
+let alRunning = false;
+async function autoloadCall(method) {
+  if (alRunning) return;
+  alRunning = true;
+
+  const results = {
+    speak:    { found: true, where: 'Dog package directly', out: '✓ Dog::speak($d) executed → "Rex: Woof!"', steps: 2 },
+    get_name: { found: true, where: 'AUTOLOAD (matches /^get_(.+)$/)', out: '✓ AUTOLOAD auto-getter: returns $self->{name} = "Rex"', steps: 5 },
+    set_age:  { found: true, where: 'AUTOLOAD (matches /^set_(.+)$/)', out: '✓ AUTOLOAD auto-setter: $self->{age} = 5', steps: 5 },
+    fly:      { found: false, where: 'AUTOLOAD — no match in dispatch table', out: '✗ die: "Method fly not found in Dog"', steps: 5 },
+  };
+
+  const r = results[method];
+  for (let i = 1; i <= r.steps; i++) {
+    const el = document.getElementById('al-step' + i);
+    if (el) { el.style.opacity = '1'; el.style.borderColor = i === r.steps ? (r.found ? 'rgba(126,232,162,0.5)':'rgba(249,112,102,0.5)') : 'rgba(93,184,245,0.4)'; }
+    await delay(400);
+    if (i === 1 && r.steps === 2) break;
+  }
+
+  document.getElementById('autoload-out').innerHTML = `<span style="color:${r.found ? 'var(--method-c)' : 'var(--poly-c)'}">${r.out}</span><br><span style="color:var(--muted)">Resolved by: ${r.where}</span>`;
+  alRunning = false;
+}
+
+// ── S20: DESIGN PATTERNS ──
+const patternCode = {
+  singleton: `package Config;
+my $_instance;  # only ever one
+sub instance {
+    $_instance //= bless { data => {} }, shift;
+    return $_instance;
+}
+sub set { $_[0]{data}{$_[1]} = $_[2] }
+sub get { return $_[0]{data}{$_[1]} }
+
+# Always the SAME object:
+Config->instance->set('debug', 1);
+my $debug = Config->instance->get('debug'); # 1`,
+
+  factory: `package AnimalFactory;
+my %registry = (
+    dog  => 'Dog',
+    cat  => 'Cat',
+    duck => 'Duck',
+);
+sub register { $registry{$_[1]} = $_[2] }
+sub create {
+    my ($class, $type, %args) = @_;
+    my $pkg = $registry{lc $type}
+        // die "Unknown animal: $type";
+    return $pkg->new(%args);
+}
+# Client doesn't know which class is created:
+my $pet = AnimalFactory->create('dog', name=>'Rex');`,
+
+  observer: `package EventEmitter;
+sub new  { bless { _handlers => {} }, shift }
+sub on {
+    my ($self, $event, $cb) = @_;
+    push @{$self->{_handlers}{$event}}, $cb;
+}
+sub emit {
+    my ($self, $event, @data) = @_;
+    $_->(@data) for @{$self->{_handlers}{$event}//[]};
+}
+
+my $dog = Dog->new(name => 'Rex');
+$dog->on('bark', sub { print "Bark heard!\\n" });
+$dog->emit('bark');  # → "Bark heard!"`,
+
+  strategy: `package Sorter;
+sub new { bless { algo => $_[1] }, $_[0] }
+sub set_algorithm { $_[0]{algo} = $_[1] }
+sub sort_data     { return $_[0]{algo}->($_[1]) }
+
+# Different strategies (algorithms):
+my $asc  = sub { [sort { $a <=> $b } @{$_[0]}] };
+my $desc = sub { [sort { $b <=> $a } @{$_[0]}] };
+my $sorter = Sorter->new($asc);
+$sorter->sort_data([5,2,8,1]); # [1,2,5,8]
+$sorter->set_algorithm($desc); # swap at runtime!
+$sorter->sort_data([5,2,8,1]); # [8,5,2,1]`,
+};
+
+function showPattern(key) {
+  document.querySelectorAll('.pattern-card').forEach(c => c.style.transform = '');
+  event.currentTarget.style.transform = 'translateY(-3px)';
+  const codeEl = document.getElementById('pattern-code');
+  codeEl.textContent = patternCode[key];
+  codeEl.style.display = 'block';
+}
+
+</script>
+</body>
+</html>

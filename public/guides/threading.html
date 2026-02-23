@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perl Threading — Visual Playground</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #080c14;
+  --panel: #0d1320;
+  --card: #111827;
+  --border: #1e2d45;
+  --border2: #243550;
+  --t1: #00d4ff;
+  --t2: #ff6b35;
+  --t3: #4ade80;
+  --t4: #f59e0b;
+  --t5: #e879f9;
+  --lock: #facc15;
+  --danger: #ef4444;
+  --muted: #4b6080;
+  --text: #c8d8ea;
+  --dim: #8099b8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  overflow-x: hidden;
+}
+
+/* Stars background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(0,212,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,107,53,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 80%, rgba(74,222,128,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 60%, rgba(245,158,11,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 70%, rgba(232,121,249,0.2) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--t1);
+  border: 1px solid rgba(0,212,255,0.3);
+  padding: 0.3rem 1rem;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+  background: rgba(0,212,255,0.05);
+}
+
+h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, var(--t1) 50%, var(--t5) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.tab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  color: var(--muted);
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  position: relative;
+  bottom: -1px;
+  background: transparent;
+}
+
+.tab:hover { color: var(--text); border-color: var(--border2); background: var(--panel); }
+.tab.active { color: var(--t1); border-color: var(--border2); background: var(--panel); border-bottom-color: var(--panel); }
+
+/* Visualization panels */
+.viz-panel {
+  display: none;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 0 12px 12px 12px;
+  padding: 2rem;
+  min-height: 400px;
+  animation: panelIn 0.3s ease;
+}
+
+.viz-panel.active { display: block; }
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.viz-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  color: #fff;
+}
+
+.viz-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* Canvas area */
+.canvas-area {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  border: 1px solid;
+}
+
+.btn-primary {
+  background: rgba(0,212,255,0.1);
+  border-color: rgba(0,212,255,0.4);
+  color: var(--t1);
+}
+
+.btn-primary:hover { background: rgba(0,212,255,0.2); }
+
+.btn-danger {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.4);
+  color: var(--danger);
+}
+
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+.btn-amber {
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.4);
+  color: var(--t4);
+}
+
+.btn-amber:hover { background: rgba(245,158,11,0.2); }
+
+.status-bar {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--dim);
+  padding: 0.4rem 0.75rem;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  flex: 1;
+  min-width: 200px;
+}
+
+/* ─── THREAD COLORS ─── */
+.tc1 { color: var(--t1); }
+.tc2 { color: var(--t2); }
+.tc3 { color: var(--t3); }
+.tc4 { color: var(--t4); }
+.tc5 { color: var(--t5); }
+
+/* ══════════════════════════════════════════
+   VIZ 1: THREAD LIFECYCLE
+══════════════════════════════════════════ */
+#viz-lifecycle .canvas-area { height: 300px; }
+
+.lifecycle-svg { width: 100%; height: 100%; }
+
+/* ══════════════════════════════════════════
+   VIZ 2: CONCURRENCY vs PARALLELISM
+══════════════════════════════════════════ */
+#viz-concurrency .canvas-area { height: 260px; padding: 1.5rem; }
+
+.cpu-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.cpu-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tl-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.tl-track {
+  flex: 1;
+  height: 28px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.tl-block {
+  position: absolute;
+  height: 100%;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  transition: all 0.05s;
+}
+
+/* ══════════════════════════════════════════
+   VIZ 3: SHARED VARIABLES + RACE CONDITION
+══════════════════════════════════════════ */
+#viz-race .canvas-area { height: 320px; padding: 1.5rem; }
+
+.race-layout {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+  height: 100%;
+  align-items: center;
+}
+
+.thread-box {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 1rem;
+  position: relative;
+}
+
+.thread-box-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.thread-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  color: var(--dim);
+  transition: all 0.4s;
+}
+
+.thread-step.active {
+  color: #fff;
+  border-color: currentColor;
+  background: rgba(255,255,255,0.05);
+}
+
+.thread-step.done { opacity: 0.4; }
+
+.shared-box {
+  background: var(--card);
+  border: 2px solid var(--lock);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  min-width: 120px;
+}
+
+.shared-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--lock);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.shared-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  transition: all 0.3s;
+}
+
+.shared-value.dirty { color: var(--danger); animation: shake 0.3s; }
+.shared-value.correct { color: var(--t3); }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.arrow-anim {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+/* ══════════════════════════════════════════
+   VIZ 4: MUTEX / LOCK
+══════════════════════════════════════════ */
+#viz-mutex .canvas-area { height: 340px; padding: 1.5rem; }
+
+.mutex-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.mutex-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mutex-col-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.thread-pill {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  border: 1px solid;
+  text-align: center;
+  transition: all 0.4s;
+  background: var(--card);
+}
+
+.lock-gate {
+  background: var(--card);
+  border: 2px solid var(--lock);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  width: 100%;
+  position: relative;
+}
+
+.lock-icon {
+  font-size: 2rem;
+  transition: all 0.3s;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.lock-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.critical-section {
+  background: rgba(250,204,21,0.05);
+  border: 1px dashed rgba(250,204,21,0.3);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--lock);
+}
+
+.counter-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ══════════════════════════════════════════
+   VIZ 5: THREAD QUEUE
+══════════════════════════════════════════ */
+#viz-queue .canvas-area { height: 300px; padding: 1.5rem; }
+
+.queue-layout {
+  display: grid;
+  grid-template-columns: 160px 1fr 160px;
+  gap: 1.5rem;
+  height: 100%;
+  align-items: center;
+}
+
+.producer-box, .consumer-box {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.q-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+
+.q-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: none;
+  border: 1px solid;
+}
+
+.q-btn-produce {
+  color: var(--t2);
+  border-color: rgba(255,107,53,0.4);
+}
+.q-btn-produce:hover { background: rgba(255,107,53,0.1); }
+
+.q-btn-consume {
+  color: var(--t3);
+  border-color: rgba(74,222,128,0.4);
+}
+.q-btn-consume:hover { background: rgba(74,222,128,0.1); }
+
+.queue-visual {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.queue-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
+
+.queue-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+
+.q-item {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 0.35rem 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  display: flex;
+  justify-content: space-between;
+  animation: slideIn 0.3s ease;
+  border-left: 3px solid var(--t2);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.q-item.consuming {
+  animation: consumeAnim 0.4s ease forwards;
+}
+
+@keyframes consumeAnim {
+  to { opacity: 0; transform: translateX(20px); background: rgba(74,222,128,0.1); }
+}
+
+/* ══════════════════════════════════════════
+   VIZ 6: SEMAPHORE
+══════════════════════════════════════════ */
+#viz-semaphore .canvas-area { height: 320px; padding: 1.5rem; }
+
+.sem-layout {
+  display: flex;
+  gap: 2rem;
+  height: 100%;
+  align-items: flex-start;
+}
+
+.sem-threads {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.sem-thread {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  border: 1px solid var(--border2);
+  background: var(--card);
+  transition: all 0.4s;
+  cursor: pointer;
+}
+
+.sem-thread-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.sem-gate {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sem-count-display {
+  background: var(--card);
+  border: 2px solid var(--t5);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.sem-count-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--t5);
+  transition: all 0.3s;
+}
+
+.sem-slots {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.sem-slot {
+  width: 36px; height: 36px;
+  border-radius: 6px;
+  border: 2px solid var(--border2);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  transition: all 0.4s;
+}
+
+.sem-slot.occupied {
+  border-color: currentColor;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}
+
+.sem-waiting {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.sem-wait-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+.sem-wait-queue {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  min-height: 30px;
+}
+
+.sem-wait-pill {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  border: 1px solid;
+  animation: slideIn 0.2s ease;
+}
+
+/* ══════════════════════════════════════════
+   VIZ 7: THREAD POOL
+══════════════════════════════════════════ */
+#viz-pool .canvas-area { height: 360px; padding: 1.5rem; }
+
+.pool-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1.2rem;
+  height: 100%;
+}
+
+.pool-workers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.worker-card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.worker-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.worker-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.worker-progress {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.worker-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.pool-queue-vis {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.pool-q-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pool-task {
+  width: 32px; height: 32px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  animation: taskAppear 0.2s ease;
+  transition: all 0.2s;
+}
+
+@keyframes taskAppear {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pool-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.pool-stat-box {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  text-align: center;
+}
+
+.pool-stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.pool-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+/* ══════════════════════════════════════════
+   VIZ 8: DEADLOCK
+══════════════════════════════════════════ */
+#viz-deadlock .canvas-area { height: 340px; }
+
+.deadlock-svg { width: 100%; height: 100%; }
+
+/* ══════════════════════════════════════════
+   VIZ 9: PRODUCER-CONSUMER
+══════════════════════════════════════════ */
+#viz-prodcon .canvas-area { height: 320px; padding: 1.5rem; }
+
+.prodcon-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.pc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.pc-col-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-align: center;
+  padding: 0.3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pc-worker {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.pc-worker-activity {
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.pc-queue-col {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pc-queue-items {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 220px;
+}
+
+.pc-item {
+  background: var(--card);
+  border-left: 3px solid var(--t2);
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  animation: slideIn 0.2s ease;
+}
+
+.pc-item.processing { border-left-color: var(--t3); background: rgba(74,222,128,0.05); }
+
+/* Legend */
+.legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--dim);
+}
+
+.leg-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.pulsing { animation: pulse 1s infinite; }
+
+/* Spin */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Glow */
+.glow-cyan { box-shadow: 0 0 15px rgba(0,212,255,0.3); border-color: var(--t1) !important; }
+.glow-orange { box-shadow: 0 0 15px rgba(255,107,53,0.3); border-color: var(--t2) !important; }
+.glow-green { box-shadow: 0 0 15px rgba(74,222,128,0.3); border-color: var(--t3) !important; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="header-badge">// VISUAL PLAYGROUND</div>
+    <h1>Perl Threading — Animated</h1>
+    <p class="subtitle">$ interact with every concept in real time</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('lifecycle')">Lifecycle</div>
+    <div class="tab" onclick="showTab('concurrency')">Concurrency</div>
+    <div class="tab" onclick="showTab('race')">Race Condition</div>
+    <div class="tab" onclick="showTab('mutex')">Mutex/Lock</div>
+    <div class="tab" onclick="showTab('queue')">Queue</div>
+    <div class="tab" onclick="showTab('semaphore')">Semaphore</div>
+    <div class="tab" onclick="showTab('pool')">Thread Pool</div>
+    <div class="tab" onclick="showTab('deadlock')">Deadlock</div>
+    <div class="tab" onclick="showTab('prodcon')">Prod-Consumer</div>
+  </div>
+
+  <!-- ════════════ VIZ 1: LIFECYCLE ════════════ -->
+  <div class="viz-panel active" id="viz-lifecycle">
+    <div class="viz-title">Thread Lifecycle</div>
+    <div class="viz-desc"># A thread goes through distinct states: Created → Running → Blocked/Waiting → Finished → Joined</div>
+    <div class="canvas-area">
+      <svg class="lifecycle-svg" viewBox="0 0 900 280" id="lifecycle-svg"></svg>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="startLifecycle()">▶ Animate</button>
+      <button class="btn btn-amber" onclick="resetLifecycle()">↺ Reset</button>
+      <div class="status-bar" id="lifecycle-status">Click ▶ Animate to watch a thread's full lifecycle</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 2: CONCURRENCY vs PARALLELISM ════════════ -->
+  <div class="viz-panel" id="viz-concurrency">
+    <div class="viz-title">Concurrency vs Parallelism</div>
+    <div class="viz-desc"># Concurrency = interleaved on 1 CPU. Parallelism = truly simultaneous on multiple CPUs.</div>
+    <div class="canvas-area" id="conc-canvas" style="height:auto; padding:1.5rem">
+      <div class="cpu-label">CONCURRENCY (1 CPU — interleaved)</div>
+      <div id="conc-rows"></div>
+      <br>
+      <div class="cpu-label">PARALLELISM (4 CPUs — simultaneous)</div>
+      <div id="para-rows"></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="animateConcurrency()">▶ Animate</button>
+      <button class="btn btn-amber" onclick="resetConcurrency()">↺ Reset</button>
+      <div class="status-bar" id="conc-status">Click ▶ to see the difference</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 3: RACE CONDITION ════════════ -->
+  <div class="viz-panel" id="viz-race">
+    <div class="viz-title">Race Condition</div>
+    <div class="viz-desc"># Two threads read-modify-write a shared variable simultaneously. One update gets lost.</div>
+    <div class="canvas-area">
+      <div class="race-layout" style="padding: 1.5rem; height: 320px;">
+        <div class="thread-box" id="race-t1-box" style="--c:var(--t1); border-color: rgba(0,212,255,0.3)">
+          <div class="thread-box-title tc1">THREAD_1</div>
+          <div class="thread-step" id="rs1-1" style="--c:var(--t1)">1. read $counter  → <span id="rs1-read">?</span></div>
+          <div class="thread-step" id="rs1-2">2. compute +1     → <span id="rs1-compute">?</span></div>
+          <div class="thread-step" id="rs1-3">3. write $counter → <span id="rs1-write">?</span></div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center">
+          <div class="shared-box">
+            <div class="shared-label">$counter :shared</div>
+            <div class="shared-value" id="race-val">0</div>
+            <div style="font-family: 'JetBrains Mono'; font-size:0.6rem; color:var(--muted); margin-top:0.3rem" id="race-expected"></div>
+          </div>
+        </div>
+        <div class="thread-box" style="border-color: rgba(255,107,53,0.3)">
+          <div class="thread-box-title tc2">THREAD_2</div>
+          <div class="thread-step" id="rs2-1">1. read $counter  → <span id="rs2-read">?</span></div>
+          <div class="thread-step" id="rs2-2">2. compute +1     → <span id="rs2-compute">?</span></div>
+          <div class="thread-step" id="rs2-3">3. write $counter → <span id="rs2-write">?</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-danger" onclick="animateRace()">⚡ Trigger Race</button>
+      <button class="btn btn-amber" onclick="resetRace()">↺ Reset</button>
+      <div class="status-bar" id="race-status">Two threads will both increment $counter — but one update is lost!</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 4: MUTEX ════════════ -->
+  <div class="viz-panel" id="viz-mutex">
+    <div class="viz-title">Mutex / Lock</div>
+    <div class="viz-desc"># lock($var) ensures only one thread enters the critical section at a time. Others wait.</div>
+    <div class="canvas-area">
+      <div class="mutex-layout" style="height:340px; padding:1.5rem;">
+        <!-- Waiting threads column -->
+        <div class="mutex-column">
+          <div class="mutex-col-label">WAITING</div>
+          <div id="mutex-waiting"></div>
+        </div>
+        <!-- Lock gate -->
+        <div class="mutex-column">
+          <div class="mutex-col-label">LOCK GATE</div>
+          <div class="lock-gate" id="lock-gate">
+            <span class="lock-icon" id="lock-icon">🔒</span>
+            <div class="lock-status" id="lock-status" style="color:var(--t3)">AVAILABLE</div>
+          </div>
+          <div class="critical-section">
+            CRITICAL SECTION<br><br>
+            <div class="counter-display" id="mutex-counter">0</div>
+            <div style="font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted); margin-top:0.3rem">$counter</div>
+          </div>
+          <div id="mutex-inside" style="margin-top:0.5rem; font-family:'JetBrains Mono'; font-size:0.65rem; color:var(--lock); text-align:center; min-height:20px;"></div>
+        </div>
+        <!-- Done column -->
+        <div class="mutex-column">
+          <div class="mutex-col-label">DONE</div>
+          <div id="mutex-done"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="startMutex()">▶ Start (5 Threads)</button>
+      <button class="btn btn-amber" onclick="resetMutex()">↺ Reset</button>
+      <div class="status-bar" id="mutex-status">Click ▶ to watch threads queue up at the lock</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 5: QUEUE ════════════ -->
+  <div class="viz-panel" id="viz-queue">
+    <div class="viz-title">Thread::Queue</div>
+    <div class="viz-desc"># Thread-safe FIFO. Producer enqueues items, consumer dequeues. Blocks when empty.</div>
+    <div class="canvas-area">
+      <div class="queue-layout" style="height:300px;">
+        <div class="producer-box">
+          <div class="q-title">PRODUCER</div>
+          <button class="q-btn q-btn-produce" onclick="enqueueItem()">+ enqueue(task)</button>
+          <div style="margin-top:0.5rem; font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted)">
+            produced: <span id="q-produced" style="color:var(--t2)">0</span>
+          </div>
+        </div>
+        <div class="queue-visual">
+          <div class="queue-header">
+            <span>Thread::Queue</span>
+            <span id="q-size" style="color:var(--t4)">0 items</span>
+          </div>
+          <div class="queue-items" id="queue-items"></div>
+        </div>
+        <div class="consumer-box">
+          <div class="q-title">CONSUMER</div>
+          <button class="q-btn q-btn-consume" onclick="dequeueItem()">- dequeue()</button>
+          <div style="margin-top:0.5rem; font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted)">
+            consumed: <span id="q-consumed" style="color:var(--t3)">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="autoQueue()">▶ Auto Demo</button>
+      <button class="btn btn-amber" onclick="resetQueue()">↺ Reset</button>
+      <div class="status-bar" id="queue-status">Use the buttons or click Auto Demo</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 6: SEMAPHORE ════════════ -->
+  <div class="viz-panel" id="viz-semaphore">
+    <div class="viz-title">Thread::Semaphore</div>
+    <div class="viz-desc"># Counting semaphore — allows up to N threads concurrently. Here N=3 (like a DB connection pool).</div>
+    <div class="canvas-area">
+      <div class="sem-layout" style="height:320px; padding:1.5rem;">
+        <div class="sem-threads" id="sem-threads"></div>
+        <div class="sem-gate">
+          <div class="sem-count-display">
+            <div style="font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted); margin-bottom:0.4rem; letter-spacing:0.1em">SEMAPHORE COUNT</div>
+            <div class="sem-count-val" id="sem-count">3</div>
+            <div class="sem-slots" id="sem-slots"></div>
+          </div>
+          <div class="sem-waiting">
+            <div class="sem-wait-label">WAITING QUEUE</div>
+            <div class="sem-wait-queue" id="sem-wait-queue"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="semAcquire()">↓ down() — acquire</button>
+      <button class="btn btn-amber" onclick="semRelease()">↑ up() — release</button>
+      <button class="btn btn-danger" onclick="resetSemaphore()">↺ Reset</button>
+      <div class="status-bar" id="sem-status">Semaphore(3) — 3 threads can pass at once</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 7: THREAD POOL ════════════ -->
+  <div class="viz-panel" id="viz-pool">
+    <div class="viz-title">Thread Pool</div>
+    <div class="viz-desc"># Pre-created workers pull tasks from a shared queue. No overhead of creating new threads per task.</div>
+    <div class="canvas-area">
+      <div class="pool-layout" style="height:360px; padding:1.5rem;">
+        <div class="pool-workers" id="pool-workers"></div>
+        <div class="pool-queue-vis">
+          <div class="pool-q-label">TASK QUEUE →</div>
+          <div id="pool-tasks" style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;"></div>
+        </div>
+        <div class="pool-stats">
+          <div class="pool-stat-box">
+            <div class="pool-stat-val tc3" id="pool-done">0</div>
+            <div class="pool-stat-label">COMPLETED</div>
+          </div>
+          <div class="pool-stat-box">
+            <div class="pool-stat-val tc4" id="pool-queued">0</div>
+            <div class="pool-stat-label">QUEUED</div>
+          </div>
+          <div class="pool-stat-box">
+            <div class="pool-stat-val tc1" id="pool-active">0</div>
+            <div class="pool-stat-label">ACTIVE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="addPoolTasks(10)">+ Add 10 Tasks</button>
+      <button class="btn btn-primary" onclick="addPoolTasks(20)">+ Add 20 Tasks</button>
+      <button class="btn btn-amber" onclick="resetPool()">↺ Reset</button>
+      <div class="status-bar" id="pool-status">4 workers standing by</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 8: DEADLOCK ════════════ -->
+  <div class="viz-panel" id="viz-deadlock">
+    <div class="viz-title">Deadlock</div>
+    <div class="viz-desc"># Thread A holds lock_a, wants lock_b. Thread B holds lock_b, wants lock_a. Both wait forever.</div>
+    <div class="canvas-area">
+      <svg class="deadlock-svg" viewBox="0 0 900 320" id="deadlock-svg"></svg>
+    </div>
+    <div class="controls">
+      <button class="btn btn-danger" onclick="animateDeadlock()">⚠ Show Deadlock</button>
+      <button class="btn btn-primary" onclick="showDeadlockFix()">✓ Show Fix</button>
+      <button class="btn btn-amber" onclick="resetDeadlock()">↺ Reset</button>
+      <div class="status-bar" id="deadlock-status">Click ⚠ Show Deadlock to see threads freeze</div>
+    </div>
+  </div>
+
+  <!-- ════════════ VIZ 9: PRODUCER-CONSUMER ════════════ -->
+  <div class="viz-panel" id="viz-prodcon">
+    <div class="viz-title">Producer-Consumer Pattern</div>
+    <div class="viz-desc"># Multiple producers generate work. Shared queue buffers it. Multiple consumers process it.</div>
+    <div class="canvas-area">
+      <div class="prodcon-layout" style="height:320px; padding:1.25rem;">
+        <div class="pc-col">
+          <div class="pc-col-label">PRODUCERS (×2)</div>
+          <div class="pc-worker" id="pc-p1" style="border-color:rgba(255,107,53,0.4)">
+            <span class="tc2">Producer 1</span>
+            <div class="pc-worker-activity" id="pc-p1-act">idle</div>
+          </div>
+          <div class="pc-worker" id="pc-p2" style="border-color:rgba(255,107,53,0.4)">
+            <span class="tc2">Producer 2</span>
+            <div class="pc-worker-activity" id="pc-p2-act">idle</div>
+          </div>
+        </div>
+        <div class="pc-col">
+          <div class="pc-col-label">QUEUE (Thread::Queue)</div>
+          <div class="pc-queue-col" style="flex:1">
+            <div style="font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted); padding:0.4rem 0.6rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;">
+              <span>items</span><span id="pc-q-count" style="color:var(--t4)">0</span>
+            </div>
+            <div class="pc-queue-items" id="pc-queue-items"></div>
+          </div>
+        </div>
+        <div class="pc-col">
+          <div class="pc-col-label">CONSUMERS (×3)</div>
+          <div class="pc-worker" id="pc-c1" style="border-color:rgba(74,222,128,0.4)">
+            <span class="tc3">Consumer 1</span>
+            <div class="pc-worker-activity" id="pc-c1-act">idle</div>
+          </div>
+          <div class="pc-worker" id="pc-c2" style="border-color:rgba(74,222,128,0.4)">
+            <span class="tc3">Consumer 2</span>
+            <div class="pc-worker-activity" id="pc-c2-act">idle</div>
+          </div>
+          <div class="pc-worker" id="pc-c3" style="border-color:rgba(74,222,128,0.4)">
+            <span class="tc3">Consumer 3</span>
+            <div class="pc-worker-activity" id="pc-c3-act">idle</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="startProdCon()">▶ Start</button>
+      <button class="btn btn-amber" onclick="stopProdCon()">⏹ Stop</button>
+      <button class="btn btn-amber" onclick="resetProdCon()">↺ Reset</button>
+      <div class="status-bar" id="pc-status">Click ▶ to start the pipeline</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══ TAB SWITCHING ═══
+function showTab(id) {
+  document.querySelectorAll('.viz-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('viz-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// VIZ 1: LIFECYCLE
+// ═══════════════════════════════════════════
+function drawLifecycleBase() {
+  const svg = document.getElementById('lifecycle-svg');
+  const states = [
+    { x: 80,  label: 'CREATED',  sub: 'threads->create()', color: '#4ade80' },
+    { x: 230, label: 'STARTING', sub: 'initializing',       color: '#00d4ff' },
+    { x: 380, label: 'RUNNING',  sub: 'executing code',     color: '#f59e0b' },
+    { x: 530, label: 'BLOCKED',  sub: 'waiting for lock',   color: '#e879f9' },
+    { x: 680, label: 'FINISHED', sub: 'sub returned',       color: '#ff6b35' },
+    { x: 830, label: 'JOINED',   sub: '->join() called',    color: '#4ade80' },
+  ];
+  const arrows = [[0,1],[1,2],[2,3],[3,2],[2,4],[4,5]];
+  const arrowLabels = ['create','start','run','unlock/wake','return','join'];
+
+  let html = '';
+  // Arrows first
+  arrows.forEach(([from, to], i) => {
+    const x1 = states[from].x + 55, x2 = states[to].x - 55;
+    const y = to === 2 && from === 3 ? 110 : 140;
+    const bend = (from === 3 && to === 2) ? 80 : 0;
+    if (bend) {
+      html += `<path d="M${states[from].x},${ 140} C${states[from].x - 20},${200} ${states[to].x + 20},${200} ${states[to].x},${140}" fill="none" stroke="${states[from].color}" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" id="arrow-${i}"/>`;
+      html += `<text x="${(states[from].x + states[to].x)/2}" y="215" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="${states[from].color}" opacity="0.6">${arrowLabels[i]}</text>`;
+    } else {
+      html += `<line x1="${states[from].x + 58}" y1="140" x2="${states[to].x - 58}" y2="140" stroke="${states[from].color}" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" id="arrow-${i}"/>`;
+      html += `<polygon points="${states[to].x - 62},136 ${states[to].x - 52},140 ${states[to].x - 62},144" fill="${states[from].color}" opacity="0.5" id="arrowhead-${i}"/>`;
+      html += `<text x="${(states[from].x + 58 + states[to].x - 58) / 2}" y="128" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="${states[from].color}" opacity="0.5">${arrowLabels[i]}</text>`;
+    }
+  });
+
+  // State circles
+  states.forEach((s, i) => {
+    html += `
+      <g id="state-${i}" opacity="0.3">
+        <circle cx="${s.x}" cy="140" r="52" fill="rgba(0,0,0,0.5)" stroke="${s.color}" stroke-width="1.5"/>
+        <circle cx="${s.x}" cy="140" r="46" fill="none" stroke="${s.color}" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.4"/>
+        <text x="${s.x}" y="134" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" font-weight="700" fill="${s.color}">${s.label}</text>
+        <text x="${s.x}" y="150" text-anchor="middle" font-family="JetBrains Mono" font-size="7.5" fill="${s.color}" opacity="0.6">${s.sub}</text>
+      </g>`;
+  });
+
+  // Thread indicator
+  html += `<circle cx="80" cy="140" r="8" fill="#4ade80" id="thread-ball" opacity="0"/>`;
+  html += `<text x="450" y="265" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#4b6080" id="lifecycle-hint">→ blocked threads loop back to RUNNING when lock is released</text>`;
+
+  svg.innerHTML = html;
+}
+
+let lifecycleAnim = null;
+function startLifecycle() {
+  clearInterval(lifecycleAnim);
+  resetLifecycle();
+  const states = [80, 230, 380, 530, 680, 830];
+  const statusTexts = [
+    'threads->create(\\&worker, @args) — Thread object created',
+    'Thread initializing — copying interpreter state',
+    'Thread running — executing your subroutine code',
+    'Thread blocked — waiting for lock() to be released',
+    'Thread finished — subroutine returned a value',
+    '$t->join() called — return value collected, resources freed'
+  ];
+  let step = 0;
+  const sequence = [0, 1, 2, 3, 2, 4, 5]; // visits RUNNING twice (after unblock)
+
+  function animStep() {
+    if (step >= sequence.length) { clearInterval(lifecycleAnim); return; }
+    const si = sequence[step];
+    // Highlight current state
+    for (let i = 0; i < 6; i++) {
+      const el = document.getElementById(`state-${i}`);
+      if (el) el.style.opacity = i === si ? '1' : '0.2';
+    }
+    // Move ball
+    const ball = document.getElementById('thread-ball');
+    ball.setAttribute('cx', states[si]);
+    ball.setAttribute('opacity', '1');
+    ball.setAttribute('fill', ['#4ade80','#00d4ff','#f59e0b','#e879f9','#ff6b35','#4ade80'][si]);
+
+    document.getElementById('lifecycle-status').textContent = statusTexts[si];
+    step++;
+  }
+
+  animStep();
+  lifecycleAnim = setInterval(animStep, 1400);
+}
+
+function resetLifecycle() {
+  clearInterval(lifecycleAnim);
+  drawLifecycleBase();
+  document.getElementById('lifecycle-status').textContent = 'Click ▶ Animate to watch a thread\'s full lifecycle';
+}
+
+drawLifecycleBase();
+
+// ═══════════════════════════════════════════
+// VIZ 2: CONCURRENCY vs PARALLELISM
+// ═══════════════════════════════════════════
+const threadColors = ['var(--t1)', 'var(--t2)', 'var(--t3)', 'var(--t4)', 'var(--t5)'];
+const tNames = ['T1','T2','T3','T4'];
+
+function buildConcurrencyRows() {
+  const cr = document.getElementById('conc-rows');
+  const pr = document.getElementById('para-rows');
+  cr.innerHTML = '';
+  pr.innerHTML = '';
+
+  // Concurrency: 4 threads shown on 1 track (CPU time sliced)
+  const singleRow = document.createElement('div');
+  singleRow.className = 'timeline-row';
+  singleRow.innerHTML = `<div class="tl-label" style="font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted)">CPU 1</div><div class="tl-track" id="conc-track"></div>`;
+  cr.appendChild(singleRow);
+
+  // Parallelism: 4 threads on 4 tracks
+  for (let i = 0; i < 4; i++) {
+    const row = document.createElement('div');
+    row.className = 'timeline-row';
+    row.innerHTML = `<div class="tl-label" style="font-family:'JetBrains Mono'; font-size:0.6rem; color:${threadColors[i]}">CPU ${i+1}</div><div class="tl-track" id="para-track-${i}"></div>`;
+    pr.appendChild(row);
+  }
+}
+
+let concAnim = null;
+function animateConcurrency() {
+  clearInterval(concAnim);
+  buildConcurrencyRows();
+
+  const track = document.getElementById('conc-track');
+  const totalSlots = 24;
+  let slot = 0;
+  let threadIdx = 0;
+  const order = [0,1,2,3,0,2,1,3,2,0,3,1,0,1,2,3,0,3,1,2,3,1,0,2];
+
+  // Parallelism — animate all 4 at same time
+  for (let i = 0; i < 4; i++) {
+    const pt = document.getElementById(`para-track-${i}`);
+    let w = 0;
+    const interval = setInterval(() => {
+      if (w >= 100) { clearInterval(interval); return; }
+      w += 4.2;
+      const block = document.createElement('div');
+      block.className = 'tl-block';
+      block.style.left = (w - 4.2) + '%';
+      block.style.width = '4%';
+      block.style.background = threadColors[i];
+      block.style.opacity = '0.7';
+      pt.appendChild(block);
+    }, 60);
+  }
+
+  concAnim = setInterval(() => {
+    if (slot >= totalSlots) { clearInterval(concAnim); document.getElementById('conc-status').textContent = '✓ Concurrency = 1 CPU rapidly switches between threads. Parallelism = all run truly at the same time.'; return; }
+    const ti = order[slot];
+    const w = 4.17;
+    const block = document.createElement('div');
+    block.className = 'tl-block';
+    block.style.left = (slot * w) + '%';
+    block.style.width = w + '%';
+    block.style.background = threadColors[ti];
+    block.style.color = '#000';
+    block.style.opacity = '0.85';
+    block.textContent = tNames[ti];
+    track.appendChild(block);
+    document.getElementById('conc-status').textContent = `CPU 1 running ${tNames[ti]} (context switch #${slot+1})`;
+    slot++;
+  }, 130);
+}
+
+function resetConcurrency() {
+  clearInterval(concAnim);
+  buildConcurrencyRows();
+  document.getElementById('conc-status').textContent = 'Click ▶ to see the difference';
+}
+
+buildConcurrencyRows();
+
+// ═══════════════════════════════════════════
+// VIZ 3: RACE CONDITION
+// ═══════════════════════════════════════════
+let raceRunning = false;
+function resetRace() {
+  raceRunning = false;
+  document.getElementById('race-val').textContent = '0';
+  document.getElementById('race-val').className = 'shared-value';
+  document.getElementById('race-expected').textContent = '';
+  ['rs1-1','rs1-2','rs1-3','rs2-1','rs2-2','rs2-3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'thread-step';
+    el.style.color = '';
+    el.style.borderColor = '';
+  });
+  document.getElementById('rs1-read').textContent = '?';
+  document.getElementById('rs1-compute').textContent = '?';
+  document.getElementById('rs1-write').textContent = '?';
+  document.getElementById('rs2-read').textContent = '?';
+  document.getElementById('rs2-compute').textContent = '?';
+  document.getElementById('rs2-write').textContent = '?';
+  document.getElementById('race-status').textContent = 'Two threads will both increment $counter — but one update is lost!';
+}
+
+async function animateRace() {
+  if (raceRunning) return;
+  raceRunning = true;
+  resetRace();
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+
+  const activate = (id, color, text) => {
+    const el = document.getElementById(id);
+    el.className = 'thread-step active';
+    el.style.color = color;
+    el.style.borderColor = color;
+    if (text !== undefined) {
+      const span = el.querySelector('span');
+      if (span) span.textContent = text;
+    }
+  };
+  const done = id => {
+    document.getElementById(id).className = 'thread-step done';
+  };
+
+  document.getElementById('race-status').textContent = 'Both threads start simultaneously...';
+  await delay(600);
+
+  // Both read 0 at the same time
+  activate('rs1-1', 'var(--t1)', '0');
+  activate('rs2-1', 'var(--t2)', '0');
+  document.getElementById('race-status').textContent = '⚡ Both threads read $counter = 0 simultaneously!';
+  await delay(900);
+
+  done('rs1-1'); done('rs2-1');
+  activate('rs1-2', 'var(--t1)', '1');
+  activate('rs2-2', 'var(--t2)', '1');
+  document.getElementById('race-status').textContent = 'Both compute 0 + 1 = 1';
+  await delay(900);
+
+  done('rs1-2'); done('rs2-2');
+
+  // T1 writes first
+  activate('rs1-3', 'var(--t1)', '1');
+  document.getElementById('race-val').textContent = '1';
+  document.getElementById('race-val').className = 'shared-value';
+  document.getElementById('race-status').textContent = 'Thread 1 writes 1 to $counter...';
+  await delay(700);
+
+  // T2 also writes 1, overwriting
+  done('rs1-3');
+  activate('rs2-3', 'var(--t2)', '1');
+  document.getElementById('race-val').textContent = '1';
+  document.getElementById('race-val').className = 'shared-value dirty';
+  document.getElementById('race-expected').textContent = 'expected: 2';
+  document.getElementById('race-status').textContent = '💥 Thread 2 also writes 1! Expected 2, got 1. Update LOST!';
+  await delay(200);
+  done('rs2-3');
+  raceRunning = false;
+}
+
+// ═══════════════════════════════════════════
+// VIZ 4: MUTEX
+// ═══════════════════════════════════════════
+let mutexRunning = false;
+const mutexColors = ['var(--t1)','var(--t2)','var(--t3)','var(--t4)','var(--t5)'];
+const mutexNames = ['T1','T2','T3','T4','T5'];
+
+function resetMutex() {
+  mutexRunning = false;
+  document.getElementById('mutex-waiting').innerHTML = '';
+  document.getElementById('mutex-done').innerHTML = '';
+  document.getElementById('mutex-inside').innerHTML = '';
+  document.getElementById('mutex-counter').textContent = '0';
+  document.getElementById('lock-icon').textContent = '🔒';
+  document.getElementById('lock-status').textContent = 'AVAILABLE';
+  document.getElementById('lock-status').style.color = 'var(--t3)';
+  document.getElementById('lock-gate').style.borderColor = 'var(--lock)';
+  document.getElementById('mutex-status').textContent = 'Click ▶ to watch threads queue up at the lock';
+}
+
+async function startMutex() {
+  if (mutexRunning) return;
+  mutexRunning = true;
+  resetMutex();
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+
+  // Add all threads to waiting
+  const waitDiv = document.getElementById('mutex-waiting');
+  for (let i = 0; i < 5; i++) {
+    const pill = document.createElement('div');
+    pill.className = 'thread-pill';
+    pill.id = `mpill-${i}`;
+    pill.style.borderColor = mutexColors[i];
+    pill.style.color = mutexColors[i];
+    pill.textContent = `Thread ${mutexNames[i]} — waiting for lock...`;
+    waitDiv.appendChild(pill);
+  }
+
+  let counter = 0;
+  for (let i = 0; i < 5; i++) {
+    if (!mutexRunning) break;
+    // Lock
+    const pill = document.getElementById(`mpill-${i}`);
+    pill.textContent = `Thread ${mutexNames[i]} → acquiring lock...`;
+    document.getElementById('mutex-status').textContent = `Thread ${mutexNames[i]} acquiring lock()...`;
+    await delay(400);
+
+    // Lock acquired
+    document.getElementById('lock-icon').textContent = '🔐';
+    document.getElementById('lock-status').textContent = `HELD BY ${mutexNames[i]}`;
+    document.getElementById('lock-status').style.color = mutexColors[i];
+    document.getElementById('lock-gate').style.borderColor = mutexColors[i];
+    document.getElementById('mutex-inside').textContent = `▶ Thread ${mutexNames[i]} in critical section`;
+    document.getElementById('mutex-inside').style.color = mutexColors[i];
+    pill.textContent = `Thread ${mutexNames[i]} — IN CRITICAL SECTION`;
+    document.getElementById('mutex-status').textContent = `Thread ${mutexNames[i]} has lock — others must wait`;
+    await delay(900);
+
+    // Do work
+    counter++;
+    document.getElementById('mutex-counter').textContent = counter;
+    await delay(400);
+
+    // Release
+    document.getElementById('lock-icon').textContent = '🔒';
+    document.getElementById('lock-status').textContent = 'AVAILABLE';
+    document.getElementById('lock-status').style.color = 'var(--t3)';
+    document.getElementById('lock-gate').style.borderColor = 'var(--lock)';
+    document.getElementById('mutex-inside').textContent = '';
+
+    // Move to done
+    waitDiv.removeChild(pill);
+    const donePill = document.createElement('div');
+    donePill.className = 'thread-pill';
+    donePill.style.borderColor = mutexColors[i];
+    donePill.style.color = mutexColors[i];
+    donePill.style.opacity = '0.5';
+    donePill.textContent = `Thread ${mutexNames[i]} ✓ done`;
+    document.getElementById('mutex-done').appendChild(donePill);
+    document.getElementById('mutex-status').textContent = `Thread ${mutexNames[i]} released lock. Counter = ${counter}`;
+    await delay(300);
+  }
+  document.getElementById('mutex-status').textContent = `✓ All 5 threads completed. Final counter = ${counter}. No race condition!`;
+  mutexRunning = false;
+}
+
+// ═══════════════════════════════════════════
+// VIZ 5: QUEUE
+// ═══════════════════════════════════════════
+let queueItems = [];
+let qProduced = 0, qConsumed = 0;
+let qAutoInterval = null;
+const taskNames = ['job','task','msg','data','work','item','req','res'];
+
+function enqueueItem() {
+  qProduced++;
+  const name = taskNames[qProduced % taskNames.length] + '_' + qProduced;
+  queueItems.push(name);
+  const container = document.getElementById('queue-items');
+  const el = document.createElement('div');
+  el.className = 'q-item';
+  el.id = 'qitem-' + qProduced;
+  el.innerHTML = `<span>${name}</span><span style="color:var(--muted); font-size:0.6rem">#${qProduced}</span>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  document.getElementById('q-produced').textContent = qProduced;
+  document.getElementById('q-size').textContent = queueItems.length + ' items';
+  document.getElementById('queue-status').textContent = `Enqueued: ${name}`;
+}
+
+function dequeueItem() {
+  if (queueItems.length === 0) {
+    document.getElementById('queue-status').textContent = 'Queue empty! dequeue() would block...';
+    return;
+  }
+  const name = queueItems.shift();
+  qConsumed++;
+  const items = document.querySelectorAll('.q-item');
+  if (items[0]) {
+    items[0].className = 'q-item consuming';
+    setTimeout(() => items[0].remove(), 400);
+  }
+  document.getElementById('q-consumed').textContent = qConsumed;
+  document.getElementById('q-size').textContent = queueItems.length + ' items';
+  document.getElementById('queue-status').textContent = `Dequeued: ${name} → consumed`;
+}
+
+let autoRunning = false;
+function autoQueue() {
+  if (autoRunning) return;
+  autoRunning = true;
+  let step = 0;
+  const steps = ['produce','produce','produce','consume','produce','consume','consume','produce','produce','consume','consume','consume','produce','consume'];
+  qAutoInterval = setInterval(() => {
+    if (step >= steps.length) { clearInterval(qAutoInterval); autoRunning = false; return; }
+    if (steps[step] === 'produce') enqueueItem();
+    else dequeueItem();
+    step++;
+  }, 600);
+}
+
+function resetQueue() {
+  clearInterval(qAutoInterval);
+  autoRunning = false;
+  queueItems = [];
+  qProduced = 0; qConsumed = 0;
+  document.getElementById('queue-items').innerHTML = '';
+  document.getElementById('q-produced').textContent = '0';
+  document.getElementById('q-consumed').textContent = '0';
+  document.getElementById('q-size').textContent = '0 items';
+  document.getElementById('queue-status').textContent = 'Use the buttons or click Auto Demo';
+}
+
+// ═══════════════════════════════════════════
+// VIZ 6: SEMAPHORE
+// ═══════════════════════════════════════════
+const SEM_MAX = 3;
+let semCount = SEM_MAX;
+const semSlotColors = ['var(--t1)','var(--t2)','var(--t3)'];
+let semSlots = [null, null, null];
+let semWaiting = [];
+let semThreadCounter = 0;
+
+function buildSemThreads() {
+  const container = document.getElementById('sem-threads');
+  container.innerHTML = '<div style="font-family:\'JetBrains Mono\'; font-size:0.6rem; color:var(--muted); letter-spacing:0.1em; margin-bottom:0.5rem">THREADS</div>';
+  const colors = ['var(--t1)','var(--t2)','var(--t3)','var(--t4)','var(--t5)','#a78bfa'];
+  for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'sem-thread';
+    el.style.borderColor = colors[i];
+    el.style.color = colors[i];
+    el.innerHTML = `<div class="sem-thread-dot" style="background:${colors[i]}"></div> Thread_${i+1}`;
+    el.onclick = () => semAcquireForThread(i, colors[i]);
+    container.appendChild(el);
+  }
+}
+
+function buildSemSlots() {
+  const container = document.getElementById('sem-slots');
+  container.innerHTML = '';
+  for (let i = 0; i < SEM_MAX; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'sem-slot' + (semSlots[i] ? ' occupied' : '');
+    slot.id = `sem-slot-${i}`;
+    slot.style.borderColor = semSlots[i] ? semSlots[i].color : 'var(--border2)';
+    slot.style.color = semSlots[i] ? semSlots[i].color : '';
+    slot.textContent = semSlots[i] ? semSlots[i].name : '';
+    container.appendChild(slot);
+  }
+}
+
+function updateSemUI() {
+  document.getElementById('sem-count').textContent = semCount;
+  document.getElementById('sem-count').style.color = semCount > 0 ? 'var(--t5)' : 'var(--danger)';
+  buildSemSlots();
+
+  const wq = document.getElementById('sem-wait-queue');
+  wq.innerHTML = '';
+  semWaiting.forEach(w => {
+    const p = document.createElement('div');
+    p.className = 'sem-wait-pill pulsing';
+    p.style.borderColor = w.color;
+    p.style.color = w.color;
+    p.style.background = `${w.color}11`;
+    p.textContent = w.name;
+    wq.appendChild(p);
+  });
+}
+
+function semAcquireForThread(idx, color) {
+  const tName = `T${idx+1}`;
+  if (semCount > 0) {
+    semCount--;
+    const slot = semSlots.findIndex(s => s === null);
+    semSlots[slot] = { name: tName, color };
+    document.getElementById('sem-status').textContent = `${tName} acquired semaphore — count now ${semCount}`;
+  } else {
+    semWaiting.push({ name: tName, color });
+    document.getElementById('sem-status').textContent = `${tName} blocked — semaphore count is 0, waiting...`;
+  }
+  updateSemUI();
+}
+
+function semAcquire() {
+  semThreadCounter = (semThreadCounter % 6) + 1;
+  const colors = ['var(--t1)','var(--t2)','var(--t3)','var(--t4)','var(--t5)','#a78bfa'];
+  semAcquireForThread(semThreadCounter - 1, colors[semThreadCounter - 1]);
+}
+
+function semRelease() {
+  const occupied = semSlots.findIndex(s => s !== null);
+  if (occupied === -1) { document.getElementById('sem-status').textContent = 'No thread to release!'; return; }
+  const released = semSlots[occupied];
+  semSlots[occupied] = null;
+
+  if (semWaiting.length > 0) {
+    const next = semWaiting.shift();
+    semSlots[occupied] = next;
+    document.getElementById('sem-status').textContent = `${released.name} released → ${next.name} woke up and acquired semaphore`;
+  } else {
+    semCount++;
+    document.getElementById('sem-status').textContent = `${released.name} released semaphore — count now ${semCount}`;
+  }
+  updateSemUI();
+}
+
+function resetSemaphore() {
+  semCount = SEM_MAX;
+  semSlots = [null, null, null];
+  semWaiting = [];
+  semThreadCounter = 0;
+  buildSemThreads();
+  updateSemUI();
+  document.getElementById('sem-status').textContent = 'Semaphore(3) — 3 threads can pass at once';
+}
+
+buildSemThreads();
+updateSemUI();
+
+// ═══════════════════════════════════════════
+// VIZ 7: THREAD POOL
+// ═══════════════════════════════════════════
+const POOL_SIZE = 4;
+const workerColors = ['var(--t1)','var(--t2)','var(--t3)','var(--t4)'];
+let poolWorkers = [];
+let poolTaskQueue = [];
+let poolTaskCounter = 0;
+let poolDone = 0;
+let poolInterval = null;
+
+function buildPoolWorkers() {
+  const container = document.getElementById('pool-workers');
+  container.innerHTML = '';
+  poolWorkers = [];
+  for (let i = 0; i < POOL_SIZE; i++) {
+    const card = document.createElement('div');
+    card.className = 'worker-card';
+    card.id = `worker-${i}`;
+    card.innerHTML = `
+      <div class="worker-id">WORKER ${i+1}</div>
+      <div class="worker-status" id="ws-${i}" style="color:var(--muted); background:rgba(0,0,0,0.2)">idle</div>
+      <div class="worker-progress"><div class="worker-progress-fill" id="wp-${i}" style="background:${workerColors[i]}"></div></div>
+      <div style="font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted); margin-top:0.3rem;" id="wtask-${i}">—</div>
+    `;
+    container.appendChild(card);
+    poolWorkers.push({ id: i, busy: false, progress: 0, task: null, duration: 0 });
+  }
+}
+
+function addPoolTasks(n) {
+  for (let i = 0; i < n; i++) {
+    poolTaskCounter++;
+    const task = { id: poolTaskCounter, duration: Math.random() * 2000 + 800 };
+    poolTaskQueue.push(task);
+    renderPoolTask(task, true);
+  }
+  document.getElementById('pool-queued').textContent = poolTaskQueue.length;
+  if (!poolInterval) startPoolWorkers();
+}
+
+function renderPoolTask(task, add) {
+  const container = document.getElementById('pool-tasks');
+  if (add) {
+    const el = document.createElement('div');
+    el.className = 'pool-task';
+    el.id = `ptask-${task.id}`;
+    const hue = (task.id * 37) % 360;
+    el.style.background = `hsla(${hue}, 70%, 50%, 0.15)`;
+    el.style.border = `1px solid hsla(${hue}, 70%, 60%, 0.4)`;
+    el.style.color = `hsl(${hue}, 80%, 70%)`;
+    el.textContent = '#' + task.id;
+    container.appendChild(el);
+  } else {
+    const el = document.getElementById(`ptask-${task.id}`);
+    if (el) el.remove();
+  }
+}
+
+function startPoolWorkers() {
+  poolInterval = setInterval(() => {
+    // Assign tasks to idle workers
+    poolWorkers.forEach(w => {
+      if (!w.busy && poolTaskQueue.length > 0) {
+        const task = poolTaskQueue.shift();
+        renderPoolTask(task, false);
+        document.getElementById('pool-queued').textContent = poolTaskQueue.length;
+        w.busy = true;
+        w.task = task;
+        w.progress = 0;
+        w.duration = task.duration;
+        w.elapsed = 0;
+        const ws = document.getElementById(`ws-${w.id}`);
+        ws.textContent = 'running #' + task.id;
+        ws.style.color = workerColors[w.id];
+        ws.style.background = `rgba(255,255,255,0.04)`;
+        document.getElementById(`wtask-${w.id}`).textContent = `task #${task.id}`;
+      }
+
+      if (w.busy && w.task) {
+        w.elapsed = (w.elapsed || 0) + 50;
+        w.progress = Math.min(100, (w.elapsed / w.duration) * 100);
+        document.getElementById(`wp-${w.id}`).style.width = w.progress + '%';
+
+        if (w.progress >= 100) {
+          poolDone++;
+          document.getElementById('pool-done').textContent = poolDone;
+          document.getElementById(`ws-${w.id}`).textContent = 'idle';
+          document.getElementById(`ws-${w.id}`).style.color = 'var(--muted)';
+          document.getElementById(`ws-${w.id}`).style.background = 'rgba(0,0,0,0.2)';
+          document.getElementById(`wtask-${w.id}`).textContent = '—';
+          document.getElementById(`wp-${w.id}`).style.width = '0%';
+          w.busy = false; w.task = null; w.progress = 0; w.elapsed = 0;
+        }
+      }
+    });
+
+    const active = poolWorkers.filter(w => w.busy).length;
+    document.getElementById('pool-active').textContent = active;
+    document.getElementById('pool-status').textContent = `${active} workers active, ${poolTaskQueue.length} queued, ${poolDone} done`;
+
+    if (!poolWorkers.some(w => w.busy) && poolTaskQueue.length === 0) {
+      clearInterval(poolInterval);
+      poolInterval = null;
+      document.getElementById('pool-status').textContent = `✓ All tasks done! Total completed: ${poolDone}`;
+    }
+  }, 50);
+}
+
+function resetPool() {
+  clearInterval(poolInterval);
+  poolInterval = null;
+  poolTaskQueue = [];
+  poolTaskCounter = 0;
+  poolDone = 0;
+  document.getElementById('pool-tasks').innerHTML = '';
+  document.getElementById('pool-done').textContent = '0';
+  document.getElementById('pool-queued').textContent = '0';
+  document.getElementById('pool-active').textContent = '0';
+  buildPoolWorkers();
+  document.getElementById('pool-status').textContent = '4 workers standing by';
+}
+
+buildPoolWorkers();
+
+// ═══════════════════════════════════════════
+// VIZ 8: DEADLOCK
+// ═══════════════════════════════════════════
+function drawDeadlockBase() {
+  const svg = document.getElementById('deadlock-svg');
+  svg.innerHTML = `
+    <!-- Thread A -->
+    <rect x="40" y="110" width="180" height="100" rx="8" fill="#111827" stroke="#1e2d45" stroke-width="1.5" id="dl-ta-box"/>
+    <text x="130" y="135" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#00d4ff" font-weight="700">THREAD A</text>
+    <text x="130" y="155" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#4b6080" id="dl-ta-status">waiting...</text>
+    <text x="130" y="175" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#4b6080" id="dl-ta-wants">wants: lock_b</text>
+    <text x="130" y="193" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#00d4ff" id="dl-ta-holds">holds: lock_a</text>
+
+    <!-- Thread B -->
+    <rect x="680" y="110" width="180" height="100" rx="8" fill="#111827" stroke="#1e2d45" stroke-width="1.5" id="dl-tb-box"/>
+    <text x="770" y="135" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#ff6b35" font-weight="700">THREAD B</text>
+    <text x="770" y="155" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#4b6080" id="dl-tb-status">waiting...</text>
+    <text x="770" y="175" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#4b6080" id="dl-tb-wants">wants: lock_a</text>
+    <text x="770" y="193" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#ff6b35" id="dl-tb-holds">holds: lock_b</text>
+
+    <!-- Lock A -->
+    <rect x="270" y="70" width="130" height="80" rx="8" fill="#111827" stroke="#facc15" stroke-width="1.5" id="dl-la-box"/>
+    <text x="335" y="102" text-anchor="middle" font-size="22" id="dl-la-icon">🔐</text>
+    <text x="335" y="122" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#facc15" font-weight="700">lock_a</text>
+    <text x="335" y="138" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#4b6080" id="dl-la-owner">free</text>
+
+    <!-- Lock B -->
+    <rect x="500" y="70" width="130" height="80" rx="8" fill="#111827" stroke="#facc15" stroke-width="1.5" id="dl-lb-box"/>
+    <text x="565" y="102" text-anchor="middle" font-size="22" id="dl-lb-icon">🔐</text>
+    <text x="565" y="122" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#facc15" font-weight="700">lock_b</text>
+    <text x="565" y="138" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#4b6080" id="dl-lb-owner">free</text>
+
+    <!-- Arrows (initially hidden) -->
+    <!-- A holds lock_a -->
+    <line x1="220" y1="145" x2="270" y2="120" stroke="#00d4ff" stroke-width="2" stroke-dasharray="5,3" id="dl-arrow-a-holds" opacity="0"/>
+    <!-- B holds lock_b -->
+    <line x1="680" y1="145" x2="630" y2="120" stroke="#ff6b35" stroke-width="2" stroke-dasharray="5,3" id="dl-arrow-b-holds" opacity="0"/>
+    <!-- A wants lock_b -->
+    <path d="M 220,170 Q 380,260 500,120" fill="none" stroke="#00d4ff" stroke-width="2" stroke-dasharray="5,3" id="dl-arrow-a-wants" opacity="0"/>
+    <!-- B wants lock_a -->
+    <path d="M 680,170 Q 520,260 400,120" fill="none" stroke="#ff6b35" stroke-width="2" stroke-dasharray="5,3" id="dl-arrow-b-wants" opacity="0"/>
+
+    <!-- Deadlock indicator -->
+    <text x="450" y="260" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="#ef4444" font-weight="700" id="dl-freeze-text" opacity="0">⚠ DEADLOCK — Both threads frozen forever</text>
+    <!-- Fix text -->
+    <text x="450" y="290" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#4ade80" id="dl-fix-text" opacity="0">FIX: Always acquire locks in the same order: lock_a then lock_b</text>
+  `;
+}
+
+let dlAnim = null;
+async function animateDeadlock() {
+  clearInterval(dlAnim);
+  drawDeadlockBase();
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  const set = (id, attr, val) => { const el = document.getElementById(id); if (el) el.setAttribute(attr, val); };
+  const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+  document.getElementById('deadlock-status').textContent = 'Step 1: Thread A acquires lock_a...';
+  await delay(500);
+  set('dl-arrow-a-holds', 'opacity', '1');
+  setText('dl-la-owner', 'held by A');
+  set('dl-ta-box', 'stroke', '#00d4ff');
+  await delay(800);
+
+  document.getElementById('deadlock-status').textContent = 'Step 2: Thread B acquires lock_b...';
+  set('dl-arrow-b-holds', 'opacity', '1');
+  setText('dl-lb-owner', 'held by B');
+  set('dl-tb-box', 'stroke', '#ff6b35');
+  await delay(800);
+
+  document.getElementById('deadlock-status').textContent = 'Step 3: Thread A wants lock_b... but B holds it!';
+  set('dl-arrow-a-wants', 'opacity', '0.8');
+  setText('dl-ta-status', '⏳ BLOCKED — waiting for lock_b');
+  set('dl-ta-box', 'stroke', '#ef4444');
+  await delay(900);
+
+  document.getElementById('deadlock-status').textContent = 'Step 4: Thread B wants lock_a... but A holds it!';
+  set('dl-arrow-b-wants', 'opacity', '0.8');
+  setText('dl-tb-status', '⏳ BLOCKED — waiting for lock_a');
+  set('dl-tb-box', 'stroke', '#ef4444');
+  await delay(900);
+
+  set('dl-freeze-text', 'opacity', '1');
+  document.getElementById('deadlock-status').textContent = '💀 DEADLOCK! Both threads wait forever. Program hangs.';
+}
+
+function showDeadlockFix() {
+  document.getElementById('dl-fix-text').setAttribute('opacity', '1');
+  document.getElementById('deadlock-status').textContent = '✓ FIX: Always lock in same order everywhere. Thread B should also acquire lock_a before lock_b.';
+}
+
+function resetDeadlock() {
+  drawDeadlockBase();
+  document.getElementById('deadlock-status').textContent = 'Click ⚠ Show Deadlock to see threads freeze';
+}
+
+drawDeadlockBase();
+
+// ═══════════════════════════════════════════
+// VIZ 9: PRODUCER-CONSUMER
+// ═══════════════════════════════════════════
+let pcRunning = false;
+let pcItems = [];
+let pcCounter = 0;
+let pcIntervals = [];
+
+function resetProdCon() {
+  stopProdCon();
+  pcItems = [];
+  pcCounter = 0;
+  document.getElementById('pc-queue-items').innerHTML = '';
+  document.getElementById('pc-q-count').textContent = '0';
+  ['p1','p2','c1','c2','c3'].forEach(id => {
+    document.getElementById(`pc-${id}-act`).textContent = 'idle';
+    document.getElementById(`pc-${id}`).style.background = 'var(--card)';
+  });
+  document.getElementById('pc-status').textContent = 'Click ▶ to start the pipeline';
+}
+
+function stopProdCon() {
+  pcRunning = false;
+  pcIntervals.forEach(clearInterval);
+  pcIntervals = [];
+}
+
+function startProdCon() {
+  if (pcRunning) return;
+  pcRunning = true;
+
+  // Producer 1
+  pcIntervals.push(setInterval(() => {
+    if (!pcRunning) return;
+    pcCounter++;
+    const item = { id: pcCounter, label: `item_${pcCounter}` };
+    pcItems.push(item);
+    const container = document.getElementById('pc-queue-items');
+    const el = document.createElement('div');
+    el.className = 'pc-item';
+    el.id = `pcitem-${item.id}`;
+    el.textContent = item.label;
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+    document.getElementById('pc-q-count').textContent = pcItems.length;
+    document.getElementById('pc-p1-act').textContent = `→ produced ${item.label}`;
+    document.getElementById('pc-p1').style.background = 'rgba(255,107,53,0.08)';
+    setTimeout(() => {
+      document.getElementById('pc-p1-act').textContent = 'idle';
+      document.getElementById('pc-p1').style.background = 'var(--card)';
+    }, 400);
+  }, 1100));
+
+  // Producer 2
+  pcIntervals.push(setInterval(() => {
+    if (!pcRunning) return;
+    pcCounter++;
+    const item = { id: pcCounter, label: `item_${pcCounter}` };
+    pcItems.push(item);
+    const container = document.getElementById('pc-queue-items');
+    const el = document.createElement('div');
+    el.className = 'pc-item';
+    el.id = `pcitem-${item.id}`;
+    el.textContent = item.label;
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+    document.getElementById('pc-q-count').textContent = pcItems.length;
+    document.getElementById('pc-p2-act').textContent = `→ produced ${item.label}`;
+    document.getElementById('pc-p2').style.background = 'rgba(255,107,53,0.08)';
+    setTimeout(() => {
+      document.getElementById('pc-p2-act').textContent = 'idle';
+      document.getElementById('pc-p2').style.background = 'var(--card)';
+    }, 400);
+  }, 1600));
+
+  // Consumers
+  const consumeOne = (cid) => {
+    if (!pcRunning || pcItems.length === 0) return;
+    const item = pcItems.shift();
+    document.getElementById('pc-q-count').textContent = pcItems.length;
+    const el = document.getElementById(`pcitem-${item.id}`);
+    if (el) { el.className = 'pc-item processing'; setTimeout(() => el.remove(), 500); }
+    document.getElementById(`pc-${cid}-act`).textContent = `← processing ${item.label}`;
+    document.getElementById(`pc-${cid}`).style.background = 'rgba(74,222,128,0.08)';
+    document.getElementById('pc-status').textContent = `Consumer ${cid.slice(1)} processing ${item.label}`;
+    setTimeout(() => {
+      document.getElementById(`pc-${cid}-act`).textContent = 'idle';
+      document.getElementById(`pc-${cid}`).style.background = 'var(--card)';
+    }, 700);
+  };
+
+  pcIntervals.push(setInterval(() => consumeOne('c1'), 1300));
+  pcIntervals.push(setInterval(() => consumeOne('c2'), 1700));
+  pcIntervals.push(setInterval(() => consumeOne('c3'), 2100));
+
+  document.getElementById('pc-status').textContent = '▶ Pipeline running — 2 producers, 3 consumers';
+}
+
+</script>
+</body>
+</html>

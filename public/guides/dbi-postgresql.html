@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perl DBI & PostgreSQL — Visual Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg:       #07090f;
+  --surface:  #0c1018;
+  --card:     #101520;
+  --card2:    #141b26;
+  --border:   #1c2840;
+  --border2:  #243350;
+
+  --perl:     #39ace7;   /* Perl script blue */
+  --dbi:      #f59e0b;   /* DBI layer amber */
+  --dbdriver: #a78bfa;   /* DBD::Pg driver purple */
+  --pg:       #4ade80;   /* PostgreSQL green */
+  --sql:      #fb923c;   /* SQL orange */
+  --data:     #38bdf8;   /* Data rows cyan */
+  --err:      #f87171;   /* Error red */
+  --wire:     #1e3a5f;   /* connection wire */
+
+  --text:     #d4e0f0;
+  --muted:    #4a6080;
+  --dim:      #2a3f5f;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(57,172,231,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57,172,231,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══ HEADER ═══ */
+.hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(135deg, rgba(57,172,231,0.05), rgba(167,139,250,0.05));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 400px; height: 120px;
+  background: radial-gradient(ellipse, rgba(57,172,231,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-kicker {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: var(--dbi);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.hero h1 {
+  font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.6rem;
+  background: linear-gradient(120deg, #fff 20%, var(--perl) 60%, var(--pg) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 580px;
+  margin: 0 auto;
+  font-family: 'Fira Code', monospace;
+}
+
+/* ═══ NAV TABS ═══ */
+.nav-tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+  padding: 0 0.25rem;
+}
+
+.ntab {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  color: var(--muted);
+  transition: all 0.2s;
+  background: var(--surface);
+  letter-spacing: 0.04em;
+  position: relative;
+  bottom: -1px;
+  white-space: nowrap;
+}
+
+.ntab:hover { color: var(--text); border-color: var(--border2); }
+.ntab.active { color: var(--dbi); border-color: var(--border2); background: var(--card); border-bottom-color: var(--card); }
+
+/* ═══ PANELS ═══ */
+.panel {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 0 12px 12px 12px;
+  padding: 2rem;
+  animation: fadeUp 0.3s ease;
+  min-height: 520px;
+}
+
+.panel.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.panel-desc {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+}
+
+/* ═══ LAYER ARCHITECTURE ═══ */
+.arch-wrap {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.layers {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.layer {
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s;
+  margin-bottom: 0;
+}
+
+.layer:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 16px;
+  background: var(--border2);
+  z-index: 1;
+}
+
+.layer-connector {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.layer-connector::before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background: var(--border2);
+}
+
+.layer-connector-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border2);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.layer.active-layer .layer-connector-dot,
+.layer.pulsing-layer .layer-connector-dot { background: currentColor; }
+
+.layer-tag {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 0.3rem;
+}
+
+.layer-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.layer-detail {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  opacity: 0.6;
+}
+
+.layer-perl   { border-color: rgba(57,172,231,0.4); color: var(--perl); background: rgba(57,172,231,0.05); }
+.layer-dbi    { border-color: rgba(245,158,11,0.4); color: var(--dbi); background: rgba(245,158,11,0.05); }
+.layer-driver { border-color: rgba(167,139,250,0.4); color: var(--dbdriver); background: rgba(167,139,250,0.05); }
+.layer-pg     { border-color: rgba(74,222,128,0.4); color: var(--pg); background: rgba(74,222,128,0.05); }
+
+.layer.active-layer { transform: translateX(6px); box-shadow: 0 0 20px rgba(255,255,255,0.08); }
+.layer-perl.active-layer   { box-shadow: 0 0 20px rgba(57,172,231,0.2); }
+.layer-dbi.active-layer    { box-shadow: 0 0 20px rgba(245,158,11,0.2); }
+.layer-driver.active-layer { box-shadow: 0 0 20px rgba(167,139,250,0.2); }
+.layer-pg.active-layer     { box-shadow: 0 0 20px rgba(74,222,128,0.2); }
+
+/* Explanation side panel */
+.arch-explain {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.explain-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #fff;
+}
+
+.explain-body {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.explain-body .hl { color: #fff; font-weight: 500; }
+.explain-body .code-inline {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border2);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.68rem;
+}
+
+/* ═══ CODE BLOCKS ═══ */
+.cblock {
+  background: #060a10;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.cblock-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+}
+
+.cblock-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+.cpy {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border2);
+  padding: 0.18rem 0.55rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.cpy:hover { color: var(--text); border-color: var(--perl); }
+.cpy.ok { color: var(--pg); border-color: var(--pg); }
+
+pre {
+  padding: 1.1rem 1.2rem;
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: #c8d8ea;
+}
+
+.kw  { color: #f59e0b; }
+.fn  { color: #7dd3fc; }
+.str { color: #86efac; }
+.cmt { color: #3d5a7a; font-style: italic; }
+.num { color: #f9a8d4; }
+.var { color: #c8d8ea; }
+.mod { color: #c084fc; }
+
+/* ═══ FLOW ANIMATION PANEL ═══ */
+#panel-flow .flow-canvas {
+  width: 100%;
+  height: 420px;
+  position: relative;
+}
+
+.flow-svg { width: 100%; height: 100%; }
+
+/* ═══ LIFECYCLE STEPS ═══ */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.step-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid;
+}
+
+.step-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.step-card.active-step { box-shadow: 0 0 16px rgba(255,255,255,0.07); }
+
+.step-num {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  opacity: 0.6;
+  margin-bottom: 0.35rem;
+}
+
+.step-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: #fff;
+}
+
+.step-code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  background: rgba(0,0,0,0.4);
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  color: #a0c8e8;
+  margin-bottom: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.step-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ═══ QUERY FLOW ANIMATOR ═══ */
+.qflow-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.qflow-left { display: flex; flex-direction: column; gap: 1rem; }
+
+.qflow-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.qbtn {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+  background: none;
+  letter-spacing: 0.04em;
+}
+
+.qbtn-select { color: var(--perl); border-color: rgba(57,172,231,0.4); }
+.qbtn-select:hover, .qbtn-select.active { background: rgba(57,172,231,0.1); }
+
+.qbtn-insert { color: var(--pg); border-color: rgba(74,222,128,0.4); }
+.qbtn-insert:hover, .qbtn-insert.active { background: rgba(74,222,128,0.1); }
+
+.qbtn-prepared { color: var(--dbi); border-color: rgba(245,158,11,0.4); }
+.qbtn-prepared:hover, .qbtn-prepared.active { background: rgba(245,158,11,0.1); }
+
+.qbtn-transaction { color: var(--dbdriver); border-color: rgba(167,139,250,0.4); }
+.qbtn-transaction:hover, .qbtn-transaction.active { background: rgba(167,139,250,0.1); }
+
+.qbtn-error { color: var(--err); border-color: rgba(248,113,113,0.4); }
+.qbtn-error:hover, .qbtn-error.active { background: rgba(248,113,113,0.1); }
+
+/* Pipeline visualization */
+.pipeline {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.pipe-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  opacity: 0.3;
+  transition: all 0.4s;
+  font-size: 0.82rem;
+}
+
+.pipe-step.lit {
+  opacity: 1;
+  border-color: var(--pipe-color, var(--border2));
+  background: rgba(255,255,255,0.03);
+  box-shadow: 0 0 12px rgba(255,255,255,0.04);
+}
+
+.pipe-step.done { opacity: 0.55; }
+
+.pipe-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+
+.pipe-step.lit .pipe-icon {
+  background: rgba(255,255,255,0.08);
+}
+
+.pipe-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.pipe-detail {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-left: auto;
+  text-align: right;
+}
+
+.pipe-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 14px;
+  opacity: 0.3;
+  transition: all 0.4s;
+}
+.pipe-arrow.lit { opacity: 1; }
+.pipe-arrow svg { width: 12px; }
+
+/* Result table */
+.result-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-header {
+  padding: 0.5rem 1rem;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.result-body {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 260px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+}
+
+.result-table th {
+  padding: 0.45rem 0.75rem;
+  text-align: left;
+  background: rgba(245,158,11,0.08);
+  color: var(--dbi);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+.result-table td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.result-table tr.new-row td {
+  animation: rowFlash 0.6s ease;
+}
+
+.result-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+@keyframes rowFlash {
+  0% { background: rgba(74,222,128,0.15); }
+  100% { background: transparent; }
+}
+
+.result-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* ═══ STATUS LOG ═══ */
+.log-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 160px;
+}
+
+.log-header {
+  padding: 0.45rem 0.85rem;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+
+.log-body {
+  padding: 0.5rem;
+  height: calc(100% - 30px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.log-line {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  animation: logIn 0.2s ease;
+}
+
+@keyframes logIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.log-info  { color: #7dd3fc; }
+.log-ok    { color: #86efac; }
+.log-warn  { color: var(--dbi); }
+.log-err   { color: var(--err); }
+.log-sql   { color: #c084fc; }
+.log-data  { color: #94a3b8; }
+
+/* ═══ CONTROLS ═══ */
+.ctrl-bar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.btn {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  background: none;
+}
+
+.btn-go    { color: var(--perl); border-color: rgba(57,172,231,0.5); }
+.btn-go:hover { background: rgba(57,172,231,0.1); }
+.btn-reset { color: var(--muted); border-color: var(--border2); }
+.btn-reset:hover { color: var(--text); border-color: var(--border2); background: rgba(255,255,255,0.04); }
+
+.status-txt {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  color: var(--muted);
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ═══ CONNECTION POOL VIZ ═══ */
+.pool-vis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.conn-slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.conn-slot {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 0.9rem;
+  text-align: center;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.conn-slot-id {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.1em;
+}
+
+.conn-slot-icon { font-size: 1.6rem; margin-bottom: 0.3rem; transition: all 0.3s; }
+
+.conn-slot-status {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  transition: all 0.3s;
+}
+
+.conn-slot.connected {
+  border-color: rgba(74,222,128,0.5);
+  background: rgba(74,222,128,0.05);
+  box-shadow: 0 0 12px rgba(74,222,128,0.1);
+}
+
+.conn-slot.busy {
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(245,158,11,0.05);
+  box-shadow: 0 0 12px rgba(245,158,11,0.1);
+}
+
+.conn-slot.error {
+  border-color: rgba(248,113,113,0.5);
+  background: rgba(248,113,113,0.05);
+}
+
+.conn-pool-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.conn-stat {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conn-stat-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.conn-stat-val {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  transition: all 0.3s;
+}
+
+/* ═══ TRANSACTION VIZ ═══ */
+.txn-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.txn-timeline::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.txn-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.6rem 0 0.6rem 0;
+  position: relative;
+  z-index: 1;
+  opacity: 0.25;
+  transition: all 0.4s;
+}
+
+.txn-step.active { opacity: 1; }
+.txn-step.done   { opacity: 0.6; }
+
+.txn-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  background: var(--bg);
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.3s;
+  position: relative;
+  z-index: 2;
+}
+
+.txn-step.active .txn-dot {
+  border-color: currentColor;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.txn-step.done .txn-dot {
+  background: currentColor;
+  border-color: currentColor;
+}
+
+.txn-content { flex: 1; }
+
+.txn-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.txn-code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  background: rgba(0,0,0,0.4);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  color: #a0c8e8;
+  display: inline-block;
+  margin-bottom: 0.2rem;
+}
+
+.txn-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ═══ LEGEND BADGES ═══ */
+.legend-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+
+.leg-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ═══ PACKET ANIMATION ═══ */
+.packet {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+  transition: none;
+}
+
+/* ═══ MULTI-DB COMPARISON ═══ */
+.db-compare {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.db-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.db-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.db-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+.db-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.db-driver {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid;
+}
+
+.db-features {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.db-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.db-feature-item::before {
+  content: '▸';
+  font-size: 0.6rem;
+  opacity: 0.5;
+}
+
+/* connecting DSN strip */
+.dsn-bar {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 1rem;
+  line-height: 1.8;
+}
+
+.dsn-bar .dsn-hl { color: var(--dbi); font-weight: 600; }
+.dsn-bar .dsn-val { color: var(--pg); }
+.dsn-bar .dsn-db  { color: var(--dbdriver); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.pulsing { animation: pulse 1s infinite; }
+@keyframes slideRight {
+  0%   { left:0%;  opacity:0; }
+  10%  { opacity:1; }
+  90%  { opacity:1; }
+  100% { left:100%; opacity:0; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-kicker">// Perl DBI — Visual Guide</div>
+    <h1>Database Interface (DBI) with PostgreSQL</h1>
+    <p>$ How Perl talks to databases — every layer, every call, animated in real time</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="nav-tabs">
+    <div class="ntab active" onclick="showPanel('arch',this)">Architecture</div>
+    <div class="ntab" onclick="showPanel('flow',this)">Request Flow</div>
+    <div class="ntab" onclick="showPanel('lifecycle',this)">DBI Lifecycle</div>
+    <div class="ntab" onclick="showPanel('queries',this)">Query Animator</div>
+    <div class="ntab" onclick="showPanel('transactions',this)">Transactions</div>
+    <div class="ntab" onclick="showPanel('pool',this)">Connection Pool</div>
+    <div class="ntab" onclick="showPanel('multidb',this)">Multi-DB Support</div>
+  </div>
+
+  <!-- ══════════ PANEL: ARCHITECTURE ══════════ -->
+  <div class="panel active" id="panel-arch">
+    <div class="panel-title">DBI Architecture — 4 Layers</div>
+    <div class="panel-desc"># Click any layer to learn what it does. Watch how a SQL query travels top-to-bottom and results come back up.</div>
+
+    <div class="arch-wrap">
+      <div>
+        <div class="layers" id="arch-layers">
+
+          <div class="layer layer-perl" onclick="selectLayer(0)" id="layer-0">
+            <div class="layer-tag">Layer 1</div>
+            <div class="layer-name">🔵 Your Perl Script</div>
+            <div class="layer-detail">my $dbh = DBI->connect(...); $dbh->do($sql);</div>
+          </div>
+
+          <div class="layer-connector"><div class="layer-connector-dot"></div></div>
+
+          <div class="layer layer-dbi" onclick="selectLayer(1)" id="layer-1">
+            <div class="layer-tag">Layer 2</div>
+            <div class="layer-name">🟡 DBI Module (Abstract API)</div>
+            <div class="layer-detail">use DBI; — uniform interface, error handling, prepare/execute</div>
+          </div>
+
+          <div class="layer-connector"><div class="layer-connector-dot"></div></div>
+
+          <div class="layer layer-driver" onclick="selectLayer(2)" id="layer-2">
+            <div class="layer-tag">Layer 3</div>
+            <div class="layer-name">🟣 DBD::Pg (Driver)</div>
+            <div class="layer-detail">Database-specific translation — DBD::Pg, DBD::mysql, DBD::SQLite...</div>
+          </div>
+
+          <div class="layer-connector"><div class="layer-connector-dot"></div></div>
+
+          <div class="layer layer-pg" onclick="selectLayer(3)" id="layer-3">
+            <div class="layer-tag">Layer 4</div>
+            <div class="layer-name">🟢 PostgreSQL Server</div>
+            <div class="layer-detail">TCP/Unix socket — query planner, executor, storage engine</div>
+          </div>
+
+        </div>
+
+        <div class="legend-row">
+          <div class="leg"><div class="leg-dot" style="background:var(--perl)"></div> Perl layer</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--dbi)"></div> DBI abstraction</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--dbdriver)"></div> DB driver (DBD::*)</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--pg)"></div> PostgreSQL</div>
+        </div>
+      </div>
+
+      <div class="arch-explain" id="arch-explain">
+        <div class="explain-title" id="ae-title">Click a layer to explore</div>
+        <div class="explain-body" id="ae-body">
+          Each SQL operation in Perl passes through <span class="hl">4 distinct layers</span>. This design means you can swap databases (PostgreSQL → MySQL) by changing only the connection string — your Perl code stays the same.
+          <br><br>
+          Click any layer ← to see what it does and what Perl code lives there.
+        </div>
+      </div>
+    </div>
+
+    <div class="cblock" style="margin-top:1.5rem">
+      <div class="cblock-head">
+        <span class="cblock-label">perl — complete DBI + PostgreSQL connection</span>
+        <button class="cpy" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">use strict</span>;
+<span class="kw">use warnings</span>;
+<span class="kw">use</span> <span class="mod">DBI</span>;                          <span class="cmt"># Layer 2: load the DBI abstraction layer</span>
+<span class="cmt"># DBD::Pg is auto-loaded by DBI   # Layer 3: driver loaded automatically</span>
+
+<span class="cmt"># Data Source Name (DSN) — tells DBI which driver + where to connect</span>
+<span class="kw">my</span> <span class="var">$dsn</span> = <span class="str">"dbi:Pg:dbname=mydb;host=localhost;port=5432"</span>;
+
+<span class="cmt"># DBI->connect returns a Database Handle ($dbh)</span>
+<span class="kw">my</span> <span class="var">$dbh</span> = <span class="mod">DBI</span>-><span class="fn">connect</span>(<span class="var">$dsn</span>, <span class="str">'myuser'</span>, <span class="str">'mypassword'</span>, {
+    <span class="fn">RaiseError</span> => <span class="num">1</span>,    <span class="cmt"># die on error instead of returning undef</span>
+    <span class="fn">AutoCommit</span> => <span class="num">1</span>,    <span class="cmt"># auto-commit each statement</span>
+    <span class="fn">PrintError</span> => <span class="num">0</span>,    <span class="cmt"># don't print warnings (we handle them)</span>
+}) <span class="kw">or die</span> <span class="mod">DBI</span>-><span class="fn">errstr</span>;
+
+<span class="kw">print</span> <span class="str">"Connected to PostgreSQL!\n"</span>;
+
+<span class="cmt"># Use $dbh to run queries...</span>
+<span class="var">$dbh</span>-><span class="fn">disconnect</span>();               <span class="cmt"># always clean up!</span></pre>
+    </div>
+    <div class="ctrl-bar">
+      <button class="btn btn-go" onclick="animateArch()">▶ Animate Query Flow</button>
+      <button class="btn btn-reset" onclick="resetArch()">↺ Reset</button>
+      <div class="status-txt" id="arch-status">Click a layer or ▶ to animate a query passing through all layers</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PANEL: REQUEST FLOW ══════════ -->
+  <div class="panel" id="panel-flow">
+    <div class="panel-title">Full Request Flow — SQL Query End to End</div>
+    <div class="panel-desc"># Watch a SELECT query travel from Perl script → DBI → DBD::Pg → PostgreSQL and results come back</div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem">
+      <div>
+        <div class="pipeline" id="flow-pipeline">
+          <div class="pipe-step" id="fp-0" style="--pipe-color:var(--perl)">
+            <div class="pipe-icon">📝</div>
+            <div><div class="pipe-label">Perl Script</div><div class="pipe-detail" id="fp-0-d">—</div></div>
+          </div>
+          <div class="pipe-arrow" id="fpa-0"><svg viewBox="0 0 12 16" fill="none"><path d="M6 0v14M1 9l5 5 5-5" stroke="#3d5a7a" stroke-width="1.5"/></svg></div>
+          <div class="pipe-step" id="fp-1" style="--pipe-color:var(--dbi)">
+            <div class="pipe-icon">⚙️</div>
+            <div><div class="pipe-label">DBI Layer</div><div class="pipe-detail" id="fp-1-d">—</div></div>
+          </div>
+          <div class="pipe-arrow" id="fpa-1"><svg viewBox="0 0 12 16" fill="none"><path d="M6 0v14M1 9l5 5 5-5" stroke="#3d5a7a" stroke-width="1.5"/></svg></div>
+          <div class="pipe-step" id="fp-2" style="--pipe-color:var(--dbdriver)">
+            <div class="pipe-icon">🔌</div>
+            <div><div class="pipe-label">DBD::Pg Driver</div><div class="pipe-detail" id="fp-2-d">—</div></div>
+          </div>
+          <div class="pipe-arrow" id="fpa-2"><svg viewBox="0 0 12 16" fill="none"><path d="M6 0v14M1 9l5 5 5-5" stroke="#3d5a7a" stroke-width="1.5"/></svg></div>
+          <div class="pipe-step" id="fp-3" style="--pipe-color:var(--pg)">
+            <div class="pipe-icon">🐘</div>
+            <div><div class="pipe-label">PostgreSQL</div><div class="pipe-detail" id="fp-3-d">—</div></div>
+          </div>
+          <div class="pipe-arrow" id="fpa-3" style="transform:rotate(180deg)"><svg viewBox="0 0 12 16" fill="none"><path d="M6 0v14M1 9l5 5 5-5" stroke="#3d5a7a" stroke-width="1.5"/></svg></div>
+          <div class="pipe-step" id="fp-4" style="--pipe-color:var(--data)">
+            <div class="pipe-icon">📦</div>
+            <div><div class="pipe-label">Results Return</div><div class="pipe-detail" id="fp-4-d">—</div></div>
+          </div>
+          <div class="pipe-arrow" id="fpa-4" style="transform:rotate(180deg)"><svg viewBox="0 0 12 16" fill="none"><path d="M6 0v14M1 9l5 5 5-5" stroke="#3d5a7a" stroke-width="1.5"/></svg></div>
+          <div class="pipe-step" id="fp-5" style="--pipe-color:var(--perl)">
+            <div class="pipe-icon">✅</div>
+            <div><div class="pipe-label">Perl Receives Data</div><div class="pipe-detail" id="fp-5-d">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:1rem">
+        <div class="result-panel" style="flex:1">
+          <div class="result-header">
+            <span>Result Set — $sth->fetchrow_hashref()</span>
+            <span id="flow-rowcount" style="color:var(--dbi)">0 rows</span>
+          </div>
+          <div class="result-body" id="flow-result">
+            <div class="result-empty">Run a query to see results here</div>
+          </div>
+        </div>
+        <div class="log-panel">
+          <div class="log-header">// DBI internal log</div>
+          <div class="log-body" id="flow-log"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="btn btn-go" onclick="animateFlow()">▶ Execute SELECT</button>
+      <button class="btn btn-reset" onclick="resetFlow()">↺ Reset</button>
+      <div class="status-txt" id="flow-status">Click ▶ to run a SELECT query and watch every step</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PANEL: LIFECYCLE ══════════ -->
+  <div class="panel" id="panel-lifecycle">
+    <div class="panel-title">DBI Object Lifecycle</div>
+    <div class="panel-desc"># The 7 stages every database operation goes through. Click each step to see the code and explanation.</div>
+
+    <div class="steps-grid" id="lifecycle-steps"></div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:0.5rem">
+      <div class="result-panel" style="height:220px">
+        <div class="result-header"><span>Code for selected step</span></div>
+        <div class="result-body" style="padding:0">
+          <pre id="lifecycle-code" style="padding:1rem; color:#a0c8e8; font-size:0.72rem; line-height:1.7">Click a step above to see its code</pre>
+        </div>
+      </div>
+      <div class="log-panel" style="height:220px">
+        <div class="log-header">// Explanation</div>
+        <div class="log-body" id="lifecycle-explain" style="padding:0.75rem; font-size:0.75rem; line-height:1.6; color:var(--muted); font-family:'Fira Code', monospace">Click a step above to see what happens internally</div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="btn btn-go" onclick="animateLifecycle()">▶ Auto-walk all steps</button>
+      <button class="btn btn-reset" onclick="resetLifecycle2()">↺ Reset</button>
+      <div class="status-txt" id="lc-status">Click any step card or ▶ to auto-walk</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PANEL: QUERY ANIMATOR ══════════ -->
+  <div class="panel" id="panel-queries">
+    <div class="panel-title">Query Animator — SELECT, INSERT, Prepared, Transactions, Errors</div>
+    <div class="panel-desc"># Choose a query type and watch it execute step by step through the DBI pipeline</div>
+
+    <div class="qflow-wrap">
+      <div class="qflow-left">
+        <div>
+          <div style="font-family:'Fira Code',monospace; font-size:0.62rem; color:var(--muted); margin-bottom:0.5rem; letter-spacing:0.1em;">CHOOSE QUERY TYPE:</div>
+          <div class="qflow-selector">
+            <button class="qbtn qbtn-select active" onclick="selectQuery('select',this)">SELECT</button>
+            <button class="qbtn qbtn-insert" onclick="selectQuery('insert',this)">INSERT</button>
+            <button class="qbtn qbtn-prepared" onclick="selectQuery('prepared',this)">PREPARED</button>
+            <button class="qbtn qbtn-transaction" onclick="selectQuery('transaction',this)">TRANSACTION</button>
+            <button class="qbtn qbtn-error" onclick="selectQuery('error',this)">ERROR HANDLING</button>
+          </div>
+        </div>
+
+        <div class="cblock" style="margin:0; flex:1">
+          <div class="cblock-head">
+            <span class="cblock-label" id="qa-code-label">perl — SELECT</span>
+            <button class="cpy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre id="qa-code" style="font-size:0.72rem">...</pre>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:1rem">
+        <div class="pipeline" id="qa-pipeline">
+          <!-- filled by JS -->
+        </div>
+        <div class="result-panel" style="height:180px">
+          <div class="result-header"><span id="qa-result-label">Output</span><span id="qa-rowcount" style="color:var(--pg)"></span></div>
+          <div class="result-body" id="qa-result">
+            <div class="result-empty">Run a query to see output</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="btn btn-go" onclick="runQuery()">▶ Execute</button>
+      <button class="btn btn-reset" onclick="resetQA()">↺ Reset</button>
+      <div class="status-txt" id="qa-status">Select a query type above and click ▶ Execute</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PANEL: TRANSACTIONS ══════════ -->
+  <div class="panel" id="panel-transactions">
+    <div class="panel-title">Transactions — COMMIT vs ROLLBACK</div>
+    <div class="panel-desc"># Transactions ensure ACID guarantees. Watch a bank transfer: either both operations succeed (COMMIT) or both are undone (ROLLBACK).</div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem">
+      <div>
+        <div style="font-family:'Fira Code',monospace; font-size:0.62rem; color:var(--muted); margin-bottom:1rem; letter-spacing:0.08em">TRANSACTION TIMELINE</div>
+        <div class="txn-timeline" id="txn-timeline"></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:1rem">
+        <!-- Account balances -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem" id="txn-accounts">
+          <div class="conn-slot" id="acc-alice">
+            <div class="conn-slot-id">ALICE ACCOUNT</div>
+            <div class="conn-slot-icon">💰</div>
+            <div class="conn-slot-status" style="color:var(--pg); font-family:'Fira Code',monospace; font-size:1.2rem; font-weight:700" id="alice-bal">$1000</div>
+          </div>
+          <div class="conn-slot" id="acc-bob">
+            <div class="conn-slot-id">BOB ACCOUNT</div>
+            <div class="conn-slot-icon">💳</div>
+            <div class="conn-slot-status" style="color:var(--pg); font-family:'Fira Code',monospace; font-size:1.2rem; font-weight:700" id="bob-bal">$500</div>
+          </div>
+        </div>
+        <div class="log-panel" style="flex:1">
+          <div class="log-header">// Transaction log</div>
+          <div class="log-body" id="txn-log"></div>
+        </div>
+        <div class="cblock" style="margin:0">
+          <div class="cblock-head">
+            <span class="cblock-label">perl — transaction pattern</span>
+            <button class="cpy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre style="font-size:0.68rem"><span class="var">$dbh</span>->{<span class="fn">AutoCommit</span>} = <span class="num">0</span>;  <span class="cmt"># begin</span>
+<span class="kw">eval</span> {
+    <span class="var">$dbh</span>-><span class="fn">do</span>(<span class="str">"UPDATE accounts SET balance=balance-? WHERE name=?"</span>, <span class="kw">undef</span>, <span class="num">200</span>, <span class="str">'Alice'</span>);
+    <span class="var">$dbh</span>-><span class="fn">do</span>(<span class="str">"UPDATE accounts SET balance=balance+? WHERE name=?"</span>, <span class="kw">undef</span>, <span class="num">200</span>, <span class="str">'Bob'</span>);
+    <span class="var">$dbh</span>-><span class="fn">commit</span>();
+};
+<span class="kw">if</span> (<span class="var">$@</span>) { <span class="var">$dbh</span>-><span class="fn">rollback</span>(); <span class="kw">die</span> <span class="str">"Rolled back: $@"</span> }</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="btn btn-go" onclick="animateTxnCommit()">▶ Simulate COMMIT</button>
+      <button class="btn btn-danger" onclick="animateTxnRollback()" style="color:var(--err); border-color:rgba(248,113,113,0.5)">⚡ Simulate ROLLBACK</button>
+      <button class="btn btn-reset" onclick="resetTxn()">↺ Reset</button>
+      <div class="status-txt" id="txn-status">Click ▶ Simulate COMMIT or ⚡ ROLLBACK for a bank transfer</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PANEL: CONNECTION POOL ══════════ -->
+  <div class="panel" id="panel-pool">
+    <div class="panel-title">Connection Pool — DBI + Apache::DBI / DBIx::Pool</div>
+    <div class="panel-desc"># Creating a new $dbh is expensive (TCP handshake + auth). A pool keeps connections alive and reuses them.</div>
+
+    <div class="pool-vis">
+      <div>
+        <div style="font-family:'Fira Code',monospace; font-size:0.62rem; color:var(--muted); margin-bottom:0.75rem; letter-spacing:0.08em">CONNECTION POOL (max 4)</div>
+        <div class="conn-slots" id="conn-slots"></div>
+        <div class="cblock" style="margin-top:1rem">
+          <div class="cblock-head">
+            <span class="cblock-label">perl — connection pooling</span>
+            <button class="cpy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre style="font-size:0.68rem"><span class="kw">use</span> <span class="mod">DBI</span>;
+<span class="cmt"># Apache::DBI auto-pools under mod_perl</span>
+<span class="cmt"># Or use DBIx::Connector for explicit pooling:</span>
+<span class="kw">use</span> <span class="mod">DBIx::Connector</span>;
+<span class="kw">my</span> <span class="var">$conn</span> = <span class="mod">DBIx::Connector</span>-><span class="fn">new</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pass</span>, {
+    <span class="fn">RaiseError</span> => <span class="num">1</span>,
+    <span class="fn">AutoCommit</span> => <span class="num">1</span>,
+});
+<span class="cmt"># run() automatically checks out + returns connection</span>
+<span class="var">$conn</span>-><span class="fn">run</span>(<span class="kw">sub</span> {
+    <span class="kw">my</span> <span class="var">$dbh</span> = <span class="kw">shift</span>;
+    <span class="var">$dbh</span>-><span class="fn">selectall_arrayref</span>(<span class="str">"SELECT * FROM users"</span>);
+});</pre>
+        </div>
+      </div>
+      <div class="conn-pool-info">
+        <div style="font-family:'Fira Code',monospace; font-size:0.62rem; color:var(--muted); letter-spacing:0.08em; margin-bottom:0.5rem">POOL STATS</div>
+        <div class="conn-stat">
+          <div class="conn-stat-label">TOTAL CONNECTIONS</div>
+          <div class="conn-stat-val" id="pool-total">0</div>
+        </div>
+        <div class="conn-stat">
+          <div class="conn-stat-label">IN USE</div>
+          <div class="conn-stat-val" style="color:var(--dbi)" id="pool-inuse">0</div>
+        </div>
+        <div class="conn-stat">
+          <div class="conn-stat-label">AVAILABLE</div>
+          <div class="conn-stat-val" style="color:var(--pg)" id="pool-avail">0</div>
+        </div>
+        <div class="conn-stat">
+          <div class="conn-stat-label">QUERIES SERVED</div>
+          <div class="conn-stat-val" style="color:var(--perl)" id="pool-served">0</div>
+        </div>
+        <div class="log-panel" style="flex:1; margin-top:0.5rem">
+          <div class="log-header">// Pool events</div>
+          <div class="log-body" id="pool-log"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="btn btn-go" onclick="poolConnect()">+ Connect</button>
+      <button class="btn btn-go" onclick="poolQuery()">⚡ Run Query</button>
+      <button class="btn btn-reset" onclick="poolRelease()">↩ Release All</button>
+      <button class="btn btn-reset" onclick="resetPool2()">↺ Reset Pool</button>
+      <div class="status-txt" id="pool-status">Click + Connect to add connections to the pool</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PANEL: MULTI-DB ══════════ -->
+  <div class="panel" id="panel-multidb">
+    <div class="panel-title">DBI Works With Any Database — Same API, Different Driver</div>
+    <div class="panel-desc"># The power of DBI: your Perl code is identical for all databases. Only the DSN connection string changes.</div>
+
+    <div class="db-compare" id="db-cards"></div>
+
+    <div class="dsn-bar" id="dsn-display">
+      <span style="color:var(--muted)">← Click a database above to see its DSN</span>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <div style="font-family:'Fira Code',monospace; font-size:0.62rem; color:var(--muted); margin-bottom:0.75rem; letter-spacing:0.08em">THE SAME PERL CODE WORKS FOR ALL:</div>
+      <div class="cblock">
+        <div class="cblock-head">
+          <span class="cblock-label">perl — database-agnostic code</span>
+          <button class="cpy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cmt"># Change ONLY $dsn — everything else is identical for all databases!</span>
+<span class="kw">my</span> <span class="var">$dsn</span> = <span class="str">"dbi:Pg:dbname=mydb;host=localhost"</span>;  <span class="cmt"># PostgreSQL</span>
+<span class="cmt"># my $dsn = "dbi:mysql:database=mydb;host=localhost"; # MySQL</span>
+<span class="cmt"># my $dsn = "dbi:SQLite:dbname=/path/db.sqlite";       # SQLite</span>
+<span class="cmt"># my $dsn = "dbi:Oracle:mydb";                         # Oracle</span>
+
+<span class="kw">my</span> <span class="var">$dbh</span> = <span class="mod">DBI</span>-><span class="fn">connect</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pass</span>, {<span class="fn">RaiseError</span> => <span class="num">1</span>});
+
+<span class="cmt"># These calls work identically regardless of database:</span>
+<span class="kw">my</span> <span class="var">$sth</span> = <span class="var">$dbh</span>-><span class="fn">prepare</span>(<span class="str">"SELECT id, name, email FROM users WHERE active = ?"</span>);
+<span class="var">$sth</span>-><span class="fn">execute</span>(<span class="num">1</span>);
+<span class="kw">while</span> (<span class="kw">my</span> <span class="var">$row</span> = <span class="var">$sth</span>-><span class="fn">fetchrow_hashref</span>()) {
+    <span class="kw">printf</span> <span class="str">"%-4d %-20s %s\n"</span>, <span class="var">$row</span>->{id}, <span class="var">$row</span>->{name}, <span class="var">$row</span>->{email};
+}
+<span class="var">$dbh</span>-><span class="fn">disconnect</span>();</pre>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .page -->
+
+<script>
+// ═══ TAB SWITCHING ═══
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ═══ COPY CODE ═══
+function copyCode(btn) {
+  const pre = btn.closest('.cblock').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+// ═══════════════════════════════════
+// PANEL 1: ARCHITECTURE
+// ═══════════════════════════════════
+const layerData = [
+  {
+    title: '🔵 Your Perl Script',
+    color: 'var(--perl)',
+    body: `<span class="hl">What it does:</span> This is your application code. You call DBI methods like <span class="code-inline">connect()</span>, <span class="code-inline">prepare()</span>, <span class="code-inline">execute()</span>, <span class="code-inline">fetchrow_hashref()</span>.<br><br><span class="hl">Key objects:</span><br>• <span class="code-inline">$dbh</span> — Database Handle (the connection)<br>• <span class="code-inline">$sth</span> — Statement Handle (a query)<br><br><span class="hl">You never talk to PostgreSQL directly</span> — always through DBI.`
+  },
+  {
+    title: '🟡 DBI Module',
+    color: 'var(--dbi)',
+    body: `<span class="hl">What it does:</span> DBI is the <em>abstraction layer</em>. It defines a standard API that works identically for all databases.<br><br><span class="hl">Responsibilities:</span><br>• Error handling (RaiseError, PrintError)<br>• Placeholder binding <span class="code-inline">?</span> → prevents SQL injection<br>• Statement caching<br>• Loading the correct driver (DBD::*)<br><br><span class="hl">Key rule:</span> DBI itself has NO database-specific code.`
+  },
+  {
+    title: '🟣 DBD::Pg Driver',
+    color: 'var(--dbdriver)',
+    body: `<span class="hl">What it does:</span> DBD::Pg is the <em>translator</em> between DBI's generic API and PostgreSQL's wire protocol.<br><br><span class="hl">Responsibilities:</span><br>• Translates DBI calls → libpq C library calls<br>• Manages the TCP/Unix socket to PostgreSQL<br>• Handles Pg-specific types (arrays, JSON, hstore)<br>• Manages the authentication handshake<br><br>Install: <span class="code-inline">cpan DBD::Pg</span>`
+  },
+  {
+    title: '🟢 PostgreSQL Server',
+    color: 'var(--pg)',
+    body: `<span class="hl">What it does:</span> The actual database engine — receives SQL over TCP, parses it, plans the query, executes it, and returns rows.<br><br><span class="hl">Internal steps PostgreSQL runs:</span><br>1. Parse SQL → abstract syntax tree<br>2. Analyze + rewrite<br>3. Plan (choose indexes/joins)<br>4. Execute → fetch rows from disk<br>5. Return result set to DBD::Pg`
+  }
+];
+
+function selectLayer(i) {
+  document.querySelectorAll('.layer').forEach((l, j) => {
+    l.classList.toggle('active-layer', j === i);
+  });
+  document.getElementById('ae-title').textContent = layerData[i].title;
+  document.getElementById('ae-title').style.color = layerData[i].color;
+  document.getElementById('ae-body').innerHTML = layerData[i].body;
+}
+
+let archAnim = null;
+async function animateArch() {
+  clearTimeout(archAnim);
+  resetArch();
+  const steps = [0, 1, 2, 3];
+  const msgs = [
+    'Perl calls $dbh->prepare($sql)...',
+    'DBI validates call, binds placeholders...',
+    'DBD::Pg translates to PostgreSQL wire protocol...',
+    'PostgreSQL executes query, returns rows!'
+  ];
+  for (let i = 0; i < steps.length; i++) {
+    selectLayer(steps[i]);
+    document.getElementById('arch-status').textContent = msgs[i];
+    await delay(900);
+  }
+  document.getElementById('arch-status').textContent = '✓ Query complete — results travel back up the same layers';
+  // Highlight back up
+  for (let i = 2; i >= 0; i--) {
+    selectLayer(i);
+    await delay(600);
+  }
+  document.getElementById('arch-status').textContent = '✓ Results delivered to Perl script. Connection ready for next query.';
+}
+
+function resetArch() {
+  document.querySelectorAll('.layer').forEach(l => l.classList.remove('active-layer'));
+  document.getElementById('ae-title').textContent = 'Click a layer to explore';
+  document.getElementById('ae-title').style.color = '';
+  document.getElementById('ae-body').innerHTML = 'Each SQL operation in Perl passes through <span class="hl">4 distinct layers</span>. This design means you can swap databases (PostgreSQL → MySQL) by changing only the connection string — your Perl code stays the same.<br><br>Click any layer ← to see what it does and what Perl code lives there.';
+  document.getElementById('arch-status').textContent = 'Click a layer or ▶ to animate a query passing through all layers';
+}
+
+// ═══════════════════════════════════
+// PANEL 2: FLOW
+// ═══════════════════════════════════
+function addLog(containerId, msg, cls) {
+  const body = document.getElementById(containerId);
+  const el = document.createElement('div');
+  el.className = 'log-line log-' + cls;
+  el.textContent = msg;
+  body.appendChild(el);
+  body.scrollTop = body.scrollHeight;
+}
+
+const flowSteps = [
+  { id: 'fp-0', color: 'var(--perl)',     detail: '$sth = $dbh->prepare($sql)',          log: ['[PERL] $dbh->prepare("SELECT * FROM users WHERE active=?")','[PERL] $sth->execute(1)'], logTypes:['info','info'] },
+  { id: 'fp-1', color: 'var(--dbi)',      detail: 'DBI validates + binds ? → 1',          log: ['[DBI] Placeholder ? bound to value: 1','[DBI] Statement validated, passing to driver'], logTypes:['warn','warn'] },
+  { id: 'fp-2', color: 'var(--dbdriver)', detail: 'DBD::Pg serializes to wire protocol',  log: ['[DBD::Pg] Translating to libpq protocol','[DBD::Pg] Opening socket to localhost:5432'], logTypes:['sql','sql'] },
+  { id: 'fp-3', color: 'var(--pg)',       detail: 'PostgreSQL: parse→plan→execute',        log: ['[PG] Parsing query...','[PG] Using index scan on idx_users_active','[PG] Fetching 4 rows from heap'], logTypes:['ok','ok','ok'] },
+  { id: 'fp-4', color: 'var(--data)',     detail: 'Row data serialized, sent over socket', log: ['[NET] 4 rows transmitted back','[DBD::Pg] Deserializing row data'], logTypes:['data','data'] },
+  { id: 'fp-5', color: 'var(--perl)',     detail: '$row = $sth->fetchrow_hashref()',       log: ['[PERL] $sth->fetchrow_hashref() x4','[PERL] $sth->finish() — statement closed'], logTypes:['ok','ok'] },
+];
+
+const sampleRows = [
+  { id: 1, name: 'Alice Chen', email: 'alice@example.com', active: true },
+  { id: 2, name: 'Bob Tanaka', email: 'bob@example.com',   active: true },
+  { id: 3, name: 'Sara Mehta', email: 'sara@example.com',  active: true },
+  { id: 4, name: 'Dev Kumar',  email: 'dev@example.com',   active: true },
+];
+
+let flowRunning = false;
+async function animateFlow() {
+  if (flowRunning) return;
+  flowRunning = true;
+  resetFlow();
+
+  for (let i = 0; i < flowSteps.length; i++) {
+    const s = flowSteps[i];
+    if (i > 0) {
+      const prev = document.getElementById(flowSteps[i-1].id);
+      prev.classList.remove('lit'); prev.classList.add('done');
+      const arrow = document.getElementById('fpa-' + (i-1));
+      if (arrow) { arrow.classList.add('lit'); }
+    }
+    const el = document.getElementById(s.id);
+    el.classList.add('lit');
+    el.style.setProperty('--pipe-color', s.color);
+    document.getElementById(s.id + '-d').textContent = s.detail;
+    document.getElementById('flow-status').textContent = s.detail;
+
+    for (let j = 0; j < s.log.length; j++) {
+      addLog('flow-log', s.log[j], s.logTypes[j]);
+      await delay(300);
+    }
+    await delay(700);
+  }
+
+  // Render results
+  const rb = document.getElementById('flow-result');
+  rb.innerHTML = '';
+  const tbl = document.createElement('table');
+  tbl.className = 'result-table';
+  tbl.innerHTML = '<thead><tr><th>id</th><th>name</th><th>email</th><th>active</th></tr></thead><tbody id="flow-tbody"></tbody>';
+  rb.appendChild(tbl);
+
+  for (let r of sampleRows) {
+    const tr = document.createElement('tr');
+    tr.className = 'new-row';
+    tr.innerHTML = `<td>${r.id}</td><td>${r.name}</td><td>${r.email}</td><td style="color:var(--pg)">true</td>`;
+    document.getElementById('flow-tbody').appendChild(tr);
+    document.getElementById('flow-rowcount').textContent = document.querySelectorAll('#flow-tbody tr').length + ' rows';
+    await delay(200);
+  }
+
+  document.getElementById('flow-status').textContent = '✓ 4 rows fetched. $sth->finish() called. Connection ready.';
+  flowRunning = false;
+}
+
+function resetFlow() {
+  flowRunning = false;
+  flowSteps.forEach((s, i) => {
+    const el = document.getElementById(s.id);
+    el.className = 'pipe-step';
+    el.style.setProperty('--pipe-color', s.color);
+    document.getElementById(s.id + '-d').textContent = '—';
+    const arrow = document.getElementById('fpa-' + i);
+    if (arrow) arrow.classList.remove('lit');
+  });
+  document.getElementById('flow-log').innerHTML = '';
+  document.getElementById('flow-result').innerHTML = '<div class="result-empty">Run a query to see results here</div>';
+  document.getElementById('flow-rowcount').textContent = '0 rows';
+  document.getElementById('flow-status').textContent = 'Click ▶ to run a SELECT query and watch every step';
+}
+
+// ═══════════════════════════════════
+// PANEL 3: LIFECYCLE
+// ═══════════════════════════════════
+const lcSteps = [
+  {
+    title: '1. Load DBI', color: 'var(--dbi)',
+    code: `use DBI;\n# This loads the DBI module and makes\n# DBI->connect() available`,
+    explain: 'use DBI loads the DBI module at compile time. It does NOT connect yet — it just makes the DBI namespace and methods available. The DBD::Pg driver is loaded lazily when connect() is called.'
+  },
+  {
+    title: '2. Connect → $dbh', color: 'var(--perl)',
+    code: `my $dsn = "dbi:Pg:dbname=mydb;host=localhost;port=5432";\nmy $dbh = DBI->connect($dsn, 'user', 'pass', {\n    RaiseError => 1,\n    AutoCommit => 1,\n});\n# $dbh is now a live database handle`,
+    explain: 'DBI->connect() parses the DSN, loads DBD::Pg, calls libpq to open a TCP socket to PostgreSQL, sends authentication credentials, and returns a $dbh (database handle) object representing the live connection.'
+  },
+  {
+    title: '3. Prepare → $sth', color: 'var(--dbdriver)',
+    code: `my $sth = $dbh->prepare(\n    "SELECT id, name FROM users WHERE age > ?"\n);\n# $sth = Statement Handle\n# ? is a placeholder — filled later`,
+    explain: 'prepare() sends the SQL to PostgreSQL for parsing and planning WITHOUT executing it. PostgreSQL returns a plan. This is efficient because you can execute the same prepared statement many times with different parameters.'
+  },
+  {
+    title: '4. Bind & Execute', color: 'var(--pg)',
+    code: `# Execute with parameter (replaces ?)\n$sth->execute(25);\n\n# Or bind explicitly:\n$sth->bind_param(1, 25);\n$sth->execute();`,
+    explain: 'execute() sends the parameter values to PostgreSQL. The ? placeholder is replaced safely (prevents SQL injection). PostgreSQL runs the pre-planned query with the provided values and stores results server-side.'
+  },
+  {
+    title: '5. Fetch Rows', color: 'var(--data)',
+    code: `# Fetch one row as hash:\nmy $row = $sth->fetchrow_hashref();\n\n# Fetch all rows at once:\nmy $rows = $sth->fetchall_arrayref({});\n\n# Fetch in a loop:\nwhile (my $r = $sth->fetchrow_hashref()) {\n    print "$r->{id}: $r->{name}\\n";\n}`,
+    explain: 'fetch methods retrieve rows from PostgreSQL one at a time (lazy) or all at once. fetchrow_hashref() returns a hash ref with column names as keys. fetchall_arrayref({}) returns all rows as an array of hash refs.'
+  },
+  {
+    title: '6. Finish Statement', color: 'var(--sql)',
+    code: `$sth->finish();\n# Releases server-side cursor\n# Not always required but good practice\n# Especially important for partial fetches`,
+    explain: 'finish() tells PostgreSQL you\'re done with this query, releasing the server-side cursor and resources. If you fetched all rows, DBI auto-finishes. But if you stopped early (e.g. after 5 rows of 1000), always call finish().'
+  },
+  {
+    title: '7. Disconnect', color: 'var(--err)',
+    code: `$dbh->disconnect();\n# Closes TCP connection to PostgreSQL\n# Resources freed on both Perl + PG side\n# Always call this when done!`,
+    explain: 'disconnect() closes the TCP socket to PostgreSQL, frees the $dbh object, and releases the PostgreSQL backend process. Always call this in a finally/eval block or use a DESTROY method to ensure cleanup even on errors.'
+  }
+];
+
+function buildLifecycleSteps() {
+  const container = document.getElementById('lifecycle-steps');
+  container.innerHTML = '';
+  lcSteps.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    card.style.borderLeftColor = s.color;
+    card.innerHTML = `
+      <div class="step-num">${String(i+1).padStart(2,'0')} / ${lcSteps.length}</div>
+      <div class="step-title">${s.title}</div>
+    `;
+    card.onclick = () => selectLCStep(i);
+    container.appendChild(card);
+  });
+}
+
+function selectLCStep(i) {
+  document.querySelectorAll('.step-card').forEach((c, j) => {
+    c.classList.toggle('active-step', j === i);
+    c.style.borderLeftColor = lcSteps[j].color;
+    c.style.boxShadow = j === i ? `0 0 16px ${lcSteps[j].color.replace(')', ',0.2)').replace('var', 'rgba')}` : '';
+  });
+  document.getElementById('lifecycle-code').textContent = lcSteps[i].code;
+  document.getElementById('lifecycle-explain').textContent = lcSteps[i].explain;
+  document.getElementById('lifecycle-explain').style.color = lcSteps[i].color;
+  document.getElementById('lc-status').textContent = lcSteps[i].title;
+}
+
+let lcAnim = null;
+async function animateLifecycle() {
+  clearInterval(lcAnim);
+  for (let i = 0; i < lcSteps.length; i++) {
+    selectLCStep(i);
+    document.getElementById('lc-status').textContent = `Step ${i+1}/${lcSteps.length}: ${lcSteps[i].title}`;
+    await delay(1600);
+  }
+  document.getElementById('lc-status').textContent = '✓ Full DBI lifecycle complete!';
+}
+
+function resetLifecycle2() {
+  clearInterval(lcAnim);
+  document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active-step'));
+  document.getElementById('lifecycle-code').textContent = 'Click a step above to see its code';
+  document.getElementById('lifecycle-explain').textContent = 'Click a step above to see what happens internally';
+  document.getElementById('lc-status').textContent = 'Click any step card or ▶ to auto-walk';
+}
+
+buildLifecycleSteps();
+
+// ═══════════════════════════════════
+// PANEL 4: QUERY ANIMATOR
+// ═══════════════════════════════════
+const queryTypes = {
+  select: {
+    label: 'perl — SELECT with fetchrow_hashref',
+    code: `my $sth = $dbh->prepare(\n    "SELECT id, name, salary FROM employees WHERE dept = ?"\n);\n$sth->execute('Engineering');\n\nwhile (my $row = $sth->fetchrow_hashref()) {\n    printf "%-4d %-20s \\$%.2f\\n",\n        $row->{id}, $row->{name}, $row->{salary};\n}\n$sth->finish();`,
+    steps: [
+      { icon:'📝', label:'Perl: prepare()', detail:'query parsed', color:'var(--perl)' },
+      { icon:'⚙️', label:'DBI: bind param', detail:"dept='Engineering'", color:'var(--dbi)' },
+      { icon:'🔌', label:'DBD::Pg: execute', detail:'wire protocol sent', color:'var(--dbdriver)' },
+      { icon:'🐘', label:'PG: index scan', detail:'idx_dept used', color:'var(--pg)' },
+      { icon:'📦', label:'Rows returned', detail:'3 rows over socket', color:'var(--data)' },
+      { icon:'✅', label:'Perl fetchrow_hashref', detail:'$row->{name} etc.', color:'var(--perl)' },
+    ],
+    result: {
+      cols: ['id','name','salary','dept'],
+      rows: [
+        [1,'Alice Chen','$95,000','Engineering'],
+        [2,'Bob Tanaka','$87,500','Engineering'],
+        [3,'Sara Mehta','$102,000','Engineering'],
+      ]
+    }
+  },
+  insert: {
+    label: 'perl — INSERT with $dbh->do()',
+    code: `# Simple single INSERT:\n$dbh->do(\n    "INSERT INTO users (name, email, created_at)\n     VALUES (?, ?, NOW())",\n    undef,         # attr (unused)\n    'Charlie Dev',\n    'charlie@dev.io'\n);\n\n# Get the auto-generated ID:\nmy $new_id = $dbh->last_insert_id(\n    undef, undef, 'users', 'id'\n);\nprint "Inserted user ID: $new_id\\n";`,
+    steps: [
+      { icon:'📝', label:'Perl: $dbh->do()', detail:'INSERT statement', color:'var(--perl)' },
+      { icon:'⚙️', label:'DBI: bind 2 params', detail:'Charlie Dev, charlie@dev.io', color:'var(--dbi)' },
+      { icon:'🔌', label:'DBD::Pg: send', detail:'wire protocol', color:'var(--dbdriver)' },
+      { icon:'🐘', label:'PG: INSERT', detail:'row added to heap', color:'var(--pg)' },
+      { icon:'🔑', label:'PG: RETURNING id', detail:'new_id = 42', color:'var(--pg)' },
+      { icon:'✅', label:'$new_id = 42', detail:'last_insert_id()', color:'var(--perl)' },
+    ],
+    result: {
+      cols: ['status','rows_affected','new_id'],
+      rows: [['INSERT OK','1 row','42']]
+    }
+  },
+  prepared: {
+    label: 'perl — Prepared Statement (execute many times)',
+    code: `# Prepare ONCE, execute MANY — efficient!\nmy $sth = $dbh->prepare(\n    "INSERT INTO logs (user_id, action, ts)\n     VALUES (?, ?, NOW())"\n);\n\nmy @events = (\n    [1, 'login'],  [2, 'view_page'],\n    [1, 'logout'], [3, 'purchase'],\n);\n\nfor my @event (@events) {\n    $sth->execute(@event);  # reuses plan!\n}\n$sth->finish();\n# 4 inserts, plan parsed ONCE — 4x faster`,
+    steps: [
+      { icon:'📝', label:'prepare() ONCE', detail:'SQL plan cached in PG', color:'var(--perl)' },
+      { icon:'⚙️', label:'DBI: statement cached', detail:'no re-parse needed', color:'var(--dbi)' },
+      { icon:'🔌', label:'DBD::Pg: loop x4', detail:'send params only each time', color:'var(--dbdriver)' },
+      { icon:'🐘', label:'PG: reuse plan', detail:'execute cached plan x4', color:'var(--pg)' },
+      { icon:'⚡', label:'4x faster', detail:'plan parsed once!', color:'var(--dbi)' },
+      { icon:'✅', label:'4 rows inserted', detail:'$sth->finish()', color:'var(--perl)' },
+    ],
+    result: {
+      cols: ['execute#','user_id','action','status'],
+      rows: [
+        ['#1','1','login','✓ OK'],
+        ['#2','2','view_page','✓ OK'],
+        ['#3','1','logout','✓ OK'],
+        ['#4','3','purchase','✓ OK'],
+      ]
+    }
+  },
+  transaction: {
+    label: 'perl — Transaction with eval/rollback',
+    code: `$dbh->{AutoCommit} = 0;  # BEGIN TRANSACTION\n\neval {\n    $dbh->do("UPDATE accounts\n              SET balance = balance - 200\n              WHERE id = 1");\n\n    $dbh->do("UPDATE accounts\n              SET balance = balance + 200\n              WHERE id = 2");\n\n    $dbh->commit();  # COMMIT if both succeed\n    print "Transfer complete!\\n";\n};\n\nif ($@) {\n    $dbh->rollback();  # UNDO both operations!\n    die "Transaction failed: $@";\n}`,
+    steps: [
+      { icon:'🔒', label:'AutoCommit = 0', detail:'BEGIN TRANSACTION', color:'var(--dbdriver)' },
+      { icon:'📝', label:'UPDATE alice -200', detail:'balance: 1000→800', color:'var(--dbi)' },
+      { icon:'📝', label:'UPDATE bob +200', detail:'balance: 500→700', color:'var(--dbi)' },
+      { icon:'✅', label:'$dbh->commit()', detail:'both writes confirmed', color:'var(--pg)' },
+      { icon:'🔓', label:'AutoCommit = 1', detail:'transaction closed', color:'var(--perl)' },
+    ],
+    result: {
+      cols: ['operation','account','old_bal','new_bal'],
+      rows: [
+        ['UPDATE','Alice','$1000','$800'],
+        ['UPDATE','Bob','$500','$700'],
+        ['COMMIT','—','—','✓ DONE'],
+      ]
+    }
+  },
+  error: {
+    label: 'perl — Error Handling with RaiseError + eval',
+    code: `# RaiseError => 1 makes DBI die on errors\nmy $dbh = DBI->connect($dsn, $u, $p, {\n    RaiseError => 1,\n});\n\n# Wrap in eval to catch DBI exceptions:\nmy $result = eval {\n    my $sth = $dbh->prepare(\n        "SELECT * FROM nonexistent_table"\n    );\n    $sth->execute();\n    $sth->fetchall_arrayref({});\n};\n\nif ($@) {\n    # $@ contains the DBI error message\n    warn "DBI Error: $@";\n    warn "Error code: " . $dbh->err;\n    warn "Error msg:  " . $dbh->errstr;\n}`,
+    steps: [
+      { icon:'📝', label:'prepare() called', detail:'SELECT from bad table', color:'var(--perl)' },
+      { icon:'⚙️', label:'DBI passes to driver', detail:'no validation yet', color:'var(--dbi)' },
+      { icon:'🔌', label:'DBD::Pg sends to PG', detail:'wire protocol sent', color:'var(--dbdriver)' },
+      { icon:'❌', label:'PG: table not found', detail:'ERROR 42P01', color:'var(--err)' },
+      { icon:'⚙️', label:'DBI: RaiseError=1', detail:'DBI->die() called', color:'var(--dbi)' },
+      { icon:'🛡️', label:'eval catches $@', detail:'err + errstr available', color:'var(--perl)' },
+    ],
+    result: {
+      cols: ['type','value'],
+      rows: [
+        ['$@','DBD::Pg::st execute failed'],
+        ['$dbh->err','42P01'],
+        ['$dbh->errstr','ERROR: relation "nonexistent_table" does not exist'],
+        ['status','eval caught error — no crash!'],
+      ]
+    }
+  }
+};
+
+let currentQuery = 'select';
+let qaRunning = false;
+
+function buildQAPipeline() {
+  const q = queryTypes[currentQuery];
+  const container = document.getElementById('qa-pipeline');
+  container.innerHTML = '';
+  q.steps.forEach((s, i) => {
+    const step = document.createElement('div');
+    step.className = 'pipe-step';
+    step.id = `qa-step-${i}`;
+    step.style.setProperty('--pipe-color', s.color);
+    step.innerHTML = `<div class="pipe-icon">${s.icon}</div><div><div class="pipe-label">${s.label}</div><div class="pipe-detail">${s.detail}</div></div>`;
+    container.appendChild(step);
+
+    if (i < q.steps.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'pipe-arrow';
+      arrow.id = `qa-arrow-${i}`;
+      arrow.innerHTML = `<svg viewBox="0 0 12 16" fill="none"><path d="M6 0v14M1 9l5 5 5-5" stroke="#3d5a7a" stroke-width="1.5"/></svg>`;
+      container.appendChild(arrow);
+    }
+  });
+}
+
+function selectQuery(type, btn) {
+  currentQuery = type;
+  document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const q = queryTypes[type];
+  document.getElementById('qa-code-label').textContent = q.label;
+  document.getElementById('qa-code').innerHTML = q.code
+    .replace(/\bmy\b|\buse\b|\bfor\b|\bwhile\b|\bif\b|\beval\b/g, m => `<span class="kw">${m}</span>`)
+    .replace(/(".*?")/g, m => `<span class="str">${m}</span>`)
+    .replace(/(#.*)/g, m => `<span class="cmt">${m}</span>`);
+  buildQAPipeline();
+  document.getElementById('qa-result').innerHTML = '<div class="result-empty">Run a query to see output</div>';
+  document.getElementById('qa-rowcount').textContent = '';
+  document.getElementById('qa-result-label').textContent = 'Output';
+  document.getElementById('qa-status').textContent = 'Click ▶ Execute to animate';
+  qaRunning = false;
+}
+
+async function runQuery() {
+  if (qaRunning) return;
+  qaRunning = true;
+  const q = queryTypes[currentQuery];
+  const steps = q.steps;
+
+  for (let i = 0; i < steps.length; i++) {
+    if (i > 0) {
+      document.getElementById(`qa-step-${i-1}`).classList.remove('lit');
+      document.getElementById(`qa-step-${i-1}`).classList.add('done');
+      const arrow = document.getElementById(`qa-arrow-${i-1}`);
+      if (arrow) arrow.classList.add('lit');
+    }
+    document.getElementById(`qa-step-${i}`).classList.add('lit');
+    document.getElementById('qa-status').textContent = `${steps[i].icon} ${steps[i].label}: ${steps[i].detail}`;
+    await delay(750);
+  }
+
+  // Render results
+  const rb = document.getElementById('qa-result');
+  rb.innerHTML = '';
+  const tbl = document.createElement('table');
+  tbl.className = 'result-table';
+  tbl.innerHTML = `<thead><tr>${q.result.cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody id="qa-tbody"></tbody>`;
+  rb.appendChild(tbl);
+
+  for (let row of q.result.rows) {
+    const tr = document.createElement('tr');
+    tr.className = 'new-row';
+    tr.innerHTML = row.map((c, i) => `<td ${c.includes('ERROR') || c.includes('failed') ? 'style="color:var(--err)"' : c.includes('OK') || c.includes('DONE') ? 'style="color:var(--pg)"' : ''}>${c}</td>`).join('');
+    document.getElementById('qa-tbody').appendChild(tr);
+    document.getElementById('qa-rowcount').textContent = `${document.querySelectorAll('#qa-tbody tr').length} rows`;
+    await delay(200);
+  }
+
+  document.getElementById('qa-status').textContent = '✓ Query complete!';
+  document.getElementById('qa-result-label').textContent = 'Result';
+  qaRunning = false;
+}
+
+function resetQA() {
+  qaRunning = false;
+  buildQAPipeline();
+  document.getElementById('qa-result').innerHTML = '<div class="result-empty">Run a query to see output</div>';
+  document.getElementById('qa-rowcount').textContent = '';
+  document.getElementById('qa-status').textContent = 'Click ▶ Execute to animate';
+}
+
+// Init query panel
+selectQuery('select', document.querySelector('.qbtn-select'));
+
+// ═══════════════════════════════════
+// PANEL 5: TRANSACTIONS
+// ═══════════════════════════════════
+const txnSteps = [
+  { label:'BEGIN', color:'var(--perl)', code:'$dbh->{AutoCommit} = 0', note:'Disable auto-commit — start transaction block' },
+  { label:'UPDATE alice -$200', color:'var(--dbi)', code:"$dbh->do('UPDATE accounts SET balance=balance-200 WHERE name=?', undef, 'Alice')", note:"Alice: $1000 → $800" },
+  { label:'UPDATE bob +$200', color:'var(--pg)', code:"$dbh->do('UPDATE accounts SET balance=balance+200 WHERE name=?', undef, 'Bob')", note:"Bob: $500 → $700" },
+  { label:'COMMIT', color:'var(--pg)', code:'$dbh->commit()', note:'Both changes saved permanently to disk' },
+  { label:'ROLLBACK (on error)', color:'var(--err)', code:'$dbh->rollback()', note:'If anything failed — BOTH changes are undone' },
+];
+
+function buildTxnTimeline() {
+  const tl = document.getElementById('txn-timeline');
+  tl.innerHTML = '';
+  txnSteps.forEach((s, i) => {
+    const step = document.createElement('div');
+    step.className = 'txn-step';
+    step.style.color = s.color;
+    step.id = `txn-step-${i}`;
+    step.innerHTML = `
+      <div class="txn-dot"></div>
+      <div class="txn-content">
+        <div class="txn-label">${s.label}</div>
+        <div class="txn-code">${s.code.substring(0,60)}${s.code.length>60?'...':''}</div>
+        <div class="txn-note">${s.note}</div>
+      </div>`;
+    tl.appendChild(step);
+  });
+}
+
+let aliceBal = 1000, bobBal = 500;
+let txnRunning = false;
+
+async function animateTxnCommit() {
+  if (txnRunning) return;
+  txnRunning = true;
+  resetTxn();
+  aliceBal = 1000; bobBal = 500;
+
+  const commitSteps = [0, 1, 2, 3]; // not rollback step
+
+  for (let i of commitSteps) {
+    document.getElementById(`txn-step-${i}`).classList.add('active');
+    const s = txnSteps[i];
+    addLog('txn-log', `[TXN] ${s.label}`, i === 3 ? 'ok' : 'info');
+
+    if (i === 1) {
+      aliceBal -= 200;
+      document.getElementById('alice-bal').textContent = '$' + aliceBal;
+      document.getElementById('acc-alice').className = 'conn-slot busy';
+      addLog('txn-log', `Alice balance: $${aliceBal+200} → $${aliceBal}`, 'warn');
+    }
+    if (i === 2) {
+      bobBal += 200;
+      document.getElementById('bob-bal').textContent = '$' + bobBal;
+      document.getElementById('acc-bob').className = 'conn-slot busy';
+      addLog('txn-log', `Bob balance: $${bobBal-200} → $${bobBal}`, 'warn');
+    }
+    if (i === 3) {
+      document.getElementById('acc-alice').className = 'conn-slot connected';
+      document.getElementById('acc-bob').className = 'conn-slot connected';
+      addLog('txn-log', '✓ COMMIT — both updates permanent', 'ok');
+    }
+
+    document.getElementById('txn-status').textContent = `${s.label}: ${s.note}`;
+    await delay(1000);
+    document.getElementById(`txn-step-${i}`).classList.remove('active');
+    document.getElementById(`txn-step-${i}`).classList.add('done');
+  }
+
+  document.getElementById('txn-status').textContent = '✓ COMMIT successful — $200 transferred from Alice to Bob';
+  txnRunning = false;
+}
+
+async function animateTxnRollback() {
+  if (txnRunning) return;
+  txnRunning = true;
+  resetTxn();
+  aliceBal = 1000; bobBal = 500;
+
+  // Steps: BEGIN, partial UPDATE, ERROR, ROLLBACK
+  for (let i of [0, 1]) {
+    document.getElementById(`txn-step-${i}`).classList.add('active');
+    addLog('txn-log', `[TXN] ${txnSteps[i].label}`, 'info');
+    if (i === 1) {
+      aliceBal -= 200;
+      document.getElementById('alice-bal').textContent = '$' + aliceBal;
+      document.getElementById('acc-alice').className = 'conn-slot busy';
+    }
+    document.getElementById('txn-status').textContent = txnSteps[i].note;
+    await delay(800);
+    document.getElementById(`txn-step-${i}`).classList.remove('active');
+    document.getElementById(`txn-step-${i}`).classList.add('done');
+  }
+
+  // Simulate error
+  addLog('txn-log', '[ERROR] DBD::Pg::st execute failed — constraint violation', 'err');
+  document.getElementById('acc-bob').className = 'conn-slot error';
+  await delay(600);
+
+  // ROLLBACK
+  document.getElementById(`txn-step-4`).classList.add('active');
+  addLog('txn-log', '[TXN] ROLLBACK called — all changes undone!', 'warn');
+  await delay(800);
+
+  aliceBal = 1000; bobBal = 500;
+  document.getElementById('alice-bal').textContent = '$' + aliceBal;
+  document.getElementById('bob-bal').textContent = '$' + bobBal;
+  document.getElementById('acc-alice').className = 'conn-slot';
+  document.getElementById('acc-bob').className = 'conn-slot';
+  addLog('txn-log', '↩ Alice balance restored to $1000', 'ok');
+  addLog('txn-log', '↩ Bob balance unchanged at $500', 'ok');
+  document.getElementById(`txn-step-4`).classList.remove('active');
+  document.getElementById(`txn-step-4`).classList.add('done');
+  document.getElementById('txn-status').textContent = '⚡ ROLLBACK — both accounts restored to original values';
+  txnRunning = false;
+}
+
+function resetTxn() {
+  txnRunning = false;
+  aliceBal = 1000; bobBal = 500;
+  document.getElementById('alice-bal').textContent = '$1000';
+  document.getElementById('bob-bal').textContent = '$500';
+  document.getElementById('acc-alice').className = 'conn-slot';
+  document.getElementById('acc-bob').className = 'conn-slot';
+  document.getElementById('txn-log').innerHTML = '';
+  document.getElementById('txn-status').textContent = 'Click ▶ Simulate COMMIT or ⚡ ROLLBACK for a bank transfer';
+  buildTxnTimeline();
+}
+
+buildTxnTimeline();
+
+// ═══════════════════════════════════
+// PANEL 6: CONNECTION POOL
+// ═══════════════════════════════════
+const MAX_POOL = 4;
+let poolConns = [];
+let poolQueriesServed = 0;
+
+function buildPoolSlots() {
+  const container = document.getElementById('conn-slots');
+  container.innerHTML = '';
+  for (let i = 0; i < MAX_POOL; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'conn-slot';
+    slot.id = `cslot-${i}`;
+    slot.innerHTML = `<div class="conn-slot-id">CONN ${i+1}</div><div class="conn-slot-icon" id="cslot-icon-${i}">🔌</div><div class="conn-slot-status" id="cslot-status-${i}" style="color:var(--muted); font-family:'Fira Code',monospace; font-size:0.7rem">empty</div>`;
+    container.appendChild(slot);
+  }
+}
+
+function updatePoolStats() {
+  const total = poolConns.length;
+  const inuse = poolConns.filter(c => c.busy).length;
+  document.getElementById('pool-total').textContent = total;
+  document.getElementById('pool-inuse').textContent = inuse;
+  document.getElementById('pool-avail').textContent = total - inuse;
+  document.getElementById('pool-served').textContent = poolQueriesServed;
+}
+
+function poolConnect() {
+  if (poolConns.length >= MAX_POOL) {
+    addLog('pool-log', '[POOL] Max pool size reached (4)', 'warn');
+    document.getElementById('pool-status').textContent = 'Pool full — max 4 connections';
+    return;
+  }
+  const id = poolConns.length;
+  poolConns.push({ id, busy: false });
+  document.getElementById(`cslot-${id}`).className = 'conn-slot connected';
+  document.getElementById(`cslot-icon-${id}`).textContent = '🟢';
+  document.getElementById(`cslot-status-${id}`).textContent = 'connected';
+  document.getElementById(`cslot-status-${id}`).style.color = 'var(--pg)';
+  addLog('pool-log', `[POOL] conn_${id+1}: DBI->connect() → TCP handshake ✓`, 'ok');
+  updatePoolStats();
+  document.getElementById('pool-status').textContent = `Connection ${id+1} added to pool`;
+}
+
+async function poolQuery() {
+  const avail = poolConns.find(c => !c.busy);
+  if (!avail) {
+    addLog('pool-log', '[POOL] No available connection — request queued', 'warn');
+    document.getElementById('pool-status').textContent = 'All connections busy — add more or wait';
+    return;
+  }
+  avail.busy = true;
+  const id = avail.id;
+  document.getElementById(`cslot-${id}`).className = 'conn-slot busy';
+  document.getElementById(`cslot-icon-${id}`).textContent = '⚡';
+  document.getElementById(`cslot-status-${id}`).textContent = 'executing...';
+  document.getElementById(`cslot-status-${id}`).style.color = 'var(--dbi)';
+  addLog('pool-log', `[POOL] conn_${id+1}: checked out — running SELECT query`, 'info');
+  updatePoolStats();
+
+  await delay(Math.random() * 1200 + 400);
+
+  poolQueriesServed++;
+  avail.busy = false;
+  document.getElementById(`cslot-${id}`).className = 'conn-slot connected';
+  document.getElementById(`cslot-icon-${id}`).textContent = '🟢';
+  document.getElementById(`cslot-status-${id}`).textContent = 'available';
+  document.getElementById(`cslot-status-${id}`).style.color = 'var(--pg)';
+  addLog('pool-log', `[POOL] conn_${id+1}: returned to pool after query ✓`, 'ok');
+  updatePoolStats();
+  document.getElementById('pool-status').textContent = `Query served by conn_${id+1}. Total served: ${poolQueriesServed}`;
+}
+
+function poolRelease() {
+  poolConns.forEach((c, i) => {
+    c.busy = false;
+    document.getElementById(`cslot-${i}`).className = 'conn-slot connected';
+    document.getElementById(`cslot-icon-${i}`).textContent = '🟢';
+    document.getElementById(`cslot-status-${i}`).textContent = 'available';
+    document.getElementById(`cslot-status-${i}`).style.color = 'var(--pg)';
+  });
+  addLog('pool-log', '[POOL] All connections released back to pool', 'ok');
+  updatePoolStats();
+}
+
+function resetPool2() {
+  poolConns = [];
+  poolQueriesServed = 0;
+  buildPoolSlots();
+  updatePoolStats();
+  document.getElementById('pool-log').innerHTML = '';
+  document.getElementById('pool-status').textContent = 'Click + Connect to add connections to the pool';
+}
+
+buildPoolSlots();
+updatePoolStats();
+
+// ═══════════════════════════════════
+// PANEL 7: MULTI-DB
+// ═══════════════════════════════════
+const dbCards = [
+  {
+    icon: '🐘', name: 'PostgreSQL', driver: 'DBD::Pg',
+    color: 'var(--pg)', driverColor: 'rgba(74,222,128,0.2)',
+    dsn: `<span class="dsn-hl">dbi</span>:<span class="dsn-db">Pg</span>:<span class="dsn-val">dbname=mydb</span>;<span class="dsn-val">host=localhost</span>;<span class="dsn-val">port=5432</span>`,
+    features: ['ACID transactions','JSON/JSONB support','Full text search','Array types','Listen/Notify'],
+    install: 'cpan DBD::Pg  # requires libpq-dev'
+  },
+  {
+    icon: '🐬', name: 'MySQL / MariaDB', driver: 'DBD::mysql',
+    color: '#f97316', driverColor: 'rgba(249,115,22,0.2)',
+    dsn: `<span class="dsn-hl">dbi</span>:<span class="dsn-db">mysql</span>:<span class="dsn-val">database=mydb</span>;<span class="dsn-val">host=localhost</span>`,
+    features: ['ACID (InnoDB)','Wide hosting support','AUTO_INCREMENT','Replication','JSON type (5.7+)'],
+    install: 'cpan DBD::mysql'
+  },
+  {
+    icon: '🪶', name: 'SQLite', driver: 'DBD::SQLite',
+    color: '#38bdf8', driverColor: 'rgba(56,189,248,0.2)',
+    dsn: `<span class="dsn-hl">dbi</span>:<span class="dsn-db">SQLite</span>:<span class="dsn-val">dbname=/path/to/db.sqlite</span>`,
+    features: ['Zero config','File-based','Embedded','No server needed','Great for testing'],
+    install: 'cpan DBD::SQLite'
+  },
+  {
+    icon: '☁️', name: 'Oracle', driver: 'DBD::Oracle',
+    color: '#f59e0b', driverColor: 'rgba(245,158,11,0.2)',
+    dsn: `<span class="dsn-hl">dbi</span>:<span class="dsn-db">Oracle</span>:<span class="dsn-val">mydb_tns_alias</span>`,
+    features: ['Enterprise scale','PL/SQL procedures','RAC clustering','Partitioning','Advanced security'],
+    install: 'cpan DBD::Oracle  # needs Oracle client'
+  },
+];
+
+function buildDBCards() {
+  const container = document.getElementById('db-cards');
+  container.innerHTML = '';
+  dbCards.forEach((db, i) => {
+    const card = document.createElement('div');
+    card.className = 'db-card';
+    card.style.borderColor = db.color.replace(')', ',0.3)').replace('var(', 'rgba(').replace('#','').split('rgba(').pop().includes(',') ? 'transparent' : 'transparent';
+    card.innerHTML = `
+      <div class="db-icon">${db.icon}</div>
+      <div class="db-name" style="color:${db.color}">${db.name}</div>
+      <div class="db-driver" style="color:${db.color}; border-color:${db.color}; background:${db.driverColor}">${db.driver}</div>
+      <div class="db-features">${db.features.map(f => `<div class="db-feature-item">${f}</div>`).join('')}</div>
+      <div style="font-family:'Fira Code',monospace; font-size:0.6rem; color:var(--muted); margin-top:0.5rem">${db.install}</div>
+    `;
+    card.onclick = () => {
+      document.querySelectorAll('.db-card').forEach(c => c.style.borderColor = 'var(--border)');
+      card.style.borderColor = db.color;
+      document.getElementById('dsn-display').innerHTML = `
+        <span style="color:var(--muted)">DSN for ${db.name}:</span><br>
+        <span style="font-size:0.85rem">${db.dsn}</span><br>
+        <span style="color:var(--muted); font-size:0.68rem">• Same $dbh->prepare(), execute(), fetchrow_hashref() calls for all databases!</span>
+      `;
+    };
+    container.appendChild(card);
+  });
+}
+
+buildDBCards();
+</script>
+</body>
+</html>

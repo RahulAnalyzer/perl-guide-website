@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perl File Handling — CSV · JSON · XML Complete Visual Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;600;700;800&family=Inconsolata:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#060a10;--s:#08101a;--c:#0d1620;--c2:#111d2c;--b:#182538;--b2:#1f3048;
+  --csv:#f97316;--json:#22d3ee;--xml:#a78bfa;--core:#4ade80;--mod:#fb923c;
+  --io:#facc15;--err:#f43f5e;--ok:#34d399;
+  --tx:#c8daf0;--wh:#eef6ff;--mu:#3a5272;--di:#567090;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:'Sora',sans-serif;font-size:14px;line-height:1.65;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(rgba(34,211,238,.035) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0;}
+.page{max-width:1200px;margin:0 auto;padding:0 1.5rem 8rem;position:relative;z-index:1;}
+.pb{position:fixed;top:0;left:0;right:0;height:3px;background:var(--b);z-index:100;}
+.pf{height:100%;background:linear-gradient(90deg,var(--csv),var(--json),var(--xml));width:0;transition:width .15s;}
+
+/* HERO */
+.hero{text-align:center;padding:2.8rem 2rem 1.6rem;}
+.htag{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.28em;color:var(--json);text-transform:uppercase;margin-bottom:.8rem;display:block;}
+.hero h1{font-family:'Sora',sans-serif;font-size:clamp(1.6rem,4vw,2.7rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.5rem;background:linear-gradient(135deg,#fff 0%,var(--csv) 30%,var(--json) 65%,var(--xml) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hsub{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--mu);margin-bottom:1.3rem;line-height:1.8;}
+.leg{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:.4rem;}
+.lp{display:flex;align-items:center;gap:.38rem;font-family:'Space Mono',monospace;font-size:.56rem;padding:.26rem .7rem;border-radius:20px;border:1px solid;letter-spacing:.05em;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:215px 1fr;gap:1.75rem;padding-top:1.75rem;}
+.sidebar{position:sticky;top:1.2rem;background:var(--s);border:1px solid var(--b);border-radius:12px;overflow:hidden;max-height:calc(100vh - 2.4rem);overflow-y:auto;}
+.sbg{border-bottom:1px solid var(--b);}
+.sgl{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);padding:.5rem 1rem .24rem;background:rgba(0,0,0,.2);}
+.si{display:flex;align-items:center;gap:.48rem;padding:.34rem 1rem;font-family:'Sora',sans-serif;font-size:.76rem;color:var(--di);cursor:pointer;transition:all .15s;border-left:2px solid transparent;}
+.si:hover{color:var(--tx);background:rgba(255,255,255,.03);}
+.si.active-csv{color:var(--csv);border-left-color:var(--csv);background:rgba(249,115,22,.06);}
+.si.active-json{color:var(--json);border-left-color:var(--json);background:rgba(34,211,238,.06);}
+.si.active-xml{color:var(--xml);border-left-color:var(--xml);background:rgba(167,139,250,.06);}
+.si.active-core{color:var(--core);border-left-color:var(--core);background:rgba(74,222,128,.06);}
+.sip{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.5;}
+
+/* SECTIONS */
+.content{display:flex;flex-direction:column;gap:1.75rem;}
+.sec{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;scroll-margin-top:1.5rem;}
+.sec-csv{border-color:rgba(249,115,22,.3);}
+.sec-json{border-color:rgba(34,211,238,.3);}
+.sec-xml{border-color:rgba(167,139,250,.3);}
+.sec-core{border-color:rgba(74,222,128,.3);}
+
+.sh{padding:1.2rem 1.6rem .85rem;border-bottom:1px solid var(--b);display:flex;align-items:flex-start;gap:.85rem;}
+.si2{font-size:1.4rem;flex-shrink:0;margin-top:3px;}
+.badge{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;padding:.1rem .42rem;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:.28rem;}
+.b-csv{color:var(--csv);border-color:rgba(249,115,22,.4);background:rgba(249,115,22,.08);}
+.b-json{color:var(--json);border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.08);}
+.b-xml{color:var(--xml);border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.08);}
+.b-core{color:var(--core);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08);}
+.b-adv{color:var(--io);border-color:rgba(250,204,21,.4);background:rgba(250,204,21,.08);}
+.st{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--wh);margin-bottom:.14rem;}
+.sd{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--mu);line-height:1.7;}
+.sb{padding:1.5rem;}
+
+/* VIZ */
+.viz{background:var(--bg);border:1px solid var(--b);border-radius:10px;position:relative;overflow:hidden;margin-bottom:1.1rem;}
+.vl{font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);letter-spacing:.08em;text-transform:uppercase;padding:.36rem .8rem;border-bottom:1px solid var(--b);background:rgba(255,255,255,.015);}
+
+/* CODE */
+.cw{background:#030610;border:1px solid var(--b);border-radius:8px;overflow:hidden;margin:1rem 0;}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:.34rem .82rem;background:rgba(255,255,255,.02);border-bottom:1px solid var(--b);}
+.cl{font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);letter-spacing:.07em;}
+.cb{font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);background:none;border:1px solid var(--b2);padding:.12rem .44rem;border-radius:3px;cursor:pointer;transition:all .2s;}
+.cb:hover{color:var(--tx);border-color:var(--json);}
+.cb.ok{color:var(--ok);border-color:var(--ok);}
+pre{padding:.9rem 1.05rem;overflow-x:auto;font-family:'Inconsolata',monospace;font-size:.77rem;line-height:1.8;color:#a8c4dc;}
+.kw{color:var(--io);}.fn{color:var(--core);}.str{color:#86d89a;}.cmt{color:#1e3550;font-style:italic;}.num{color:#f9a8d4;}.var{color:#c0d4e8;}.op{color:var(--io);}.mod{color:var(--json);}.fx{color:var(--csv);}.xm{color:var(--xml);}
+
+/* CALLOUTS */
+.cal{border-radius:7px;padding:.78rem .95rem;margin:1rem 0;font-size:.8rem;border-left:3px solid;line-height:1.6;}
+.cal strong{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.24rem;opacity:.8;}
+.ct{background:rgba(74,222,128,.06);border-color:var(--core);color:#b0e0c0;}
+.ci{background:rgba(34,211,238,.06);border-color:var(--json);color:#90d0e0;}
+.cw2{background:rgba(250,204,21,.07);border-color:var(--io);color:#e0c870;}
+.cr{background:rgba(244,63,94,.06);border-color:var(--err);color:#e0a0a8;}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem;margin:.8rem 0;}
+.tbl th{text-align:left;font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);padding:.38rem .65rem;border-bottom:2px solid var(--b2);}
+.tbl td{padding:.44rem .65rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.tbl code{font-family:'Inconsolata',monospace;font-size:.71rem;background:rgba(0,0,0,.4);padding:.07rem .32rem;border-radius:3px;color:var(--json);}
+
+/* TABS */
+.tbr{display:flex;gap:.26rem;flex-wrap:wrap;margin-bottom:0;}
+.tbn{font-family:'Space Mono',monospace;font-size:.56rem;padding:.34rem .82rem;border-radius:5px 5px 0 0;cursor:pointer;border:1px solid var(--b2);border-bottom:none;color:var(--mu);background:var(--s);transition:all .2s;letter-spacing:.04em;position:relative;bottom:-1px;white-space:nowrap;}
+.tbn:hover{color:var(--tx);}
+.tbn.ta-csv{color:var(--csv);border-color:var(--b2);background:var(--c);border-bottom-color:var(--c);}
+.tbn.ta-json{color:var(--json);border-color:var(--b2);background:var(--c);border-bottom-color:var(--c);}
+.tbn.ta-xml{color:var(--xml);border-color:var(--b2);background:var(--c);border-bottom-color:var(--c);}
+.tbn.ta-core{color:var(--core);border-color:var(--b2);background:var(--c);border-bottom-color:var(--c);}
+.tp{display:none;background:var(--c);border:1px solid var(--b2);border-radius:0 8px 8px 8px;padding:.95rem;}
+.tp.ts{display:block;}
+
+/* INTERACTIVE */
+.btn{font-family:'Space Mono',monospace;font-size:.6rem;padding:.38rem .9rem;border-radius:5px;cursor:pointer;border:1px solid;transition:all .2s;letter-spacing:.04em;background:none;}
+.bcsv{color:var(--csv);border-color:rgba(249,115,22,.4);}.bcsv:hover{background:rgba(249,115,22,.1);}
+.bjson{color:var(--json);border-color:rgba(34,211,238,.4);}.bjson:hover{background:rgba(34,211,238,.1);}
+.bxml{color:var(--xml);border-color:rgba(167,139,250,.4);}.bxml:hover{background:rgba(167,139,250,.1);}
+.bcore{color:var(--core);border-color:rgba(74,222,128,.4);}.bcore:hover{background:rgba(74,222,128,.1);}
+.bn{color:var(--mu);border-color:var(--b2);}.bn:hover{color:var(--tx);background:rgba(255,255,255,.04);}
+.inp{background:var(--bg);border:1px solid var(--b2);border-radius:5px;color:var(--tx);font-family:'Inconsolata',monospace;font-size:.77rem;padding:.34rem .6rem;outline:none;transition:all .2s;}
+.inp:focus{border-color:var(--json);}
+.out{background:var(--bg);border:1px solid var(--b2);border-radius:7px;padding:.7rem .95rem;font-family:'Inconsolata',monospace;font-size:.75rem;line-height:1.85;color:var(--di);min-height:48px;}
+.out span{display:block;animation:sin .18s ease;}
+@keyframes sin{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pop{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
+.sbar{font-family:'Space Mono',monospace;font-size:.59rem;color:var(--mu);padding:.32rem .6rem;background:rgba(0,0,0,.3);border:1px solid var(--b);border-radius:4px;flex:1;min-width:120px;}
+.ctrl{display:flex;gap:.52rem;align-items:center;flex-wrap:wrap;margin-top:.9rem;}
+
+/* FILE VIZ */
+.file-row{display:flex;align-items:center;gap:.9rem;padding:.55rem .85rem;background:var(--c2);border:1px solid var(--b2);border-radius:7px;margin-bottom:.38rem;transition:all .2s;cursor:pointer;}
+.file-row:hover{border-color:var(--json);}
+.file-icon{font-size:1.1rem;flex-shrink:0;}
+.file-name{font-family:'Inconsolata',monospace;font-size:.77rem;color:var(--wh);font-weight:600;min-width:100px;}
+.file-size{font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);}
+.file-desc{font-family:'Space Mono',monospace;font-size:.55rem;color:var(--di);flex:1;}
+
+/* CSV TABLE */
+.csv-tbl{width:100%;border-collapse:collapse;font-size:.76rem;}
+.csv-tbl th{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);padding:.38rem .65rem;font-family:'Space Mono',monospace;font-size:.52rem;color:var(--csv);text-align:left;letter-spacing:.06em;}
+.csv-tbl td{border:1px solid rgba(255,255,255,.06);padding:.38rem .65rem;font-family:'Inconsolata',monospace;color:var(--wh);transition:all .2s;}
+.csv-tbl tr{cursor:pointer;transition:all .15s;}
+.csv-tbl tr:hover td{background:rgba(249,115,22,.06);}
+.csv-tbl tr.sel td{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);}
+
+/* JSON TREE */
+.jt{font-family:'Inconsolata',monospace;font-size:.77rem;line-height:1.75;background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:.85rem 1rem;}
+.jk{color:#86d89a;}.jv-s{color:#90d0e8;}.jv-n{color:var(--num,#f9a8d4);}.jv-b{color:var(--json);}.jv-n2{color:var(--csv);}.jbr{color:var(--mu);}.jcmt{color:#1e3550;}
+
+/* XML TREE */
+.xtree{font-family:'Inconsolata',monospace;font-size:.76rem;line-height:1.85;background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:.85rem 1rem;}
+.xt{color:var(--xml);}.xa{color:var(--csv);}.xv{color:#86d89a;}.xc{color:var(--tx);}
+
+/* PIPELINE */
+.pipe{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:1rem 0;}
+.ps{background:var(--c2);border:1px solid var(--b2);border-radius:8px;padding:.62rem .9rem;text-align:center;flex:1;min-width:90px;}
+.psl{font-family:'Space Mono',monospace;font-size:.5rem;color:var(--mu);margin-bottom:.26rem;letter-spacing:.07em;text-transform:uppercase;}
+.psv{font-family:'Inconsolata',monospace;font-size:.74rem;font-weight:700;}
+.pa{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--mu);}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem;}
+
+/* DIVIDER */
+.div{display:flex;align-items:center;gap:.72rem;margin:1rem 0;}
+.dl{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--b2),transparent);}
+.dt{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.14em;color:var(--mu);text-transform:uppercase;white-space:nowrap;}
+
+/* MODULE CARD */
+.mcard{background:var(--c2);border:1px solid var(--b2);border-radius:9px;padding:.9rem 1rem;transition:all .2s;cursor:pointer;}
+.mcard:hover{border-color:var(--json);}
+.mn{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--json);font-weight:700;margin-bottom:.26rem;}
+.mt{font-size:.76rem;color:var(--tx);margin-bottom:.32rem;}
+.mi{font-family:'Space Mono',monospace;font-size:.55rem;color:var(--mu);}
+.mtag{display:inline-block;font-family:'Space Mono',monospace;font-size:.49rem;padding:.1rem .38rem;border-radius:3px;border:1px solid;margin-right:.28rem;margin-top:.28rem;}
+
+/* FLOW */
+.flow{display:flex;flex-direction:column;gap:.4rem;}
+.fstep{display:flex;align-items:flex-start;gap:.75rem;padding:.55rem .82rem;background:var(--c2);border:1px solid var(--b2);border-radius:7px;transition:all .2s;}
+.fstep.active-csv{border-color:rgba(249,115,22,.5);background:rgba(249,115,22,.06);}
+.fstep.active-json{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.06);}
+.fnum{font-family:'Space Mono',monospace;font-size:.65rem;font-weight:700;min-width:22px;padding-top:1px;}
+.fcode{font-family:'Inconsolata',monospace;font-size:.76rem;color:var(--wh);}
+.fex{font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);margin-top:.16rem;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px;}
+@media(max-width:800px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.g2,.g3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="pb"><div class="pf" id="prog"></div></div>
+<div class="page">
+
+<div class="hero">
+  <span class="htag">// Perl File Handling — Complete Visual Guide</span>
+  <h1>CSV · JSON · XML · Core I/O · Modules & Patterns</h1>
+  <p class="hsub">open() / close() / binmode → Text::CSV → JSON → XML::Simple → XML::LibXML → real-world patterns</p>
+  <div class="leg">
+    <div class="lp" style="color:var(--io);border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.07)"><div class="ld" style="background:var(--io)"></div>Core I/O</div>
+    <div class="lp" style="color:var(--csv);border-color:rgba(249,115,22,.35);background:rgba(249,115,22,.07)"><div class="ld" style="background:var(--csv)"></div>CSV</div>
+    <div class="lp" style="color:var(--json);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.07)"><div class="ld" style="background:var(--json)"></div>JSON</div>
+    <div class="lp" style="color:var(--xml);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.07)"><div class="ld" style="background:var(--xml)"></div>XML</div>
+    <div class="lp" style="color:var(--core);border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.07)"><div class="ld" style="background:var(--core)"></div>Modules</div>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sbg">
+    <div class="sgl">Core File I/O</div>
+    <div class="si active-core" onclick="goTo('s1')"><span class="sip"></span>File Basics (open/close)</div>
+    <div class="si" onclick="goTo('s2')"><span class="sip"></span>Read Modes & Encoding</div>
+    <div class="si" onclick="goTo('s3')"><span class="sip"></span>Write & Append</div>
+    <div class="si" onclick="goTo('s4')"><span class="sip"></span>Error Handling</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">CSV Files</div>
+    <div class="si" onclick="goTo('s5')"><span class="sip"></span>Why Text::CSV?</div>
+    <div class="si" onclick="goTo('s6')"><span class="sip"></span>Read CSV</div>
+    <div class="si" onclick="goTo('s7')"><span class="sip"></span>Write CSV</div>
+    <div class="si" onclick="goTo('s8')"><span class="sip"></span>CSV → AoH Patterns</div>
+    <div class="si" onclick="goTo('s9')"><span class="sip"></span>CSV Transforms</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">JSON Files</div>
+    <div class="si" onclick="goTo('s10')"><span class="sip"></span>JSON Module Overview</div>
+    <div class="si" onclick="goTo('s11')"><span class="sip"></span>Decode (Read) JSON</div>
+    <div class="si" onclick="goTo('s12')"><span class="sip"></span>Encode (Write) JSON</div>
+    <div class="si" onclick="goTo('s13')"><span class="sip"></span>JSON ↔ Perl Mapping</div>
+    <div class="si" onclick="goTo('s14')"><span class="sip"></span>JSON Patterns</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">XML Files</div>
+    <div class="si" onclick="goTo('s15')"><span class="sip"></span>XML Modules Comparison</div>
+    <div class="si" onclick="goTo('s16')"><span class="sip"></span>XML::Simple</div>
+    <div class="si" onclick="goTo('s17')"><span class="sip"></span>XML::LibXML (DOM)</div>
+    <div class="si" onclick="goTo('s18')"><span class="sip"></span>XPath Queries</div>
+    <div class="si" onclick="goTo('s19')"><span class="sip"></span>Write XML</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">Advanced</div>
+    <div class="si" onclick="goTo('s20')"><span class="sip"></span>Format Conversion</div>
+    <div class="si" onclick="goTo('s21')"><span class="sip"></span>Large File Streaming</div>
+    <div class="si" onclick="goTo('s22')"><span class="sip"></span>Real-World Patterns</div>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- S1: FILE BASICS -->
+<div class="sec sec-core" id="s1">
+  <div class="sh"><div class="si2">📁</div><div>
+    <span class="badge b-core">Core I/O</span>
+    <div class="st">File Basics — open(), close(), filehandles</div>
+    <div class="sd"># open(HANDLE, mode, filename) — 3-arg form is always safest. Always check return value.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">FILE I/O PIPELINE — click each stage</div>
+      <div style="padding:.9rem">
+        <div class="pipe" id="iopipe">
+          <div class="ps" onclick="showPipe(0)" id="pp0" style="border-color:rgba(74,222,128,.4)">
+            <div class="psl">① Open</div>
+            <div class="psv" style="color:var(--core)">open()</div>
+          </div>
+          <div class="pa">→</div>
+          <div class="ps" onclick="showPipe(1)" id="pp1">
+            <div class="psl">② Read/Write</div>
+            <div class="psv" style="color:var(--json)">FH ops</div>
+          </div>
+          <div class="pa">→</div>
+          <div class="ps" onclick="showPipe(2)" id="pp2">
+            <div class="psl">③ Process</div>
+            <div class="psv" style="color:var(--csv)">$line / @lines</div>
+          </div>
+          <div class="pa">→</div>
+          <div class="ps" onclick="showPipe(3)" id="pp3">
+            <div class="psl">④ Close</div>
+            <div class="psv" style="color:var(--xml)">close()</div>
+          </div>
+        </div>
+        <div id="pipeex" style="background:rgba(0,0,0,.35);border:1px solid var(--b);border-radius:7px;padding:.78rem .95rem;font-family:'Inconsolata',monospace;font-size:.76rem;color:var(--di);min-height:44px">
+          Click a pipeline stage above to see its role
+        </div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — open(), filehandles, modes</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use strict</span>; <span class="kw">use warnings</span>;
+
+<span class="cmt"># ── 3-ARGUMENT FORM (always use this!) ──────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;'</span>,  <span class="str">'data.txt'</span>)  or <span class="fn">die</span> <span class="str">"Cannot open: $!"</span>;  <span class="cmt"># read</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;'</span>,  <span class="str">'out.txt'</span>)   or <span class="fn">die</span> <span class="str">"Cannot open: $!"</span>;  <span class="cmt"># write (truncate)</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;&gt;'</span>, <span class="str">'log.txt'</span>)   or <span class="fn">die</span> <span class="str">"Cannot open: $!"</span>;  <span class="cmt"># append</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'+&lt;'</span>, <span class="str">'rw.txt'</span>)    or <span class="fn">die</span> <span class="str">"Cannot open: $!"</span>;  <span class="cmt"># read+write</span>
+
+<span class="cmt"># $! = system error message (set by OS on failure)</span>
+
+<span class="cmt"># ── READING ─────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$line</span>  = &lt;<span class="var">$fh</span>&gt;;             <span class="cmt"># read ONE line (includes \n)</span>
+<span class="var">$line</span>  =~ <span class="fn">s/\r?\n$//</span>;          <span class="cmt"># chomp off newline</span>
+<span class="fn">chomp</span>(<span class="kw">my</span> <span class="var">$line</span> = &lt;<span class="var">$fh</span>&gt;);       <span class="cmt"># one-liner with chomp</span>
+<span class="kw">my</span> <span class="var">@lines</span> = &lt;<span class="var">$fh</span>&gt;;             <span class="cmt"># slurp ALL lines into array</span>
+<span class="fn">chomp</span> <span class="var">@lines</span>;                    <span class="cmt"># chomp all at once</span>
+<span class="kw">my</span> <span class="var">$text</span>  = <span class="kw">do</span> { <span class="kw">local</span> <span class="var">$/</span>; &lt;<span class="var">$fh</span>&gt; };  <span class="cmt"># slurp entire file as string</span>
+
+<span class="cmt"># ── LINE-BY-LINE (memory efficient) ─────────────────────</span>
+<span class="kw">while</span> (<span class="kw">my</span> <span class="var">$line</span> = &lt;<span class="var">$fh</span>&gt;) {
+    <span class="fn">chomp</span> <span class="var">$line</span>;
+    <span class="cmt"># process $line here</span>
+}
+
+<span class="cmt"># ── WRITING ─────────────────────────────────────────────</span>
+<span class="kw">print</span> <span class="var">$fh</span> <span class="str">"Hello, World!\n"</span>;    <span class="cmt"># print to filehandle</span>
+<span class="fn">printf</span> <span class="var">$fh</span> <span class="str">"%-10s %d\n"</span>, <span class="var">$k</span>, <span class="var">$v</span>; <span class="cmt"># formatted print</span>
+<span class="fn">say</span> <span class="var">$fh</span> <span class="str">"Auto newline"</span>;          <span class="cmt"># say = print + \n</span>
+
+<span class="cmt"># ── CLOSE (always!) ─────────────────────────────────────</span>
+<span class="fn">close</span>(<span class="var">$fh</span>) or <span class="fn">die</span> <span class="str">"Close failed: $!"</span>;
+<span class="cmt"># Lexical $fh auto-closes when it goes out of scope (end of block)</span></pre></div>
+    <div class="cal ct"><strong>✅ 3-Arg Form vs 2-Arg</strong>
+      Always use <code style="font-family:Inconsolata,monospace">open($fh, '&lt;', $filename)</code> — the 3-arg form. Never <code style="font-family:Inconsolata,monospace">open(FH, "&lt;$filename")</code> (2-arg), which is vulnerable to shell injection if <code style="font-family:Inconsolata,monospace">$filename</code> contains special chars like <code style="font-family:Inconsolata,monospace">&gt;</code> or <code style="font-family:Inconsolata,monospace">|</code>.
+    </div>
+
+    <div class="div"><div class="dl"></div><div class="dt">Mode Reference</div><div class="dl"></div></div>
+    <table class="tbl">
+      <thead><tr><th>Mode</th><th>Symbol</th><th>Behavior</th><th>File must exist?</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--core)">Read</td><td><code>&lt;</code></td><td>Open for reading only. Position at start.</td><td>YES — dies if missing</td></tr>
+        <tr><td style="color:var(--csv)">Write</td><td><code>&gt;</code></td><td>Create or TRUNCATE, then write from start.</td><td>NO — creates if missing</td></tr>
+        <tr><td style="color:var(--json)">Append</td><td><code>&gt;&gt;</code></td><td>Create or open, position at END.</td><td>NO — creates if missing</td></tr>
+        <tr><td style="color:var(--xml)">Read+Write</td><td><code>+&lt;</code></td><td>Open existing for both read and write.</td><td>YES — dies if missing</td></tr>
+        <tr><td style="color:var(--io)">Write+Read</td><td><code>+&gt;</code></td><td>Truncate then open for read and write.</td><td>NO — creates if missing</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- S2: READ MODES & ENCODING -->
+<div class="sec sec-core" id="s2">
+  <div class="sh"><div class="si2">🔡</div><div>
+    <span class="badge b-core">Core I/O</span>
+    <div class="st">Read Modes & Encoding — binmode, UTF-8, layers</div>
+    <div class="sd"># Perl uses I/O layers for encoding. Always declare encoding when reading text files.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — encoding, binmode, I/O layers</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">open</span> <span class="str">':std'</span>, <span class="str">':encoding(UTF-8)'</span>;  <span class="cmt"># set default for ALL filehandles</span>
+<span class="kw">use</span> <span class="mod">Encode</span> <span class="fn">qw(decode encode)</span>;
+
+<span class="cmt"># ── OPEN WITH ENCODING LAYER ─────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:encoding(UTF-8)'</span>, <span class="str">'data.txt'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:utf8'</span>,             <span class="str">'data.txt'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;  <span class="cmt"># permissive</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:raw'</span>,              <span class="str">'img.png'</span>)  or <span class="fn">die</span> <span class="str">"$!"</span>;  <span class="cmt"># binary</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:crlf'</span>,             <span class="str">'win.txt'</span>)  or <span class="fn">die</span> <span class="str">"$!"</span>;  <span class="cmt"># Windows CRLF</span>
+
+<span class="cmt"># ── BINMODE — set after open ─────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;'</span>, <span class="str">'data.txt'</span>) or <span class="fn">die</span>;
+<span class="fn">binmode</span>(<span class="var">$fh</span>, <span class="str">':encoding(UTF-8)'</span>);  <span class="cmt"># UTF-8 layer</span>
+<span class="fn">binmode</span>(<span class="var">$fh</span>, <span class="str">':raw'</span>);              <span class="cmt"># binary (remove all layers)</span>
+<span class="fn">binmode</span>(<span class="var">STDOUT</span>, <span class="str">':utf8'</span>);          <span class="cmt"># STDOUT in UTF-8</span>
+
+<span class="cmt"># ── READING BINARY ───────────────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:raw'</span>, <span class="str">'image.png'</span>) or <span class="fn">die</span>;
+<span class="kw">my</span> <span class="var">$bytes</span>;
+<span class="fn">read</span>(<span class="var">$fh</span>, <span class="var">$bytes</span>, <span class="num">1024</span>);           <span class="cmt"># read exactly 1024 bytes</span>
+<span class="kw">my</span> <span class="var">$all</span> = <span class="kw">do</span> { <span class="kw">local</span> <span class="var">$/</span>; &lt;<span class="var">$fh</span>&gt; };   <span class="cmt"># slurp binary</span>
+
+<span class="cmt"># ── FILE::SLURP / PATH::TINY (modern helpers) ────────────</span>
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+<span class="kw">my</span> <span class="var">$text</span>  = <span class="fn">path</span>(<span class="str">'data.txt'</span>)-><span class="fn">slurp_utf8</span>;    <span class="cmt"># one-liner read</span>
+<span class="kw">my</span> <span class="var">@lines</span> = <span class="fn">path</span>(<span class="str">'data.txt'</span>)-><span class="fn">lines_utf8</span>;    <span class="cmt"># all lines as array</span>
+<span class="fn">path</span>(<span class="str">'out.txt'</span>)-><span class="fn">spew_utf8</span>(<span class="var">$text</span>);           <span class="cmt"># write UTF-8</span>
+<span class="fn">path</span>(<span class="str">'dir'</span>)-><span class="fn">mkpath</span>;                          <span class="cmt"># create directory</span></pre></div>
+    <div class="g2" style="margin-top:.9rem">
+      <div class="cal ci"><strong>📖 UTF-8 Rule</strong>For any text file in 2025, always use <code style="font-family:Inconsolata,monospace">:encoding(UTF-8)</code>. Use <code style="font-family:Inconsolata,monospace">:raw</code> for binary files (images, executables). Wrong encoding = garbled data or crashes.</div>
+      <div class="cal cw2"><strong>⚡ Path::Tiny</strong><code style="font-family:Inconsolata,monospace">Path::Tiny</code> is CPAN's modern replacement for manual open/close. Install with <code style="font-family:Inconsolata,monospace">cpan Path::Tiny</code>. It handles encoding, exceptions, and cross-platform paths automatically.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: WRITE & APPEND -->
+<div class="sec sec-core" id="s3">
+  <div class="sh"><div class="si2">✍️</div><div>
+    <span class="badge b-core">Core I/O</span>
+    <div class="st">Write & Append — Creating and Updating Files</div>
+    <div class="sd"># print / say / printf / write to filehandles. Manage output buffering.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">WRITE vs APPEND — interactive demo</div>
+      <div style="padding:.9rem">
+        <div style="display:flex;gap:.9rem;flex-wrap:wrap;margin-bottom:.6rem">
+          <div style="flex:1;min-width:180px">
+            <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);margin-bottom:.3rem">&gt; WRITE (truncates)</div>
+            <div id="write-viz" style="background:var(--bg);border:1px solid rgba(249,115,22,.3);border-radius:7px;padding:.65rem .85rem;font-family:'Inconsolata',monospace;font-size:.74rem;min-height:75px;color:var(--wh)"></div>
+            <button class="btn bcsv" style="margin-top:.4rem;width:100%" onclick="demoWrite()">open &gt;, write line</button>
+          </div>
+          <div style="flex:1;min-width:180px">
+            <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);margin-bottom:.3rem">&gt;&gt; APPEND (adds to end)</div>
+            <div id="append-viz" style="background:var(--bg);border:1px solid rgba(34,211,238,.3);border-radius:7px;padding:.65rem .85rem;font-family:'Inconsolata',monospace;font-size:.74rem;min-height:75px;color:var(--wh)"></div>
+            <button class="btn bjson" style="margin-top:.4rem;width:100%" onclick="demoAppend()">open &gt;&gt;, append line</button>
+          </div>
+        </div>
+        <button class="btn bn" onclick="clearFiles()">↺ Reset both files</button>
+        <div id="file-stat" style="margin-top:.42rem;font-family:'Space Mono',monospace;font-size:.57rem;color:var(--mu)">Click buttons to simulate file operations</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — writing patterns</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># ── WRITE (create or overwrite) ──────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$wh</span>, <span class="str">'&gt;:encoding(UTF-8)'</span>, <span class="str">'out.txt'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+<span class="kw">print</span> <span class="var">$wh</span> <span class="str">"Line one\n"</span>;
+<span class="fn">say</span>   <span class="var">$wh</span> <span class="str">"Line two"</span>;            <span class="cmt"># say adds \n automatically</span>
+<span class="fn">printf</span> <span class="var">$wh</span> <span class="str">"%-15s %5d\n"</span>, <span class="str">"Alice"</span>, <span class="num">95</span>;
+<span class="fn">close</span> <span class="var">$wh</span>;
+
+<span class="cmt"># ── APPEND (add to existing) ─────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$ah</span>, <span class="str">'&gt;&gt;:encoding(UTF-8)'</span>, <span class="str">'log.txt'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+<span class="fn">say</span> <span class="var">$ah</span> <span class="fn">localtime</span>() . <span class="str">": Event logged"</span>;
+<span class="fn">close</span> <span class="var">$ah</span>;
+
+<span class="cmt"># ── ATOMIC WRITE (write temp, then rename) ───────────────</span>
+<span class="kw">use</span> <span class="mod">File::Temp</span> <span class="fn">qw(tempfile)</span>;
+<span class="kw">my</span> (<span class="var">$tmp</span>, <span class="var">$tmpname</span>) = <span class="fn">tempfile</span>(DIR => <span class="str">'.'</span>, UNLINK => <span class="num">0</span>);
+<span class="kw">print</span> <span class="var">$tmp</span> <span class="str">"safe content\n"</span>;
+<span class="fn">close</span> <span class="var">$tmp</span>;
+<span class="fn">rename</span>(<span class="var">$tmpname</span>, <span class="str">'data.txt'</span>) or <span class="fn">die</span> <span class="str">"rename: $!"</span>;
+<span class="cmt"># rename is atomic on POSIX — no partial writes seen by readers</span>
+
+<span class="cmt"># ── AUTOFLUSH (for logs and real-time output) ────────────</span>
+<span class="var">$fh</span>-><span class="fn">autoflush</span>(<span class="num">1</span>);              <span class="cmt"># flush after every print</span>
+<span class="var">$|</span> = <span class="num">1</span>;                           <span class="cmt"># autoflush STDOUT</span></pre></div>
+  </div>
+</div>
+
+<!-- S4: ERROR HANDLING -->
+<div class="sec sec-core" id="s4">
+  <div class="sh"><div class="si2">🛡️</div><div>
+    <span class="badge b-core">Core I/O</span>
+    <div class="st">Error Handling — die, warn, eval, Try::Tiny</div>
+    <div class="sd"># $! holds OS error. die throws. eval catches. Use Try::Tiny for clean exception handling.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — robust file error handling</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Try::Tiny</span>;       <span class="cmt"># CPAN: cleaner try/catch</span>
+<span class="kw">use</span> <span class="mod">Carp</span>;            <span class="cmt"># better error messages</span>
+
+<span class="cmt"># ── BASIC: die with $! ───────────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;'</span>, <span class="str">'missing.txt'</span>)
+    or <span class="fn">die</span> <span class="str">"Cannot open missing.txt: $!\n"</span>;  <span class="cmt"># \n suppresses line number</span>
+
+<span class="cmt"># ── eval — catch die (like try/catch) ────────────────────</span>
+<span class="kw">eval</span> {
+    <span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;'</span>, <span class="str">'data.txt'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+    <span class="cmt"># ... process file ...</span>
+    <span class="fn">close</span>(<span class="var">$fh</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+};
+<span class="kw">if</span> (<span class="var">$@</span>) {
+    <span class="fn">warn</span> <span class="str">"File operation failed: $@"</span>;
+    <span class="cmt"># handle error or rethrow</span>
+}
+
+<span class="cmt"># ── Try::Tiny — modern approach ──────────────────────────</span>
+<span class="fn">try</span> {
+    <span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:encoding(UTF-8)'</span>, <span class="var">$file</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+    <span class="kw">while</span> (&lt;<span class="var">$fh</span>&gt;) { <span class="fn">chomp</span>; <span class="cmt"># process</span> }
+    <span class="fn">close</span> <span class="var">$fh</span>;
+} <span class="fn">catch</span> {
+    <span class="fn">warn</span> <span class="str">"Error: $_"</span>;  <span class="cmt"># $_ holds the error</span>
+} <span class="fn">finally</span> {
+    <span class="cmt"># runs whether or not error occurred</span>
+};
+
+<span class="cmt"># ── FILE TEST OPERATORS ──────────────────────────────────</span>
+<span class="fn">-e</span> <span class="str">'file.txt'</span>   <span class="cmt"># exists</span>
+<span class="fn">-f</span> <span class="str">'file.txt'</span>   <span class="cmt"># is a regular file (not directory)</span>
+<span class="fn">-d</span> <span class="str">'dir/'</span>      <span class="cmt"># is a directory</span>
+<span class="fn">-r</span> <span class="str">'file.txt'</span>   <span class="cmt"># readable</span>
+<span class="fn">-w</span> <span class="str">'file.txt'</span>   <span class="cmt"># writable</span>
+<span class="fn">-s</span> <span class="str">'file.txt'</span>   <span class="cmt"># size in bytes (0 = empty)</span>
+<span class="fn">-M</span> <span class="str">'file.txt'</span>   <span class="cmt"># age in days since modification</span>
+
+<span class="kw">unless</span> (<span class="fn">-e</span> <span class="var">$file</span>) { <span class="fn">die</span> <span class="str">"$file does not exist\n"</span> }
+<span class="kw">unless</span> (<span class="fn">-r</span> <span class="var">$file</span>) { <span class="fn">die</span> <span class="str">"Cannot read $file: $!\n"</span> }</pre></div>
+    <div class="cal cr"><strong>⚠️ Always Check Return Values</strong>
+      Every <code style="font-family:Inconsolata,monospace">open()</code>, <code style="font-family:Inconsolata,monospace">close()</code>, <code style="font-family:Inconsolata,monospace">read()</code>, and <code style="font-family:Inconsolata,monospace">write()</code> can fail silently if you don't check. A failed <code style="font-family:Inconsolata,monospace">close()</code> can lose data on NFS or when writing to disk-full volumes. The <code style="font-family:Inconsolata,monospace">or die</code> idiom is not optional.
+    </div>
+  </div>
+</div>
+
+<!-- S5: WHY TEXT::CSV -->
+<div class="sec sec-csv" id="s5">
+  <div class="sh"><div class="si2">📊</div><div>
+    <span class="badge b-csv">CSV</span>
+    <div class="st">Why Text::CSV? — The Problem with Naive Parsing</div>
+    <div class="sd"># Never parse CSV with split(/,/). Fields can contain commas, quotes, and newlines.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">NAIVE vs PROPER CSV PARSING — click to compare</div>
+      <div style="padding:.9rem">
+        <div class="g2">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--err);margin-bottom:.4rem">❌ NAIVE: split(/,/)</div>
+            <div style="background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.3);border-radius:7px;padding:.75rem .9rem;font-family:'Inconsolata',monospace;font-size:.74rem;line-height:1.8">
+              Input: <span style="color:var(--wh)">Alice,"Mumbai, India",95</span><br>
+              split: <span style="color:var(--err)">["Alice", '"Mumbai', ' India"', "95"]</span><br>
+              <span style="color:var(--err)">← WRONG! Split on the comma inside quotes</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--ok);margin-bottom:.4rem">✅ PROPER: Text::CSV</div>
+            <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.3);border-radius:7px;padding:.75rem .9rem;font-family:'Inconsolata',monospace;font-size:.74rem;line-height:1.8">
+              Input: <span style="color:var(--wh)">Alice,"Mumbai, India",95</span><br>
+              parse: <span style="color:var(--ok)">["Alice", "Mumbai, India", "95"]</span><br>
+              <span style="color:var(--ok)">← CORRECT! Respects quoted fields</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:.9rem;padding:.72rem .9rem;background:rgba(0,0,0,.3);border-radius:7px">
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.42rem">Text::CSV handles ALL these edge cases:</div>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--csv);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:4px;padding:.2rem .5rem">"commas, inside"</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--csv);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:4px;padding:.2rem .5rem">"quotes""escaped"</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--csv);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:4px;padding:.2rem .5rem">"newlines\ninside"</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--csv);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:4px;padding:.2rem .5rem">utf-8 "unicode"</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--csv);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:4px;padding:.2rem .5rem">custom separators</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — install and basic Text::CSV usage</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># Install: cpanm Text::CSV  OR  cpanm Text::CSV_XS  (faster C version)</span>
+<span class="kw">use</span> <span class="mod">Text::CSV</span>;             <span class="cmt"># pure Perl</span>
+<span class="kw">use</span> <span class="mod">Text::CSV_XS</span>;          <span class="cmt"># C-based, 10x faster, same API</span>
+
+<span class="cmt"># Create parser with options</span>
+<span class="kw">my</span> <span class="var">$csv</span> = <span class="mod">Text::CSV</span>-><span class="fn">new</span>({
+    binary      => <span class="num">1</span>,          <span class="cmt"># required for UTF-8</span>
+    auto_diag   => <span class="num">1</span>,          <span class="cmt"># auto-print errors</span>
+    sep_char    => <span class="str">','</span>,        <span class="cmt"># default separator</span>
+    quote_char  => <span class="str">'"'</span>,        <span class="cmt"># default quote</span>
+    eol         => <span class="str">"\n"</span>,       <span class="cmt"># line ending for writing</span>
+    allow_loose_quotes => <span class="num">1</span>,   <span class="cmt"># lenient parsing</span>
+}) or <span class="fn">die</span> <span class="mod">Text::CSV</span>-><span class="fn">error_diag</span>;
+
+<span class="cmt"># TEXT::CSV_XS Options summary:</span>
+<span class="cmt"># sep_char    → ','  '\t'  ';'  '|'  any char</span>
+<span class="cmt"># quote_char  → '"'  "'"   undef (no quoting)</span>
+<span class="cmt"># binary      → 1    (always 1 for UTF-8 support)</span>
+<span class="cmt"># auto_diag   → 0/1/2  (0=silent, 1=warn, 2=die)</span>
+<span class="cmt"># escape_char → '"'  (default: same as quote_char)</span></pre></div>
+  </div>
+</div>
+
+<!-- S6: READ CSV -->
+<div class="sec sec-csv" id="s6">
+  <div class="sh"><div class="si2">📥</div><div>
+    <span class="badge b-csv">CSV</span>
+    <div class="st">Read CSV — Line by Line & As Headers</div>
+    <div class="sd"># getline(), getline_hr() with headers, column_names(), handling encodings.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">CSV FILE VIEWER — live interactive parser</div>
+      <div style="padding:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);margin-bottom:.38rem">Paste CSV data (with header row):</div>
+        <textarea id="csv-in" class="inp" style="width:100%;height:75px;resize:none;font-size:.73rem;line-height:1.6" placeholder="name,age,city,score">name,age,city,score
+Alice,28,Mumbai,95
+Bob,32,Delhi,78
+Carol,25,"Pune, MH",92
+Dave,29,Bengaluru,85</textarea>
+        <div style="display:flex;gap:.5rem;margin-top:.45rem">
+          <button class="btn bcsv" onclick="parseCSV()">▶ Parse CSV</button>
+          <select class="inp" id="csv-sep" style="width:auto;padding:.32rem .6rem">
+            <option value=",">Separator: comma (,)</option>
+            <option value="&#9;">Separator: tab (\t)</option>
+            <option value=";">Separator: semicolon (;)</option>
+            <option value="|">Separator: pipe (|)</option>
+          </select>
+        </div>
+        <div id="csv-out" style="margin-top:.65rem;overflow-x:auto"></div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — reading CSV with Text::CSV</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Text::CSV</span>;
+
+<span class="kw">my</span> <span class="var">$csv</span> = <span class="mod">Text::CSV</span>-><span class="fn">new</span>({ binary=><span class="num">1</span>, auto_diag=><span class="num">1</span> });
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:encoding(UTF-8)'</span>, <span class="str">'data.csv'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+
+<span class="cmt"># ── METHOD 1: getline() — returns arrayref ───────────────</span>
+<span class="kw">while</span> (<span class="kw">my</span> <span class="var">$row</span> = <span class="var">$csv</span>-><span class="fn">getline</span>(<span class="var">$fh</span>)) {
+    <span class="kw">my</span> (<span class="var">$name</span>, <span class="var">$age</span>, <span class="var">$city</span>) = @{<span class="var">$row</span>};
+    <span class="kw">print</span> <span class="str">"$name is $age from $city\n"</span>;
+}
+
+<span class="cmt"># ── METHOD 2: column_names + getline_hr() → hashref ─────</span>
+<span class="cmt"># Read header row first</span>
+<span class="var">$csv</span>-><span class="fn">column_names</span>( <span class="var">$csv</span>-><span class="fn">getline</span>(<span class="var">$fh</span>) );
+
+<span class="cmt"># Now each row is a HASHREF keyed by header!</span>
+<span class="kw">while</span> (<span class="kw">my</span> <span class="var">$row</span> = <span class="var">$csv</span>-><span class="fn">getline_hr</span>(<span class="var">$fh</span>)) {
+    <span class="kw">print</span> <span class="str">"$row->{name}: score=$row->{score}\n"</span>;
+}
+
+<span class="cmt"># ── METHOD 3: slurp all into AoH ─────────────────────────</span>
+<span class="kw">use</span> <span class="mod">Text::CSV</span> <span class="fn">qw(csv)</span>;  <span class="cmt"># functional interface</span>
+
+<span class="kw">my</span> <span class="var">@data</span> = @{ <span class="fn">csv</span>(
+    in      => <span class="str">'data.csv'</span>,
+    headers => <span class="str">'auto'</span>,       <span class="cmt"># first row = column names</span>
+    binary  => <span class="num">1</span>,
+    encoding => <span class="str">'UTF-8'</span>,
+) };
+<span class="cmt"># @data is now AoH! Each element = { name=>"Alice", age=>28, ... }</span>
+
+<span class="kw">print</span> <span class="var">$data</span>[<span class="idx">0</span>]{<span class="key">name</span>};  <span class="cmt"># "Alice"</span>
+
+<span class="fn">close</span> <span class="var">$fh</span>;</pre></div>
+  </div>
+</div>
+
+<!-- S7: WRITE CSV -->
+<div class="sec sec-csv" id="s7">
+  <div class="sh"><div class="si2">📤</div><div>
+    <span class="badge b-csv">CSV</span>
+    <div class="st">Write CSV — print, say, csv() functional writer</div>
+    <div class="sd"># print() with $csv, or the functional csv() writer. Always quote properly.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — writing CSV with Text::CSV</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Text::CSV</span>;
+
+<span class="kw">my</span> <span class="var">$csv</span> = <span class="mod">Text::CSV</span>-><span class="fn">new</span>({
+    binary    => <span class="num">1</span>,
+    auto_diag => <span class="num">1</span>,
+    eol       => <span class="str">"\n"</span>,    <span class="cmt"># or "\r\n" for Windows</span>
+});
+
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;:encoding(UTF-8)'</span>, <span class="str">'output.csv'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+
+<span class="cmt"># ── Write header ─────────────────────────────────────────</span>
+<span class="var">$csv</span>-><span class="fn">print</span>(<span class="var">$fh</span>, [<span class="str">'name'</span>, <span class="str">'age'</span>, <span class="str">'city'</span>, <span class="str">'score'</span>]);
+
+<span class="cmt"># ── Write data rows ───────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@students</span> = (
+    { name=><span class="str">"Alice"</span>,  age=><span class="num">28</span>, city=><span class="str">"Mumbai"</span>,    score=><span class="num">95</span> },
+    { name=><span class="str">"Bob"</span>,    age=><span class="num">32</span>, city=><span class="str">"Delhi"</span>,     score=><span class="num">78</span> },
+    { name=><span class="str">"Carol"</span>,  age=><span class="num">25</span>, city=><span class="str">"Pune, MH"</span>, score=><span class="num">92</span> },
+);
+<span class="kw">for my</span> <span class="var">$s</span> (<span class="var">@students</span>) {
+    <span class="var">$csv</span>-><span class="fn">print</span>(<span class="var">$fh</span>, [<span class="var">$s</span>->{<span class="key">name</span>}, <span class="var">$s</span>->{<span class="key">age</span>}, <span class="var">$s</span>->{<span class="key">city</span>}, <span class="var">$s</span>->{<span class="key">score</span>}]);
+}
+<span class="fn">close</span> <span class="var">$fh</span>;
+
+<span class="cmt"># ── FUNCTIONAL: csv() writer ──────────────────────────────</span>
+<span class="kw">use</span> <span class="mod">Text::CSV</span> <span class="fn">qw(csv)</span>;
+
+<span class="fn">csv</span>(
+    in       => \<span class="var">@students</span>,          <span class="cmt"># AoH as input</span>
+    out      => <span class="str">'output.csv'</span>,
+    headers  => [<span class="str">'name'</span>,<span class="str">'age'</span>,<span class="str">'city'</span>,<span class="str">'score'</span>],
+    encoding => <span class="str">'UTF-8'</span>,
+    eol      => <span class="str">"\n"</span>,
+);
+<span class="cmt"># "Pune, MH" is automatically quoted → "Pune, MH" in file</span>
+
+<span class="cmt"># ── TSV (tab-separated) ───────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$tsv</span> = <span class="mod">Text::CSV</span>-><span class="fn">new</span>({ sep_char=><span class="str">"\t"</span>, binary=><span class="num">1</span>, eol=><span class="str">"\n"</span> });
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$tf</span>, <span class="str">'&gt;:encoding(UTF-8)'</span>, <span class="str">'output.tsv'</span>) or <span class="fn">die</span>;
+<span class="var">$tsv</span>-><span class="fn">print</span>(<span class="var">$tf</span>, [<span class="str">"Alice"</span>, <span class="num">28</span>, <span class="str">"Mumbai"</span>]);
+<span class="fn">close</span> <span class="var">$tf</span>;</pre></div>
+  </div>
+</div>
+
+<!-- S8: CSV → AoH PATTERNS -->
+<div class="sec sec-csv" id="s8">
+  <div class="sh"><div class="si2">🔄</div><div>
+    <span class="badge b-csv">CSV</span>
+    <div class="st">CSV → AoH Patterns — Filter, Sort, Transform</div>
+    <div class="sd"># Once loaded as AoH, use grep/map/sort for powerful data manipulation.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">INTERACTIVE CSV OPERATIONS</div>
+      <div style="padding:.9rem">
+        <div id="csv-aoh-table" style="overflow-x:auto;margin-bottom:.6rem"></div>
+        <div style="display:flex;gap:.42rem;flex-wrap:wrap">
+          <button class="btn bcsv" onclick="csvAoH('all')">Show All</button>
+          <button class="btn bcsv" onclick="csvAoH('sort_score')">Sort by Score ↓</button>
+          <button class="btn bcsv" onclick="csvAoH('sort_name')">Sort by Name</button>
+          <button class="btn bcsv" onclick="csvAoH('filter_high')">Score ≥ 85</button>
+          <button class="btn bn"   onclick="csvAoH('extract')">Names only</button>
+        </div>
+        <div id="csv-aoh-stat" style="margin-top:.45rem;font-family:'Space Mono',monospace;font-size:.57rem;color:var(--mu)"></div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — CSV AoH manipulation patterns</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Text::CSV</span> <span class="fn">qw(csv)</span>;
+<span class="kw">use</span> <span class="mod">List::Util</span> <span class="fn">qw(sum max min first)</span>;
+
+<span class="cmt"># Load CSV → AoH</span>
+<span class="kw">my</span> <span class="var">@students</span> = @{ <span class="fn">csv</span>(in=><span class="str">'students.csv'</span>, headers=><span class="str">'auto'</span>) };
+
+<span class="cmt"># ── SORT by score descending ──────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@ranked</span>   = <span class="fn">sort</span> { <span class="var">$b</span>->{<span class="key">score</span>} &lt;=&gt; <span class="var">$a</span>->{<span class="key">score</span>} } <span class="var">@students</span>;
+
+<span class="cmt"># ── FILTER: only high scorers ─────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@honor</span>    = <span class="fn">grep</span> { <span class="var">$_</span>->{<span class="key">score</span>} >= <span class="num">85</span> } <span class="var">@students</span>;
+
+<span class="cmt"># ── MAP: extract one column ───────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@names</span>    = <span class="fn">map</span>  { <span class="var">$_</span>->{<span class="key">name</span>}  } <span class="var">@students</span>;
+
+<span class="cmt"># ── AGGREGATE ────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$avg</span>      = <span class="fn">sum</span>(<span class="fn">map</span> {<span class="var">$_</span>->{<span class="key">score</span>}} <span class="var">@students</span>) / <span class="fn">scalar</span> <span class="var">@students</span>;
+<span class="kw">my</span> <span class="var">$top</span>      = (<span class="fn">sort</span> {<span class="var">$b</span>->{<span class="key">score</span>} &lt;=&gt; <span class="var">$a</span>->{<span class="key">score</span>}} <span class="var">@students</span>)[<span class="num">0</span>];
+
+<span class="cmt"># ── GROUP BY city ─────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">%by_city</span>;
+<span class="fn">push</span> @{<span class="var">$by_city</span>{<span class="var">$_</span>->{<span class="key">city</span>}}}, <span class="var">$_</span> <span class="kw">for</span> <span class="var">@students</span>;
+
+<span class="cmt"># ── ADD COMPUTED FIELD ────────────────────────────────────</span>
+<span class="var">$_</span>->{<span class="key">grade</span>} = <span class="var">$_</span>->{<span class="key">score</span>} >= <span class="num">90</span> ? <span class="str">'A'</span> : <span class="var">$_</span>->{<span class="key">score</span>} >= <span class="num">80</span> ? <span class="str">'B'</span> : <span class="str">'C'</span>
+    <span class="kw">for</span> <span class="var">@students</span>;
+
+<span class="cmt"># ── WRITE FILTERED RESULT BACK TO CSV ────────────────────</span>
+<span class="fn">csv</span>(
+    in      => \<span class="var">@honor</span>,
+    out     => <span class="str">'honor_roll.csv'</span>,
+    headers => [<span class="fn">sort keys</span> <span class="var">%</span>{<span class="var">$honor</span>[<span class="idx">0</span>]}],
+);</pre></div>
+  </div>
+</div>
+
+<!-- S9: CSV TRANSFORMS -->
+<div class="sec sec-csv" id="s9">
+  <div class="sh"><div class="si2">⚡</div><div>
+    <span class="badge b-csv">CSV</span>
+    <div class="st">CSV Transforms — Validate, Clean, Convert</div>
+    <div class="sd"># Data cleaning: trim whitespace, validate types, normalize values, handle missing data.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — cleaning and validating CSV data</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Text::CSV</span> <span class="fn">qw(csv)</span>;
+<span class="kw">use</span> <span class="mod">POSIX</span> <span class="fn">qw(floor)</span>;
+<span class="kw">use</span> <span class="mod">Scalar::Util</span> <span class="fn">qw(looks_like_number)</span>;
+
+<span class="kw">my</span> <span class="var">@raw</span> = @{ <span class="fn">csv</span>(in=><span class="str">'dirty.csv'</span>, headers=><span class="str">'auto'</span>) };
+
+<span class="kw">my</span> <span class="var">@clean</span> = <span class="fn">map</span> {
+    <span class="kw">my</span> <span class="var">$row</span> = {%{<span class="var">$_</span>}};  <span class="cmt"># shallow copy</span>
+
+    <span class="cmt"># Trim leading/trailing whitespace from all fields</span>
+    <span class="var">$row</span>->{<span class="var">$_</span>} =~ <span class="fn">s/^\s+|\s+$//g</span> <span class="kw">for</span> <span class="fn">keys</span> <span class="var">%</span>{<span class="var">$row</span>};
+
+    <span class="cmt"># Validate numeric: replace non-numeric with 0</span>
+    <span class="var">$row</span>->{<span class="key">score</span>} = <span class="fn">looks_like_number</span>(<span class="var">$row</span>->{<span class="key">score</span>})
+                    ? <span class="var">$row</span>->{<span class="key">score</span>} + <span class="num">0</span>   <span class="cmt"># numify</span>
+                    : <span class="num">0</span>;                   <span class="cmt"># default</span>
+
+    <span class="cmt"># Handle missing / empty</span>
+    <span class="var">$row</span>->{<span class="key">city</span>}  //= <span class="str">'Unknown'</span>;
+    <span class="var">$row</span>->{<span class="key">grade</span>} = <span class="var">$row</span>->{<span class="key">score</span>} >= <span class="num">90</span> ? <span class="str">'A'</span>
+                  : <span class="var">$row</span>->{<span class="key">score</span>} >= <span class="num">80</span> ? <span class="str">'B'</span>
+                  : <span class="var">$row</span>->{<span class="key">score</span>} >= <span class="num">70</span> ? <span class="str">'C'</span> : <span class="str">'F'</span>;
+
+    <span class="cmt"># Normalize: lowercase email, titlecase name</span>
+    <span class="var">$row</span>->{<span class="key">email</span>} = <span class="fn">lc</span>(<span class="var">$row</span>->{<span class="key">email</span>} // <span class="str">''</span>);
+    <span class="var">$row</span>->{<span class="key">name</span>}  = <span class="fn">join</span>(<span class="str">' '</span>, <span class="fn">map</span> { <span class="fn">ucfirst lc</span> <span class="var">$_</span> } <span class="fn">split</span>(<span class="str">/\s+/</span>, <span class="var">$row</span>->{<span class="key">name</span>}));
+
+    <span class="var">$row</span>;  <span class="cmt"># return cleaned row</span>
+} <span class="var">@raw</span>;
+
+<span class="cmt"># SKIP invalid rows</span>
+<span class="kw">my</span> <span class="var">@valid</span> = <span class="fn">grep</span> { <span class="var">$_</span>->{<span class="key">name</span>} && <span class="var">$_</span>->{<span class="key">score</span>} > <span class="num">0</span> } <span class="var">@clean</span>;
+
+<span class="cmt"># CSV → TSV conversion</span>
+<span class="fn">csv</span>(
+    in      => <span class="str">'data.csv'</span>,
+    out     => <span class="str">'data.tsv'</span>,
+    sep_in  => <span class="str">','</span>,
+    sep_out => <span class="str">"\t"</span>,
+);</pre></div>
+  </div>
+</div>
+
+
+<!-- S10: JSON MODULE OVERVIEW -->
+<div class="sec sec-json" id="s10">
+  <div class="sh"><div class="si2">🔷</div><div>
+    <span class="badge b-json">JSON</span>
+    <div class="st">JSON Module Overview — JSON, JSON::XS, Cpanel::JSON::XS</div>
+    <div class="sd"># Three main modules. Same API, different speeds. Cpanel::JSON::XS is the modern best choice.</div>
+  </div></div>
+  <div class="sb">
+    <div class="g3">
+      <div class="mcard">
+        <div class="mn">JSON</div>
+        <div class="mt">Pure Perl fallback. Always available. Slow on large data.</div>
+        <div class="mi">cpanm JSON</div>
+        <div><span class="mtag" style="color:var(--json);border-color:rgba(34,211,238,.3)">pure perl</span><span class="mtag" style="color:var(--io);border-color:rgba(250,204,21,.3)">always available</span></div>
+      </div>
+      <div class="mcard" style="border-color:rgba(34,211,238,.4)">
+        <div class="mn" style="color:var(--ok)">JSON::XS ★</div>
+        <div class="mt">C extension. Very fast. Strict standards compliance.</div>
+        <div class="mi">cpanm JSON::XS</div>
+        <div><span class="mtag" style="color:var(--ok);border-color:rgba(52,211,153,.3)">fast C</span><span class="mtag" style="color:var(--json);border-color:rgba(34,211,238,.3)">strict</span></div>
+      </div>
+      <div class="mcard" style="border-color:rgba(74,222,128,.4)">
+        <div class="mn" style="color:var(--core)">Cpanel::JSON::XS ★★</div>
+        <div class="mt">Fork of JSON::XS. Bug-fixed, more lenient. Best for production.</div>
+        <div class="mi">cpanm Cpanel::JSON::XS</div>
+        <div><span class="mtag" style="color:var(--core);border-color:rgba(74,222,128,.3)">recommended</span><span class="mtag" style="color:var(--ok);border-color:rgba(52,211,153,.3)">production</span></div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — choosing and using JSON module</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># ── BEST PRACTICE: use Cpanel::JSON::XS ─────────────────</span>
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+
+<span class="kw">my</span> <span class="var">$json</span> = <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>
+    -><span class="fn">utf8</span>            <span class="cmt"># encode/decode UTF-8 bytes</span>
+    -><span class="fn">pretty</span>(<span class="num">1</span>)       <span class="cmt"># human-readable output with indentation</span>
+    -><span class="fn">canonical</span>(<span class="num">1</span>)    <span class="cmt"># sort keys for deterministic output</span>
+    -><span class="fn">allow_nonref</span>(<span class="num">1</span>) <span class="cmt"># allow non-object/array top-level values</span>
+    -><span class="fn">relaxed</span>(<span class="num">1</span>);     <span class="cmt"># allow trailing commas, // comments</span>
+
+<span class="cmt"># ── FALLBACK: try XS, fall back to pure Perl ─────────────</span>
+<span class="kw">my</span> <span class="var">$json</span>;
+<span class="kw">eval</span> { <span class="kw">require</span> <span class="mod">Cpanel::JSON::XS</span>; <span class="var">$json</span> = <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">utf8</span> };
+<span class="var">$json</span> //= <span class="kw">do</span> { <span class="kw">require</span> <span class="mod">JSON</span>; <span class="mod">JSON</span>-><span class="fn">new</span>-><span class="fn">utf8</span> };  <span class="cmt"># fallback</span>
+
+<span class="cmt"># ── FUNCTIONAL INTERFACE (simplest usage) ─────────────────</span>
+<span class="kw">use</span> <span class="mod">JSON</span> <span class="fn">qw(encode_json decode_json to_json from_json)</span>;
+
+<span class="kw">my</span> <span class="var">$json_str</span>  = <span class="fn">encode_json</span>(\<span class="var">%data</span>);          <span class="cmt"># Perl → UTF-8 JSON bytes</span>
+<span class="kw">my</span> <span class="var">$json_str</span>  = <span class="fn">to_json</span>(\<span class="var">%data</span>, {pretty=><span class="num">1</span>}); <span class="cmt"># Perl → JSON string (characters)</span>
+<span class="kw">my</span> <span class="var">$data_ref</span>  = <span class="fn">decode_json</span>(<span class="var">$json_bytes</span>);    <span class="cmt"># UTF-8 JSON bytes → Perl</span>
+<span class="kw">my</span> <span class="var">$data_ref</span>  = <span class="fn">from_json</span>(<span class="var">$json_string</span>);     <span class="cmt"># JSON string → Perl</span></pre></div>
+  </div>
+</div>
+
+<!-- S11: DECODE JSON -->
+<div class="sec sec-json" id="s11">
+  <div class="sh"><div class="si2">📥</div><div>
+    <span class="badge b-json">JSON</span>
+    <div class="st">Decode (Read) JSON — Files, Strings, Streams</div>
+    <div class="sd"># decode_json() for bytes, from_json() for strings. Always handle malformed JSON.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">LIVE JSON PARSER — type or paste JSON</div>
+      <div style="padding:.9rem">
+        <textarea id="json-in" class="inp" style="width:100%;height:88px;resize:none;font-size:.73rem;line-height:1.6" placeholder='{"name":"Alice","age":28,"scores":[95,87,92]}'>{
+  "name": "Alice",
+  "age": 28,
+  "city": "Mumbai",
+  "scores": [95, 87, 92],
+  "active": true
+}</textarea>
+        <div style="display:flex;gap:.5rem;margin-top:.45rem;flex-wrap:wrap">
+          <button class="btn bjson" onclick="parseJSON()">▶ Parse JSON</button>
+          <button class="btn bn" onclick="validateJSON()">✓ Validate only</button>
+          <button class="btn bn" onclick="prettyJSON()">⇧ Pretty print</button>
+        </div>
+        <div id="json-out" class="out" style="margin-top:.6rem;min-height:60px">Click ▶ to parse</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — reading JSON from file, string, URL</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+
+<span class="cmt"># ── FROM FILE ────────────────────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:encoding(UTF-8)'</span>, <span class="str">'data.json'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+<span class="kw">my</span> <span class="var">$raw</span>  = <span class="kw">do</span> { <span class="kw">local</span> <span class="var">$/</span>; &lt;<span class="var">$fh</span>&gt; };   <span class="cmt"># slurp entire file</span>
+<span class="fn">close</span> <span class="var">$fh</span>;
+<span class="kw">my</span> <span class="var">$data</span> = <span class="fn">decode_json</span>(<span class="var">$raw</span>);        <span class="cmt"># parse</span>
+
+<span class="cmt"># ── OR ONE-LINER with Path::Tiny ─────────────────────────</span>
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+<span class="kw">my</span> <span class="var">$data</span> = <span class="fn">decode_json</span>(<span class="fn">path</span>(<span class="str">'data.json'</span>)-><span class="fn">slurp_utf8</span>);
+
+<span class="cmt"># ── SAFE PARSING WITH EVAL ───────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$data</span> = <span class="kw">eval</span> { <span class="fn">decode_json</span>(<span class="var">$raw</span>) };
+<span class="kw">if</span> (<span class="var">$@</span>) {
+    <span class="fn">die</span> <span class="str">"Invalid JSON: $@"</span>;
+}
+
+<span class="cmt"># ── ACCESS THE PARSED DATA ───────────────────────────────</span>
+<span class="cmt"># JSON object  → Perl HASH ref</span>
+<span class="cmt"># JSON array   → Perl ARRAY ref</span>
+<span class="cmt"># JSON string  → Perl string</span>
+<span class="cmt"># JSON number  → Perl number</span>
+<span class="cmt"># JSON true    → Perl 1 (or JSON::true object)</span>
+<span class="cmt"># JSON false   → Perl 0 (or JSON::false object)</span>
+<span class="cmt"># JSON null    → Perl undef</span>
+
+<span class="kw">print</span> <span class="var">$data</span>->{<span class="key">name</span>};              <span class="cmt"># "Alice" — object key</span>
+<span class="kw">print</span> <span class="var">$data</span>->{<span class="key">scores</span>}[<span class="idx">0</span>];         <span class="cmt"># 95  — array element</span>
+<span class="kw">my</span> <span class="var">@all</span> = @{<span class="var">$data</span>->{<span class="key">items</span>}};      <span class="cmt"># dereference array</span>
+<span class="kw">my</span> <span class="var">%cfg</span> = %{<span class="var">$data</span>->{<span class="key">config</span>}};     <span class="cmt"># dereference object</span>
+
+<span class="cmt"># ── JSON ARRAY AS ROOT ───────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$arr</span> = <span class="fn">decode_json</span>(<span class="str">'[1, 2, 3]'</span>);
+<span class="kw">print</span> <span class="var">$arr</span>->[<span class="idx">1</span>];   <span class="cmt"># 2</span>
+
+<span class="cmt"># ── STREAMING (large files) ──────────────────────────────</span>
+<span class="kw">use</span> <span class="mod">JSON::XS</span>;
+<span class="kw">my</span> <span class="var">$parser</span> = <span class="mod">JSON::XS</span>-><span class="fn">new</span>-><span class="fn">utf8</span>;
+<span class="kw">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;'</span>, <span class="str">'big.json'</span>) or <span class="fn">die</span>;
+<span class="kw">while</span> (&lt;<span class="var">$fh</span>&gt;) { <span class="var">$parser</span>-><span class="fn">incr_parse</span>(<span class="var">$_</span>) }  <span class="cmt"># feed chunks</span>
+<span class="kw">while</span> (<span class="kw">my</span> <span class="var">$obj</span> = <span class="var">$parser</span>-><span class="fn">incr_parse</span>()) { <span class="cmt"># extract objects</span>
+    <span class="cmt"># process $obj</span>
+}</pre></div>
+  </div>
+</div>
+
+<!-- S12: ENCODE JSON -->
+<div class="sec sec-json" id="s12">
+  <div class="sh"><div class="si2">📤</div><div>
+    <span class="badge b-json">JSON</span>
+    <div class="st">Encode (Write) JSON — Pretty, Compact, File</div>
+    <div class="sd"># encode_json() for bytes output. pretty(1) for human-readable. canonical for stable output.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">JSON ENCODER — interactive Perl → JSON</div>
+      <div style="padding:.9rem">
+        <div class="g2">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);margin-bottom:.3rem">Perl data structure:</div>
+            <div class="jt">{<br>&nbsp;&nbsp;<span class="jk">"name"</span>: <span class="jv-s">"Alice"</span>,<br>&nbsp;&nbsp;<span class="jk">"age"</span>: <span class="jv-n2">28</span>,<br>&nbsp;&nbsp;<span class="jk">"scores"</span>: [<span class="jv-n2">95</span>, <span class="jv-n2">87</span>, <span class="jv-n2">92</span>],<br>&nbsp;&nbsp;<span class="jk">"active"</span>: <span class="jv-b">true</span>,<br>&nbsp;&nbsp;<span class="jk">"extra"</span>: <span class="jv-b">null</span><br>}</div>
+          </div>
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);margin-bottom:.3rem">Output options:</div>
+            <div style="display:flex;flex-direction:column;gap:.4rem">
+              <div onclick="showEnc('pretty')" style="background:var(--c2);border:1px solid rgba(34,211,238,.3);border-radius:6px;padding:.55rem .8rem;cursor:pointer;transition:all .2s">
+                <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--json)">→pretty(1)</div>
+                <div style="font-family:'Inconsolata',monospace;font-size:.7rem;color:var(--tx)">Human-readable with indentation</div>
+              </div>
+              <div onclick="showEnc('compact')" style="background:var(--c2);border:1px solid rgba(249,115,22,.3);border-radius:6px;padding:.55rem .8rem;cursor:pointer;transition:all .2s">
+                <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--csv)">→ compact (default)</div>
+                <div style="font-family:'Inconsolata',monospace;font-size:.7rem;color:var(--tx)">Minimal size, no whitespace</div>
+              </div>
+              <div onclick="showEnc('canon')" style="background:var(--c2);border:1px solid rgba(167,139,250,.3);border-radius:6px;padding:.55rem .8rem;cursor:pointer;transition:all .2s">
+                <div style="font-family:'Space Mono',monospace;font-size:.54rem;color:var(--xml)">→canonical(1)</div>
+                <div style="font-family:'Inconsolata',monospace;font-size:.7rem;color:var(--tx)">Sorted keys, deterministic output</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="enc-out" class="out" style="margin-top:.7rem;font-size:.72rem">Click an option to see JSON output</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — encoding JSON, writing to file</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+
+<span class="kw">my</span> <span class="var">%data</span> = (
+    name   => <span class="str">"Alice"</span>,
+    age    => <span class="num">28</span>,
+    scores => [<span class="num">95</span>, <span class="num">87</span>, <span class="num">92</span>],
+    active => <span class="mod">Cpanel::JSON::XS::true</span>,   <span class="cmt"># real JSON true</span>
+    empty  => <span class="kw">undef</span>,                       <span class="cmt"># → JSON null</span>
+);
+
+<span class="cmt"># ── ENCODE TO STRING ─────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$compact</span> = <span class="fn">encode_json</span>(\<span class="var">%data</span>);             <span class="cmt"># compact bytes</span>
+<span class="kw">my</span> <span class="var">$pretty</span>  = <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">utf8</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">%data</span>);
+<span class="kw">my</span> <span class="var">$sorted</span>  = <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">utf8</span>-><span class="fn">canonical</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">%data</span>);
+
+<span class="cmt"># ── WRITE TO FILE ─────────────────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;:encoding(UTF-8)'</span>, <span class="str">'output.json'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+<span class="kw">print</span> <span class="var">$fh</span> <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">%data</span>);
+<span class="fn">close</span> <span class="var">$fh</span>;
+
+<span class="cmt"># ── BOOLEAN / NULL HANDLING ───────────────────────────────</span>
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS::Type</span>;
+<span class="kw">my</span> <span class="var">%out</span> = (
+    flag  => \<span class="num">1</span>,                          <span class="cmt"># → true  (ref to 1)</span>
+    off   => \<span class="num">0</span>,                          <span class="cmt"># → false (ref to 0)</span>
+    empty => <span class="kw">undef</span>,                       <span class="cmt"># → null</span>
+    count => <span class="num">0</span> + <span class="var">$n</span>,                      <span class="cmt"># force numeric</span>
+    label => <span class="str">"$name"</span>,                     <span class="cmt"># force string</span>
+);</pre></div>
+  </div>
+</div>
+
+<!-- S13: JSON MAPPING -->
+<div class="sec sec-json" id="s13">
+  <div class="sh"><div class="si2">🗺️</div><div>
+    <span class="badge b-json">JSON</span>
+    <div class="st">JSON ↔ Perl Type Mapping</div>
+    <div class="sd"># JSON types map to Perl types. Know the gotchas: booleans, nulls, numbers vs strings.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">TYPE MAPPING — click each JSON type</div>
+      <div style="padding:.9rem;display:flex;gap:.55rem;flex-wrap:wrap">
+        <div onclick="showMap('obj')" style="background:var(--c2);border:1px solid rgba(34,211,238,.3);border-radius:7px;padding:.72rem .95rem;cursor:pointer;flex:1;min-width:90px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--json)">{object}</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.68rem;color:var(--mu);margin-top:.2rem">JSON</div>
+        </div>
+        <div onclick="showMap('arr')" style="background:var(--c2);border:1px solid rgba(249,115,22,.3);border-radius:7px;padding:.72rem .95rem;cursor:pointer;flex:1;min-width:90px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--csv)">[array]</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.68rem;color:var(--mu);margin-top:.2rem">JSON</div>
+        </div>
+        <div onclick="showMap('str')" style="background:var(--c2);border:1px solid rgba(74,222,128,.3);border-radius:7px;padding:.72rem .95rem;cursor:pointer;flex:1;min-width:90px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--core)">"string"</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.68rem;color:var(--mu);margin-top:.2rem">JSON</div>
+        </div>
+        <div onclick="showMap('num')" style="background:var(--c2);border:1px solid rgba(250,204,21,.3);border-radius:7px;padding:.72rem .95rem;cursor:pointer;flex:1;min-width:90px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--io)">42 / 3.14</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.68rem;color:var(--mu);margin-top:.2rem">JSON</div>
+        </div>
+        <div onclick="showMap('bool')" style="background:var(--c2);border:1px solid rgba(167,139,250,.3);border-radius:7px;padding:.72rem .95rem;cursor:pointer;flex:1;min-width:90px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--xml)">true/false</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.68rem;color:var(--mu);margin-top:.2rem">JSON</div>
+        </div>
+        <div onclick="showMap('null')" style="background:var(--c2);border:1px solid var(--b2);border-radius:7px;padding:.72rem .95rem;cursor:pointer;flex:1;min-width:90px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--di)">null</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.68rem;color:var(--mu);margin-top:.2rem">JSON</div>
+        </div>
+      </div>
+      <div id="map-out" style="margin:0 .9rem .9rem;padding:.7rem .9rem;background:rgba(0,0,0,.35);border-radius:7px;font-family:'Inconsolata',monospace;font-size:.75rem;color:var(--di);min-height:38px">Click a type above</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — complete type mapping reference</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># JSON → PERL</span>
+<span class="cmt"># {"key":"val"}  → HASH ref     { key => "val" }</span>
+<span class="cmt"># [1, 2, 3]      → ARRAY ref    [ 1, 2, 3 ]</span>
+<span class="cmt"># "hello"        → string       "hello"</span>
+<span class="cmt"># 42             → number       42</span>
+<span class="cmt"># 3.14           → number       3.14</span>
+<span class="cmt"># true           → 1 (or JSON::true blessed ref)</span>
+<span class="cmt"># false          → 0 (or JSON::false blessed ref)</span>
+<span class="cmt"># null           → undef</span>
+
+<span class="cmt"># PERL → JSON (gotchas!)</span>
+\<span class="num">1</span>           <span class="cmt"># → true    (reference to 1)</span>
+\<span class="num">0</span>           <span class="cmt"># → false   (reference to 0)</span>
+<span class="kw">undef</span>        <span class="cmt"># → null</span>
+<span class="str">"42"</span>         <span class="cmt"># → "42"    (string, not number!)</span>
+<span class="num">42</span>           <span class="cmt"># → 42      (number, no quotes)</span>
+<span class="str">"42"</span> + <span class="num">0</span>    <span class="cmt"># → 42      (force numeric)</span>
+<span class="str">"$n"</span>         <span class="cmt"># → "42"    (force string)</span>
+
+<span class="cmt"># Check if value is boolean:</span>
+<span class="kw">use</span> <span class="mod">Scalar::Util</span> <span class="fn">qw(blessed)</span>;
+<span class="kw">if</span> (<span class="fn">ref</span>(<span class="var">$val</span>) && <span class="fn">blessed</span>(<span class="var">$val</span>) && <span class="var">$val</span>-><span class="fn">isa</span>(<span class="str">'JSON::Boolean'</span>)) {
+    <span class="kw">print</span> <span class="str">"Is boolean: "</span>, <span class="var">$val</span> ? <span class="str">"true"</span> : <span class="str">"false"</span>, <span class="str">"\n"</span>;
+}</pre></div>
+  </div>
+</div>
+
+<!-- S14: JSON PATTERNS -->
+<div class="sec sec-json" id="s14">
+  <div class="sh"><div class="si2">🧩</div><div>
+    <span class="badge b-json">JSON</span>
+    <div class="st">JSON Patterns — Config files, APIs, Deep Access</div>
+    <div class="sd"># Real-world patterns: config loading, REST API responses, deep nested access, merging.</div>
+  </div></div>
+  <div class="sb">
+    <div class="tbr">
+      <div class="tbn ta-json" onclick="stab('jp','jp-cfg',this)">Config Files</div>
+      <div class="tbn" onclick="stab('jp','jp-api',this)">API Responses</div>
+      <div class="tbn" onclick="stab('jp','jp-deep',this)">Deep Access</div>
+      <div class="tbn" onclick="stab('jp','jp-merge',this)">Merge/Transform</div>
+    </div>
+    <div class="tp ts" id="jp-cfg">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — JSON config files</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># config.json:</span>
+<span class="cmt"># { "db": {"host":"localhost","port":5432}, "debug": false }</span>
+
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+
+<span class="kw">sub</span> <span class="fn">load_config</span> {
+    <span class="kw">my</span> (<span class="var">$file</span>) = <span class="var">@_</span>;
+    <span class="fn">die</span> <span class="str">"Config $file not found\n"</span> unless <span class="fn">-f</span> <span class="var">$file</span>;
+    <span class="kw">my</span> <span class="var">$raw</span> = <span class="fn">path</span>(<span class="var">$file</span>)-><span class="fn">slurp_utf8</span>;
+    <span class="kw">return</span> <span class="kw">eval</span> { <span class="fn">decode_json</span>(<span class="var">$raw</span>) }
+        or <span class="fn">die</span> <span class="str">"Bad JSON in $file: $@"</span>;
+}
+
+<span class="kw">my</span> <span class="var">$cfg</span> = <span class="fn">load_config</span>(<span class="str">'config.json'</span>);
+<span class="kw">my</span> <span class="var">$host</span> = <span class="var">$cfg</span>->{<span class="key">db</span>}{<span class="key">host</span>} // <span class="str">'localhost'</span>;
+<span class="kw">my</span> <span class="var">$port</span> = <span class="var">$cfg</span>->{<span class="key">db</span>}{<span class="key">port</span>} // <span class="num">5432</span>;
+<span class="kw">my</span> <span class="var">$debug</span>= <span class="var">$cfg</span>->{<span class="key">debug</span>}      // <span class="num">0</span>;
+
+<span class="cmt"># SAVE updated config back</span>
+<span class="var">$cfg</span>->{<span class="key">last_run</span>} = <span class="str">"2024-01-01"</span>;
+<span class="fn">path</span>(<span class="str">'config.json'</span>)-><span class="fn">spew_utf8</span>(
+    <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">canonical</span>(<span class="num">1</span>)-><span class="fn">encode</span>(<span class="var">$cfg</span>)
+);</pre></div>
+    </div>
+    <div class="tp" id="jp-api">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — consuming REST API JSON responses</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">LWP::UserAgent</span>;
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+
+<span class="kw">my</span> <span class="var">$ua</span>  = <span class="mod">LWP::UserAgent</span>-><span class="fn">new</span>(timeout => <span class="num">30</span>);
+<span class="kw">my</span> <span class="var">$res</span> = <span class="var">$ua</span>-><span class="fn">get</span>(
+    <span class="str">'https://api.example.com/users'</span>,
+    <span class="str">'Accept'</span>        => <span class="str">'application/json'</span>,
+    <span class="str">'Authorization'</span> => <span class="str">"Bearer $token"</span>,
+);
+
+<span class="kw">die</span> <span class="str">"API failed: "</span> . <span class="var">$res</span>-><span class="fn">status_line</span> unless <span class="var">$res</span>-><span class="fn">is_success</span>;
+
+<span class="kw">my</span> <span class="var">$data</span> = <span class="fn">decode_json</span>(<span class="var">$res</span>-><span class="fn">content</span>);
+
+<span class="cmt"># Response: {"users":[{"id":1,"name":"Alice"},...], "total":50}</span>
+<span class="kw">my</span> <span class="var">@users</span>  = @{<span class="var">$data</span>->{<span class="key">users</span>}};
+<span class="kw">my</span> <span class="var">$total</span>  = <span class="var">$data</span>->{<span class="key">total</span>};
+<span class="kw">my</span> <span class="var">@names</span>  = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">name</span>} } <span class="var">@users</span>;
+
+<span class="cmt"># POST JSON payload</span>
+<span class="kw">my</span> <span class="var">$payload</span> = <span class="fn">encode_json</span>({ name=><span class="str">"Bob"</span>, age=><span class="num">30</span> });
+<span class="kw">my</span> <span class="var">$post</span>    = <span class="var">$ua</span>-><span class="fn">post</span>(
+    <span class="str">'https://api.example.com/users'</span>,
+    <span class="str">'Content-Type'</span> => <span class="str">'application/json'</span>,
+    <span class="str">'Content'</span>      => <span class="var">$payload</span>,
+);</pre></div>
+    </div>
+    <div class="tp" id="jp-deep">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — safely accessing deeply nested JSON</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># Deep JSON: {"company":{"dept":{"employees":[{"name":"Alice"}]}}}</span>
+
+<span class="cmt"># UNSAFE — crashes if any level is undef/missing</span>
+<span class="kw">my</span> <span class="var">$name</span> = <span class="var">$data</span>->{<span class="key">company</span>}{<span class="key">dept</span>}{<span class="key">employees</span>}[<span class="num">0</span>]{<span class="key">name</span>};
+
+<span class="cmt"># SAFE with // (defined-or)</span>
+<span class="kw">my</span> <span class="var">$name</span> = ((<span class="var">$data</span>->{<span class="key">company</span>} // {})->{<span class="key">dept</span>} // {})->{<span class="key">employees</span>}[<span class="num">0</span>]{<span class="key">name</span>} // <span class="str">'N/A'</span>;
+
+<span class="cmt"># SAFE with data::dpath (XPath for Perl)</span>
+<span class="kw">use</span> <span class="mod">Data::DPath</span> <span class="str">'dpath'</span>;
+<span class="kw">my</span> <span class="var">@names</span> = <span class="fn">dpath</span>(<span class="str">'//employees/*/name'</span>)-><span class="fn">match</span>(<span class="var">$data</span>);
+
+<span class="cmt"># SAFE helper sub</span>
+<span class="kw">sub</span> <span class="fn">deep_get</span> {
+    <span class="kw">my</span> (<span class="var">$ref</span>, <span class="var">@keys</span>) = <span class="var">@_</span>;
+    <span class="kw">for</span> (<span class="var">@keys</span>) {
+        <span class="kw">return</span> <span class="kw">undef</span> unless <span class="fn">ref</span>(<span class="var">$ref</span>) <span class="fn">eq</span> <span class="str">'HASH'</span> && <span class="fn">exists</span> <span class="var">$ref</span>->{<span class="var">$_</span>};
+        <span class="var">$ref</span> = <span class="var">$ref</span>->{<span class="var">$_</span>};
+    }
+    <span class="kw">return</span> <span class="var">$ref</span>;
+}
+<span class="kw">my</span> <span class="var">$host</span> = <span class="fn">deep_get</span>(<span class="var">$cfg</span>, <span class="str">'db'</span>, <span class="str">'host'</span>) // <span class="str">'localhost'</span>;</pre></div>
+    </div>
+    <div class="tp" id="jp-merge">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — merge / transform JSON structures</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Hash::Merge</span> <span class="fn">qw(merge)</span>;
+
+<span class="cmt"># Deep merge two JSON objects</span>
+<span class="kw">my</span> <span class="var">$defaults</span> = <span class="fn">decode_json</span>(<span class="fn">path</span>(<span class="str">'defaults.json'</span>)-><span class="fn">slurp_utf8</span>);
+<span class="kw">my</span> <span class="var">$overrides</span> = <span class="fn">decode_json</span>(<span class="fn">path</span>(<span class="str">'local.json'</span>)-><span class="fn">slurp_utf8</span>);
+<span class="kw">my</span> <span class="var">$merged</span>   = <span class="fn">merge</span>(<span class="var">$overrides</span>, <span class="var">$defaults</span>);  <span class="cmt"># overrides win</span>
+
+<span class="cmt"># CSV → JSON conversion</span>
+<span class="kw">use</span> <span class="mod">Text::CSV</span> <span class="fn">qw(csv)</span>;
+<span class="kw">my</span> <span class="var">@data</span>    = @{ <span class="fn">csv</span>(in=><span class="str">'input.csv'</span>, headers=><span class="str">'auto'</span>) };
+<span class="kw">my</span> <span class="var">$json</span>    = <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">@data</span>);
+<span class="fn">path</span>(<span class="str">'output.json'</span>)-><span class="fn">spew_utf8</span>(<span class="var">$json</span>);</pre></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- S15: XML MODULES -->
+<div class="sec sec-xml" id="s15">
+  <div class="sh"><div class="si2">🌐</div><div>
+    <span class="badge b-xml">XML</span>
+    <div class="st">XML Modules Comparison — Which One to Use?</div>
+    <div class="sd"># XML::Simple (easy), XML::LibXML (powerful DOM/XPath), XML::Twig (streaming large files).</div>
+  </div></div>
+  <div class="sb">
+    <div class="g3">
+      <div class="mcard">
+        <div class="mn" style="color:var(--io)">XML::Simple</div>
+        <div class="mt">Converts XML to/from Perl hash. Quick and easy for simple XML.</div>
+        <div class="mi">cpanm XML::Simple</div>
+        <div style="margin-top:.4rem;font-family:'Space Mono',monospace;font-size:.54rem;color:var(--err)">⚠ Deprecated for complex XML</div>
+        <div><span class="mtag" style="color:var(--io);border-color:rgba(250,204,21,.3)">simple</span><span class="mtag" style="color:var(--err);border-color:rgba(244,63,94,.3)">legacy</span></div>
+      </div>
+      <div class="mcard" style="border-color:rgba(167,139,250,.4)">
+        <div class="mn" style="color:var(--xml)">XML::LibXML ★★</div>
+        <div class="mt">Full DOM + XPath. Based on libxml2 (C library). Fast and standards-compliant.</div>
+        <div class="mi">cpanm XML::LibXML</div>
+        <div><span class="mtag" style="color:var(--xml);border-color:rgba(167,139,250,.3)">recommended</span><span class="mtag" style="color:var(--ok);border-color:rgba(52,211,153,.3)">XPath</span><span class="mtag" style="color:var(--core);border-color:rgba(74,222,128,.3)">fast C</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mn" style="color:var(--csv)">XML::Twig ★</div>
+        <div class="mt">Stream-oriented. Handles gigabyte XML files without loading all into RAM.</div>
+        <div class="mi">cpanm XML::Twig</div>
+        <div><span class="mtag" style="color:var(--csv);border-color:rgba(249,115,22,.3)">streaming</span><span class="mtag" style="color:var(--json);border-color:rgba(34,211,238,.3)">large files</span></div>
+      </div>
+    </div>
+    <div class="viz" style="padding:1.3rem;margin-top:.9rem">
+      <div class="vl">SAMPLE XML — used in all following examples</div>
+      <div class="xtree" style="padding:1rem">
+&lt;<span class="xt">?xml version="1.0" encoding="UTF-8"?</span>&gt;<br>
+&lt;<span class="xt">company</span> <span class="xa">name=</span><span class="xv">"TechCorp"</span>&gt;<br>
+&nbsp;&nbsp;&lt;<span class="xt">department</span> <span class="xa">id=</span><span class="xv">"eng"</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">name</span>&gt;<span class="xc">Engineering</span>&lt;/<span class="xt">name</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">employee</span> <span class="xa">id=</span><span class="xv">"1"</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">name</span>&gt;<span class="xc">Alice</span>&lt;/<span class="xt">name</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">role</span>&gt;<span class="xc">Lead Engineer</span>&lt;/<span class="xt">role</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">salary</span>&gt;<span class="xc">90000</span>&lt;/<span class="xt">salary</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="xt">employee</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">employee</span> <span class="xa">id=</span><span class="xv">"2"</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">name</span>&gt;<span class="xc">Bob</span>&lt;/<span class="xt">name</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">role</span>&gt;<span class="xc">Developer</span>&lt;/<span class="xt">role</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="xt">salary</span>&gt;<span class="xc">78000</span>&lt;/<span class="xt">salary</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="xt">employee</span>&gt;<br>
+&nbsp;&nbsp;&lt;/<span class="xt">department</span>&gt;<br>
+&lt;/<span class="xt">company</span>&gt;
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S16: XML::SIMPLE -->
+<div class="sec sec-xml" id="s16">
+  <div class="sh"><div class="si2">📄</div><div>
+    <span class="badge b-xml">XML</span>
+    <div class="st">XML::Simple — Quick Perl Hash Parsing</div>
+    <div class="sd"># XMLin() parses XML → Perl hash. Good for simple config XML. Avoid for complex structures.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — XML::Simple read and write</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">XML::Simple</span>;
+
+<span class="cmt"># ── READ XML FILE ─────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$xs</span>   = <span class="mod">XML::Simple</span>-><span class="fn">new</span>( ForceArray => <span class="num">1</span>, KeyAttr => [] );
+<span class="kw">my</span> <span class="var">$data</span> = <span class="var">$xs</span>-><span class="fn">XMLin</span>(<span class="str">'company.xml'</span>);
+<span class="cmt"># $data is a Perl hash mirroring the XML structure</span>
+
+<span class="kw">print</span> <span class="var">$data</span>->{<span class="key">'-name'</span>};  <span class="cmt"># "TechCorp" (attributes start with -)</span>
+
+<span class="cmt"># ── NAVIGATE the structure ───────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@depts</span> = @{ <span class="var">$data</span>->{<span class="key">department</span>} };         <span class="cmt"># ForceArray ensures arrayref</span>
+<span class="kw">for my</span> <span class="rfc">$dept</span> (<span class="var">@depts</span>) {
+    <span class="kw">my</span> <span class="var">$dname</span>  = <span class="rfc">$dept</span>->{<span class="key">name</span>}[<span class="idx">0</span>];             <span class="cmt"># text content</span>
+    <span class="kw">my</span> <span class="var">@emps</span>   = @{ <span class="rfc">$dept</span>->{<span class="key">employee</span>} };
+    <span class="kw">for my</span> <span class="rfc">$e</span> (<span class="var">@emps</span>) {
+        <span class="kw">printf</span> <span class="str">"%s: %s\n"</span>, <span class="rfc">$e</span>->{<span class="key">name</span>}[<span class="idx">0</span>], <span class="rfc">$e</span>->{<span class="key">role</span>}[<span class="idx">0</span>];
+    }
+}
+
+<span class="cmt"># ── WRITE XML ─────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">%config</span> = (
+    database => { host=><span class="str">"localhost"</span>, port=><span class="num">5432</span> },
+    debug    => <span class="num">0</span>,
+);
+<span class="kw">my</span> <span class="var">$xml_str</span> = <span class="var">$xs</span>-><span class="fn">XMLout</span>(\<span class="var">%config</span>, RootName=><span class="str">'config'</span>);
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;:encoding(UTF-8)'</span>, <span class="str">'config.xml'</span>) or <span class="fn">die</span>;
+<span class="kw">print</span> <span class="var">$fh</span> <span class="var">$xml_str</span>;
+<span class="fn">close</span> <span class="var">$fh</span>;</pre></div>
+    <div class="cal cw2"><strong>⚠️ XML::Simple Warnings</strong>
+      ForceArray and KeyAttr options dramatically change the structure. Always use <code style="font-family:Inconsolata,monospace">ForceArray =&gt; 1</code> to guarantee arrays even for single elements. For complex XML, switch to XML::LibXML — it's more predictable.
+    </div>
+  </div>
+</div>
+
+<!-- S17: XML::LIBXML -->
+<div class="sec sec-xml" id="s17">
+  <div class="sh"><div class="si2">🌳</div><div>
+    <span class="badge b-xml">XML</span>
+    <div class="st">XML::LibXML — Full DOM Parsing</div>
+    <div class="sd"># Parse XML into a full DOM tree. Navigate with methods. Query with XPath. Industry standard.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">DOM NAVIGATION — click methods to see what they do</div>
+      <div style="padding:.9rem">
+        <div style="display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.55rem">
+          <button class="btn bxml" onclick="showDOM('root')">documentElement()</button>
+          <button class="btn bxml" onclick="showDOM('find')">find() / findnodes()</button>
+          <button class="btn bxml" onclick="showDOM('attr')">getAttribute()</button>
+          <button class="btn bxml" onclick="showDOM('text')">textContent</button>
+          <button class="btn bxml" onclick="showDOM('child')">childNodes()</button>
+        </div>
+        <div id="dom-out" class="out" style="min-height:55px">Click a method to see its role</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — XML::LibXML complete guide</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">XML::LibXML</span>;
+
+<span class="cmt"># ── PARSE ────────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$parser</span> = <span class="mod">XML::LibXML</span>-><span class="fn">new</span>;
+<span class="kw">my</span> <span class="var">$doc</span>    = <span class="var">$parser</span>-><span class="fn">parse_file</span>(<span class="str">'company.xml'</span>);       <span class="cmt"># from file</span>
+<span class="kw">my</span> <span class="var">$doc</span>    = <span class="var">$parser</span>-><span class="fn">parse_string</span>(<span class="var">$xml_str</span>);          <span class="cmt"># from string</span>
+<span class="kw">my</span> <span class="var">$doc</span>    = <span class="var">$parser</span>-><span class="fn">parse_fh</span>(<span class="var">$fh</span>);                  <span class="cmt"># from filehandle</span>
+
+<span class="cmt"># ── NAVIGATE ─────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$root</span>   = <span class="var">$doc</span>-><span class="fn">documentElement</span>;                  <span class="cmt"># &lt;company&gt; node</span>
+<span class="kw">my</span> <span class="var">$cname</span>  = <span class="var">$root</span>-><span class="fn">getAttribute</span>(<span class="str">'name'</span>);            <span class="cmt"># "TechCorp"</span>
+<span class="kw">my</span> <span class="var">$tag</span>    = <span class="var">$root</span>-><span class="fn">nodeName</span>;                        <span class="cmt"># "company"</span>
+
+<span class="cmt"># ── CHILDREN ─────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@depts</span>  = <span class="var">$root</span>-><span class="fn">childNodes</span>;                      <span class="cmt"># all child nodes</span>
+<span class="kw">my</span> <span class="var">@depts</span>  = <span class="var">$root</span>-><span class="fn">getChildrenByTagName</span>(<span class="str">'department'</span>); <span class="cmt"># specific tag</span>
+
+<span class="kw">for my</span> <span class="var">$dept</span> (<span class="var">@depts</span>) {
+    <span class="kw">my</span> <span class="var">$id</span>    = <span class="var">$dept</span>-><span class="fn">getAttribute</span>(<span class="str">'id'</span>);
+    <span class="kw">my</span> (<span class="var">$name_node</span>) = <span class="var">$dept</span>-><span class="fn">getChildrenByTagName</span>(<span class="str">'name'</span>);
+    <span class="kw">my</span> <span class="var">$dname</span> = <span class="var">$name_node</span>-><span class="fn">textContent</span>;
+    <span class="kw">print</span> <span class="str">"$id: $dname\n"</span>;
+}</pre></div>
+  </div>
+</div>
+
+<!-- S18: XPATH -->
+<div class="sec sec-xml" id="s18">
+  <div class="sh"><div class="si2">🔍</div><div>
+    <span class="badge b-xml">XML</span>
+    <div class="st">XPath Queries — Find Nodes Precisely</div>
+    <div class="sd"># XPath is a query language for XML. Use findnodes(), find(), findvalue() with XML::LibXML.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">XPATH QUERY BUILDER — click examples</div>
+      <div style="padding:.9rem">
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.55rem">
+          <button class="btn bxml" onclick="xp('all-emp')">All employees</button>
+          <button class="btn bxml" onclick="xp('eng-emp')">Eng dept employees</button>
+          <button class="btn bxml" onclick="xp('names')">Just names</button>
+          <button class="btn bxml" onclick="xp('salary-gt')">Salary &gt; 80000</button>
+          <button class="btn bxml" onclick="xp('attr')">Attribute select</button>
+          <button class="btn bxml" onclick="xp('first')">First employee</button>
+        </div>
+        <div id="xp-out" class="out" style="min-height:65px">Click a query above</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — XPath with XML::LibXML</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">XML::LibXML</span>;
+<span class="kw">my</span> <span class="var">$doc</span> = <span class="mod">XML::LibXML</span>-><span class="fn">new</span>-><span class="fn">parse_file</span>(<span class="str">'company.xml'</span>);
+
+<span class="cmt"># ── findnodes() → list of nodes ───────────────────────────</span>
+<span class="kw">my</span> <span class="var">@emps</span>    = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee'</span>);           <span class="cmt"># ALL employees</span>
+<span class="kw">my</span> <span class="var">@eng</span>     = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//department[@id="eng"]/employee'</span>);
+<span class="kw">my</span> <span class="var">@leads</span>   = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee[role="Lead Engineer"]'</span>);
+<span class="kw">my</span> <span class="var">@rich</span>    = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee[salary&gt;80000]'</span>);
+<span class="kw">my</span> <span class="var">@first</span>   = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee[1]'</span>);          <span class="cmt"># 1-indexed!</span>
+<span class="kw">my</span> <span class="var">@last</span>    = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee[last()]'</span>);
+
+<span class="cmt"># ── findvalue() → string value ────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$cname</span>   = <span class="var">$doc</span>-><span class="fn">findvalue</span>(<span class="str">'/company/@name'</span>);         <span class="cmt"># "TechCorp"</span>
+<span class="kw">my</span> <span class="var">$salary</span>  = <span class="var">$doc</span>-><span class="fn">findvalue</span>(<span class="str">'//employee[name="Alice"]/salary'</span>);
+
+<span class="cmt"># ── Iterate results ───────────────────────────────────────</span>
+<span class="kw">for my</span> <span class="var">$e</span> (<span class="var">@emps</span>) {
+    <span class="kw">my</span> <span class="var">$id</span>  = <span class="var">$e</span>-><span class="fn">getAttribute</span>(<span class="str">'id'</span>);
+    <span class="kw">my</span> <span class="var">$nm</span>  = <span class="var">$e</span>-><span class="fn">findvalue</span>(<span class="str">'name'</span>);       <span class="cmt"># relative to node!</span>
+    <span class="kw">my</span> <span class="var">$sal</span> = <span class="var">$e</span>-><span class="fn">findvalue</span>(<span class="str">'salary'</span>) + <span class="num">0</span>; <span class="cmt"># numify</span>
+    <span class="kw">printf</span> <span class="str">"[%s] %s: \$%d\n"</span>, <span class="var">$id</span>, <span class="var">$nm</span>, <span class="var">$sal</span>;
+}
+
+<span class="cmt"># ── XPath Cheat Sheet ─────────────────────────────────────</span>
+<span class="cmt"># //tag          — any 'tag' anywhere in doc</span>
+<span class="cmt"># /root/child    — absolute path</span>
+<span class="cmt"># tag/@attr      — attribute value</span>
+<span class="cmt"># tag[n]         — nth element (1-indexed)</span>
+<span class="cmt"># tag[last()]    — last element</span>
+<span class="cmt"># tag[@id="x"]   — has attribute id="x"</span>
+<span class="cmt"># tag[sub="val"] — has child &lt;sub&gt; with text "val"</span>
+<span class="cmt"># tag[pos>5]     — child text numeric comparison</span>
+<span class="cmt"># *              — any element</span>
+<span class="cmt"># ..             — parent node</span></pre></div>
+  </div>
+</div>
+
+<!-- S19: WRITE XML -->
+<div class="sec sec-xml" id="s19">
+  <div class="sh"><div class="si2">✏️</div><div>
+    <span class="badge b-xml">XML</span>
+    <div class="st">Write XML — Build DOM, Serialize, Modify</div>
+    <div class="sd"># Create XML documents programmatically with XML::LibXML DOM API or string templates.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — writing XML with XML::LibXML</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">XML::LibXML</span>;
+
+<span class="cmt"># ── BUILD FROM SCRATCH ────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$doc</span>  = <span class="mod">XML::LibXML::Document</span>-><span class="fn">new</span>(<span class="str">'1.0'</span>, <span class="str">'UTF-8'</span>);
+<span class="kw">my</span> <span class="var">$root</span> = <span class="var">$doc</span>-><span class="fn">createElement</span>(<span class="str">'company'</span>);
+<span class="var">$root</span>-><span class="fn">setAttribute</span>(<span class="str">'name'</span>, <span class="str">'TechCorp'</span>);
+<span class="var">$doc</span>-><span class="fn">setDocumentElement</span>(<span class="var">$root</span>);
+
+<span class="kw">my</span> <span class="var">$dept</span> = <span class="var">$doc</span>-><span class="fn">createElement</span>(<span class="str">'department'</span>);
+<span class="var">$dept</span>-><span class="fn">setAttribute</span>(<span class="str">'id'</span>, <span class="str">'eng'</span>);
+<span class="var">$root</span>-><span class="fn">appendChild</span>(<span class="var">$dept</span>);
+
+<span class="kw">my</span> <span class="var">$name_el</span> = <span class="var">$doc</span>-><span class="fn">createElement</span>(<span class="str">'name'</span>);
+<span class="var">$name_el</span>-><span class="fn">appendTextNode</span>(<span class="str">'Engineering'</span>);
+<span class="var">$dept</span>-><span class="fn">appendChild</span>(<span class="var">$name_el</span>);
+
+<span class="cmt"># Helper: create element with text content</span>
+<span class="kw">sub</span> <span class="fn">make_el</span> {
+    <span class="kw">my</span> (<span class="var">$doc</span>, <span class="var">$tag</span>, <span class="var">$text</span>) = <span class="var">@_</span>;
+    <span class="kw">my</span> <span class="var">$el</span> = <span class="var">$doc</span>-><span class="fn">createElement</span>(<span class="var">$tag</span>);
+    <span class="var">$el</span>-><span class="fn">appendTextNode</span>(<span class="var">$text</span>) <span class="kw">if</span> <span class="fn">defined</span> <span class="var">$text</span>;
+    <span class="kw">return</span> <span class="var">$el</span>;
+}
+
+<span class="cmt"># ── MODIFY EXISTING XML ───────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$doc</span>  = <span class="mod">XML::LibXML</span>-><span class="fn">new</span>-><span class="fn">parse_file</span>(<span class="str">'company.xml'</span>);
+<span class="kw">my</span> (<span class="var">$alice</span>) = <span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee[name="Alice"]'</span>);
+<span class="kw">my</span> (<span class="var">$sal</span>)   = <span class="var">$alice</span>-><span class="fn">findnodes</span>(<span class="str">'salary'</span>);
+<span class="var">$sal</span>-><span class="fn">removeChildNodes</span>;
+<span class="var">$sal</span>-><span class="fn">appendTextNode</span>(<span class="str">'95000'</span>);                    <span class="cmt"># update salary</span>
+
+<span class="cmt"># ── SERIALIZE TO FILE ─────────────────────────────────────</span>
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;:encoding(UTF-8)'</span>, <span class="str">'updated.xml'</span>) or <span class="fn">die</span>;
+<span class="kw">print</span> <span class="var">$fh</span> <span class="var">$doc</span>-><span class="fn">toString</span>(<span class="num">1</span>);    <span class="cmt"># 1 = pretty-print</span>
+<span class="fn">close</span> <span class="var">$fh</span>;
+
+<span class="cmt"># ── ALSO: XML::LibXML::SAX for streaming write ───────────</span>
+<span class="kw">use</span> <span class="mod">XML::Writer</span>;
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&gt;'</span>, <span class="str">'out.xml'</span>) or <span class="fn">die</span>;
+<span class="kw">my</span> <span class="var">$writer</span> = <span class="mod">XML::Writer</span>-><span class="fn">new</span>(OUTPUT=><span class="var">$fh</span>, DATA_INDENT=><span class="num">2</span>);
+<span class="var">$writer</span>-><span class="fn">startTag</span>(<span class="str">'root'</span>);
+<span class="var">$writer</span>-><span class="fn">startTag</span>(<span class="str">'item'</span>, id=><span class="num">1</span>);
+<span class="var">$writer</span>-><span class="fn">characters</span>(<span class="str">'Hello'</span>);
+<span class="var">$writer</span>-><span class="fn">endTag</span>(<span class="str">'item'</span>);
+<span class="var">$writer</span>-><span class="fn">endTag</span>(<span class="str">'root'</span>);
+<span class="var">$writer</span>-><span class="fn">end</span>;
+<span class="fn">close</span> <span class="var">$fh</span>;</pre></div>
+  </div>
+</div>
+
+<!-- S20: FORMAT CONVERSION -->
+<div class="sec" style="border-color:rgba(34,211,238,.3)" id="s20">
+  <div class="sh"><div class="si2">🔀</div><div>
+    <span class="badge b-adv">Advanced</span>
+    <div class="st">Format Conversion — CSV ↔ JSON ↔ XML</div>
+    <div class="sd"># Practical pipelines: convert between formats using Perl's data structure as the bridge.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">CONVERSION PIPELINE — click format pairs</div>
+      <div style="padding:.9rem">
+        <div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:.65rem">
+          <button class="btn bcsv" onclick="showConv('csv2json')">CSV → JSON</button>
+          <button class="btn bjson" onclick="showConv('json2csv')">JSON → CSV</button>
+          <button class="btn bxml"  onclick="showConv('xml2json')">XML → JSON</button>
+          <button class="btn bxml"  onclick="showConv('json2xml')">JSON → XML</button>
+          <button class="btn bcsv" onclick="showConv('csv2xml')">CSV → XML</button>
+        </div>
+        <div id="conv-out" class="out" style="min-height:85px;font-size:.72rem">Click a conversion to see the pipeline code</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — complete format conversion examples</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Text::CSV</span>        <span class="fn">qw(csv)</span>;
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span> <span class="fn">qw(encode_json decode_json)</span>;
+<span class="kw">use</span> <span class="mod">XML::LibXML</span>;
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+
+<span class="cmt"># ── CSV → JSON ────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@aoh</span> = @{ <span class="fn">csv</span>(in=><span class="str">'data.csv'</span>, headers=><span class="str">'auto'</span>) };
+<span class="fn">path</span>(<span class="str">'data.json'</span>)-><span class="fn">spew_utf8</span>(
+    <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">@aoh</span>)
+);
+
+<span class="cmt"># ── JSON → CSV ────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@data</span>    = @{ <span class="fn">decode_json</span>(<span class="fn">path</span>(<span class="str">'data.json'</span>)-><span class="fn">slurp_utf8</span>) };
+<span class="kw">my</span> <span class="var">@headers</span> = <span class="fn">sort keys</span> <span class="var">%</span>{<span class="var">$data</span>[<span class="idx">0</span>]};     <span class="cmt"># get field names</span>
+<span class="fn">csv</span>(in=>\<span class="var">@data</span>, out=><span class="str">'output.csv'</span>, headers=>\<span class="var">@headers</span>);
+
+<span class="cmt"># ── XML → JSON ────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">$doc</span>  = <span class="mod">XML::LibXML</span>-><span class="fn">new</span>-><span class="fn">parse_file</span>(<span class="str">'data.xml'</span>);
+<span class="kw">my</span> <span class="var">@out</span>;
+<span class="kw">for</span> (<span class="var">$doc</span>-><span class="fn">findnodes</span>(<span class="str">'//employee'</span>)) {
+    <span class="fn">push</span> <span class="var">@out</span>, {
+        id     => <span class="var">$_</span>-><span class="fn">getAttribute</span>(<span class="str">'id'</span>),
+        name   => <span class="var">$_</span>-><span class="fn">findvalue</span>(<span class="str">'name'</span>),
+        salary => <span class="var">$_</span>-><span class="fn">findvalue</span>(<span class="str">'salary'</span>) + <span class="num">0</span>,
+    };
+}
+<span class="fn">path</span>(<span class="str">'employees.json'</span>)-><span class="fn">spew_utf8</span>(<span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">@out</span>));</pre></div>
+  </div>
+</div>
+
+<!-- S21: LARGE FILE STREAMING -->
+<div class="sec" style="border-color:rgba(250,204,21,.25)" id="s21">
+  <div class="sh"><div class="si2">🌊</div><div>
+    <span class="badge b-adv">Advanced</span>
+    <div class="st">Large File Streaming — Handling GB-Scale Files</div>
+    <div class="sd"># Don't load everything into RAM. Stream CSV line-by-line, JSON incrementally, XML with Twig.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — streaming large CSV / JSON / XML files</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># ── STREAMING CSV (any size file) ────────────────────────</span>
+<span class="kw">use</span> <span class="mod">Text::CSV</span>;
+<span class="kw">my</span> <span class="var">$csv</span> = <span class="mod">Text::CSV</span>-><span class="fn">new</span>({binary=><span class="num">1</span>, auto_diag=><span class="num">1</span>});
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;:encoding(UTF-8)'</span>, <span class="str">'big.csv'</span>) or <span class="fn">die</span> <span class="str">"$!"</span>;
+<span class="var">$csv</span>-><span class="fn">column_names</span>(<span class="var">$csv</span>-><span class="fn">getline</span>(<span class="var">$fh</span>));  <span class="cmt"># read header once</span>
+<span class="kw">my</span> <span class="var">$processed</span> = <span class="num">0</span>;
+<span class="kw">while</span> (<span class="kw">my</span> <span class="var">$row</span> = <span class="var">$csv</span>-><span class="fn">getline_hr</span>(<span class="var">$fh</span>)) {
+    <span class="cmt"># $row is one hashref — only 1 row in memory at a time!</span>
+    <span class="fn">process_row</span>(<span class="var">$row</span>);
+    <span class="kw">print</span> <span class="str">"Processed $processed rows\r"</span> <span class="kw">if</span> ++<span class="var">$processed</span> % <span class="num">10000</span> == <span class="num">0</span>;
+}
+<span class="fn">close</span> <span class="var">$fh</span>;
+
+<span class="cmt"># ── STREAMING JSON (JSON::XS incremental) ────────────────</span>
+<span class="kw">use</span> <span class="mod">JSON::XS</span>;
+<span class="kw">my</span> <span class="var">$parser</span> = <span class="mod">JSON::XS</span>-><span class="fn">new</span>-><span class="fn">utf8</span>;
+<span class="fn">open</span>(<span class="kw">my</span> <span class="var">$fh</span>, <span class="str">'&lt;'</span>, <span class="str">'stream.json'</span>) or <span class="fn">die</span>;
+<span class="kw">my</span> <span class="var">$buf</span>;
+<span class="kw">while</span> (<span class="fn">read</span>(<span class="var">$fh</span>, <span class="var">$buf</span>, <span class="num">65536</span>)) {   <span class="cmt"># 64KB chunks</span>
+    <span class="var">$parser</span>-><span class="fn">incr_parse</span>(<span class="var">$buf</span>);
+    <span class="kw">while</span> (<span class="kw">my</span> <span class="var">$obj</span> = <span class="var">$parser</span>-><span class="fn">incr_parse</span>) {
+        <span class="fn">process</span>(<span class="var">$obj</span>);              <span class="cmt"># handle each JSON object</span>
+    }
+}
+
+<span class="cmt"># ── STREAMING XML with XML::Twig ─────────────────────────</span>
+<span class="kw">use</span> <span class="mod">XML::Twig</span>;
+<span class="kw">my</span> <span class="var">$twig</span> = <span class="mod">XML::Twig</span>-><span class="fn">new</span>(
+    twig_handlers => {
+        employee => <span class="kw">sub</span> {
+            <span class="kw">my</span> (<span class="var">$twig</span>, <span class="var">$emp</span>) = <span class="var">@_</span>;
+            <span class="kw">my</span> <span class="var">$name</span>   = <span class="var">$emp</span>-><span class="fn">first_child_text</span>(<span class="str">'name'</span>);
+            <span class="kw">my</span> <span class="var">$salary</span> = <span class="var">$emp</span>-><span class="fn">first_child_text</span>(<span class="str">'salary'</span>);
+            <span class="kw">print</span> <span class="str">"$name: $salary\n"</span>;
+            <span class="var">$twig</span>-><span class="fn">purge</span>;             <span class="cmt"># FREE MEMORY — key for large files!</span>
+        },
+    }
+);
+<span class="var">$twig</span>-><span class="fn">parsefile</span>(<span class="str">'big_company.xml'</span>);  <span class="cmt"># processes without loading all into RAM</span></pre></div>
+    <div class="cal ci"><strong>⚡ Memory Rules for Large Files</strong>
+      CSV: use <code style="font-family:Inconsolata,monospace">getline()</code> in a while loop — never <code style="font-family:Inconsolata,monospace">getline_all()</code> on huge files. JSON: use <code style="font-family:Inconsolata,monospace">incr_parse()</code>. XML: use XML::Twig with <code style="font-family:Inconsolata,monospace">purge()</code> in the handler. The key insight: process one record, free it, move to next.
+    </div>
+  </div>
+</div>
+
+<!-- S22: REAL-WORLD PATTERNS -->
+<div class="sec" style="border-color:rgba(74,222,128,.3)" id="s22">
+  <div class="sh"><div class="si2">🏭</div><div>
+    <span class="badge b-core">Patterns</span>
+    <div class="st">Real-World Patterns — Complete Recipes</div>
+    <div class="sd"># ETL pipeline, config system, data validator, report generator — complete working patterns.</div>
+  </div></div>
+  <div class="sb">
+    <div class="tbr">
+      <div class="tbn ta-core" onclick="stab('rw','rw-etl',this)">ETL Pipeline</div>
+      <div class="tbn" onclick="stab('rw','rw-cfg',this)">Config System</div>
+      <div class="tbn" onclick="stab('rw','rw-log',this)">Log Parser</div>
+      <div class="tbn" onclick="stab('rw','rw-rpt',this)">Report Writer</div>
+    </div>
+    <div class="tp ts" id="rw-etl">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — ETL: CSV in → transform → JSON out</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use strict</span>; <span class="kw">use warnings</span>;
+<span class="kw">use</span> <span class="mod">Text::CSV</span>        <span class="fn">qw(csv)</span>;
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+<span class="kw">use</span> <span class="mod">Scalar::Util</span>     <span class="fn">qw(looks_like_number)</span>;
+<span class="kw">use</span> <span class="mod">POSIX</span>            <span class="fn">qw(strftime)</span>;
+
+<span class="cmt"># ── EXTRACT ───────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@raw</span> = @{ <span class="fn">csv</span>(in=><span class="str">'students.csv'</span>, headers=><span class="str">'auto'</span>, encoding=><span class="str">'UTF-8'</span>) };
+
+<span class="cmt"># ── TRANSFORM ─────────────────────────────────────────────</span>
+<span class="kw">my</span> <span class="var">@transformed</span> = <span class="fn">grep</span> { <span class="fn">defined</span> <span class="var">$_</span>->{<span class="key">name</span>} && <span class="var">$_</span>->{<span class="key">name</span>} ne <span class="str">''</span> }
+                   <span class="fn">map</span> {
+                       <span class="kw">my</span> <span class="var">$r</span> = {%{<span class="var">$_</span>}};
+                       <span class="var">$r</span>->{<span class="var">$_</span>} =~ <span class="fn">s/^\s+|\s+$//g</span> <span class="kw">for</span> <span class="fn">keys</span> <span class="var">%</span>{<span class="var">$r</span>};
+                       <span class="var">$r</span>->{<span class="key">score</span>}      += <span class="num">0</span> <span class="kw">if</span> <span class="fn">looks_like_number</span>(<span class="var">$r</span>->{<span class="key">score</span>});
+                       <span class="var">$r</span>->{<span class="key">grade</span>}       = <span class="var">$r</span>->{<span class="key">score</span>}>=<span class="num">90</span> ? <span class="str">'A'</span>:<span class="var">$r</span>->{<span class="key">score</span>}>=<span class="num">80</span> ? <span class="str">'B'</span>:<span class="str">'C'</span>;
+                       <span class="var">$r</span>->{<span class="key">imported_at</span>} = <span class="fn">strftime</span>(<span class="str">'%Y-%m-%d'</span>, <span class="fn">localtime</span>);
+                       <span class="var">$r</span>
+                   } <span class="var">@raw</span>;
+
+<span class="cmt"># ── LOAD ──────────────────────────────────────────────────</span>
+<span class="fn">path</span>(<span class="str">'students.json'</span>)-><span class="fn">spew_utf8</span>(
+    <span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">canonical</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">@transformed</span>)
+);
+<span class="kw">printf</span> <span class="str">"ETL: %d in, %d out\n"</span>, <span class="fn">scalar</span><span class="var">@raw</span>, <span class="fn">scalar</span><span class="var">@transformed</span>;</pre></div>
+    </div>
+    <div class="tp" id="rw-cfg">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — JSON + XML layered config system</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+<span class="kw">use</span> <span class="mod">Hash::Merge</span> <span class="fn">qw(merge)</span>;
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+
+<span class="cmt"># defaults.json → local.json → env vars → runtime</span>
+<span class="kw">sub</span> <span class="fn">load_layered_config</span> {
+    <span class="kw">my</span> <span class="var">$cfg</span> = {};
+    <span class="kw">for my</span> <span class="var">$f</span> (<span class="fn">qw(defaults.json local.json)</span>) {
+        <span class="kw">next</span> unless <span class="fn">-f</span> <span class="var">$f</span>;
+        <span class="kw">my</span> <span class="var">$layer</span> = <span class="kw">eval</span> { <span class="fn">decode_json</span>(<span class="fn">path</span>(<span class="var">$f</span>)-><span class="fn">slurp_utf8</span>) }
+            or <span class="kw">do</span> { <span class="fn">warn</span> <span class="str">"Bad JSON in $f: $@"</span>; <span class="kw">next</span> };
+        <span class="var">$cfg</span> = <span class="fn">merge</span>(<span class="var">$layer</span>, <span class="var">$cfg</span>);  <span class="cmt"># later layers win</span>
+    }
+    <span class="cmt"># Override with environment variables</span>
+    <span class="var">$cfg</span>->{<span class="key">db</span>}{<span class="key">host</span>} = <span class="var">$ENV</span>{<span class="key">DB_HOST</span>} <span class="kw">if</span> <span class="var">$ENV</span>{<span class="key">DB_HOST</span>};
+    <span class="var">$cfg</span>->{<span class="key">debug</span>}    = <span class="num">1</span>             <span class="kw">if</span> <span class="var">$ENV</span>{<span class="key">DEBUG</span>};
+    <span class="kw">return</span> <span class="var">$cfg</span>;
+}
+<span class="kw">my</span> <span class="var">$cfg</span> = <span class="fn">load_layered_config</span>();</pre></div>
+    </div>
+    <div class="tp" id="rw-log">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — parse log file, emit JSON report</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># Parse Apache/Nginx access log → JSON summary</span>
+<span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span>;
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+
+<span class="kw">my</span> <span class="var">%stats</span> = (urls=>{}, codes=>{}, ips=>{});
+<span class="kw">my</span> <span class="var">$log</span>   = <span class="fn">path</span>(<span class="str">'access.log'</span>);
+
+<span class="kw">for my</span> <span class="var">$line</span> (<span class="var">$log</span>-><span class="fn">lines_utf8</span>) {
+    <span class="cmt"># 127.0.0.1 - - [01/Jan/2024] "GET /api 200 1234"</span>
+    <span class="kw">next</span> unless <span class="var">$line</span> =~ <span class="fn">/^(\S+).+?"(\w+)\s+(\S+)\s+HTTP.+?"\s+(\d+)/</span>;
+    <span class="kw">my</span> (<span class="var">$ip</span>, <span class="var">$method</span>, <span class="var">$url</span>, <span class="var">$code</span>) = (<span class="var">$1</span>, <span class="var">$2</span>, <span class="var">$3</span>, <span class="var">$4</span>);
+    <span class="var">$stats</span>{<span class="key">urls</span>}{<span class="var">$url</span>}++;
+    <span class="var">$stats</span>{<span class="key">codes</span>}{<span class="var">$code</span>}++;
+    <span class="var">$stats</span>{<span class="key">ips</span>}{<span class="var">$ip</span>}++;
+}
+
+<span class="cmt"># Top 5 URLs by count</span>
+<span class="var">$stats</span>{<span class="key">top_urls</span>} = [
+    (<span class="fn">sort</span> { <span class="var">$stats</span>{<span class="key">urls</span>}{<span class="var">$b</span>} &lt;=&gt; <span class="var">$stats</span>{<span class="key">urls</span>}{<span class="var">$a</span>} } <span class="fn">keys</span> <span class="var">%</span>{<span class="var">$stats</span>{<span class="key">urls</span>}})[<span class="idx">0</span>..<span class="idx">4</span>]
+];
+<span class="fn">path</span>(<span class="str">'report.json'</span>)-><span class="fn">spew_utf8</span>(<span class="mod">Cpanel::JSON::XS</span>-><span class="fn">new</span>-><span class="fn">pretty</span>(<span class="num">1</span>)-><span class="fn">encode</span>(\<span class="var">%stats</span>));</pre></div>
+    </div>
+    <div class="tp" id="rw-rpt">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — read JSON, write formatted CSV report</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="mod">Cpanel::JSON::XS</span> <span class="fn">qw(decode_json)</span>;
+<span class="kw">use</span> <span class="mod">Text::CSV</span>        <span class="fn">qw(csv)</span>;
+<span class="kw">use</span> <span class="mod">List::Util</span>       <span class="fn">qw(sum max min)</span>;
+<span class="kw">use</span> <span class="mod">Path::Tiny</span>;
+<span class="kw">use</span> <span class="mod">POSIX</span>            <span class="fn">qw(strftime)</span>;
+
+<span class="kw">my</span> <span class="var">@data</span> = @{ <span class="fn">decode_json</span>(<span class="fn">path</span>(<span class="str">'students.json'</span>)-><span class="fn">slurp_utf8</span>) };
+
+<span class="cmt"># Compute stats per grade group</span>
+<span class="kw">my</span> <span class="var">%by_grade</span>;
+<span class="fn">push</span> @{<span class="var">$by_grade</span>{<span class="var">$_</span>->{<span class="key">grade</span>}}}, <span class="var">$_</span>->{<span class="key">score</span>} <span class="kw">for</span> <span class="var">@data</span>;
+
+<span class="kw">my</span> <span class="var">@report</span> = <span class="fn">map</span> {
+    <span class="kw">my</span> <span class="var">@sc</span> = @{<span class="var">$by_grade</span>{<span class="var">$_</span>}};
+    {
+        grade   => <span class="var">$_</span>,
+        count   => <span class="fn">scalar</span> <span class="var">@sc</span>,
+        avg     => <span class="fn">sprintf</span>(<span class="str">"%.1f"</span>, <span class="fn">sum</span>(<span class="var">@sc</span>) / <span class="var">@sc</span>),
+        max     => <span class="fn">max</span>(<span class="var">@sc</span>),
+        min     => <span class="fn">min</span>(<span class="var">@sc</span>),
+    }
+} <span class="fn">sort keys</span> <span class="var">%by_grade</span>;
+
+<span class="fn">csv</span>(
+    in      => \<span class="var">@report</span>,
+    out     => <span class="fn">sprintf</span>(<span class="str">'report_%s.csv'</span>, <span class="fn">strftime</span>(<span class="str">'%Y%m%d'</span>, <span class="fn">localtime</span>)),
+    headers => [<span class="fn">qw(grade count avg max min)</span>],
+    eol     => <span class="str">"\n"</span>,
+);</pre></div>
+    </div>
+
+    <div class="div"><div class="dl"></div><div class="dt">Module Quick Reference</div><div class="dl"></div></div>
+    <table class="tbl">
+      <thead><tr><th>Task</th><th>Module</th><th>Install</th><th>Key Functions</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--io)">File I/O</td><td>Core (built-in)</td><td>— none —</td><td><code>open, close, print, readline, binmode</code></td></tr>
+        <tr><td style="color:var(--io)">Modern file ops</td><td>Path::Tiny</td><td><code>cpanm Path::Tiny</code></td><td><code>slurp_utf8, spew_utf8, lines_utf8</code></td></tr>
+        <tr><td style="color:var(--csv)">CSV read/write</td><td>Text::CSV_XS</td><td><code>cpanm Text::CSV_XS</code></td><td><code>getline, getline_hr, print, csv()</code></td></tr>
+        <tr><td style="color:var(--json)">JSON encode/decode</td><td>Cpanel::JSON::XS</td><td><code>cpanm Cpanel::JSON::XS</code></td><td><code>encode_json, decode_json, pretty, canonical</code></td></tr>
+        <tr><td style="color:var(--json)">JSON streaming</td><td>JSON::XS</td><td><code>cpanm JSON::XS</code></td><td><code>incr_parse, incr_reset</code></td></tr>
+        <tr><td style="color:var(--xml)">XML DOM + XPath</td><td>XML::LibXML</td><td><code>cpanm XML::LibXML</code></td><td><code>parse_file, findnodes, findvalue, getAttribute</code></td></tr>
+        <tr><td style="color:var(--xml)">XML streaming</td><td>XML::Twig</td><td><code>cpanm XML::Twig</code></td><td><code>parsefile, twig_handlers, purge</code></td></tr>
+        <tr><td style="color:var(--xml)">XML write</td><td>XML::Writer</td><td><code>cpanm XML::Writer</code></td><td><code>startTag, endTag, characters</code></td></tr>
+        <tr><td style="color:var(--core)">Error handling</td><td>Try::Tiny</td><td><code>cpanm Try::Tiny</code></td><td><code>try, catch, finally</code></td></tr>
+        <tr><td style="color:var(--core)">Deep merge</td><td>Hash::Merge</td><td><code>cpanm Hash::Merge</code></td><td><code>merge($h1, $h2)</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div></div></div>
+<script>
+// Progress bar
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('prog').style.width=p+'%';
+});
+function goTo(id){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+}
+function cp(btn){
+  const pre=btn.closest('.cw').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='✓ copied';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('ok');},1800);
+  });
+}
+function stab(grp,id,btn){
+  const panel=document.getElementById(id);
+  const parent=panel.parentElement;
+  parent.querySelectorAll('.tp').forEach(t=>t.classList.remove('ts'));
+  panel.classList.add('ts');
+  const row=btn.closest('.tbr');
+  row.querySelectorAll('.tbn').forEach(b=>{b.classList.remove('ta-csv','ta-json','ta-xml','ta-core');});
+  const cl=btn.classList.contains('ta-csv')||btn.dataset.color==='csv'?'ta-csv':
+           btn.classList.contains('ta-xml')||btn.dataset.color==='xml'?'ta-xml':
+           btn.classList.contains('ta-core')||btn.dataset.color==='core'?'ta-core':'ta-json';
+  // Auto-detect from panel parent
+  const secCl=[...panel.closest('.sec').classList];
+  const ac=secCl.includes('sec-csv')?'ta-csv':secCl.includes('sec-xml')?'ta-xml':'ta-json';
+  btn.classList.add(ac);
+}
+
+// ── PIPE ──
+const pipeInfo=[
+  {col:'var(--core)', t:'① OPEN — open(my $fh, "<:encoding(UTF-8)", $file) or die "$!"\nCreates a filehandle $fh. Mode &lt; = read, > = write, >> = append. The 3-arg form is safe against injection. $! gives the OS error message on failure.'},
+  {col:'var(--json)', t:'② READ/WRITE — print $fh "text\\n" / my $line = <$fh>\nprint/say writes TO the filehandle. Diamond <$fh> reads FROM it. One line per <$fh> call. chomp() removes the trailing newline.'},
+  {col:'var(--csv)',  t:'③ PROCESS — while(my $line = <$fh>) { chomp $line; ... }\nLine-by-line processing is memory-efficient. $line holds one line at a time. For slurp: my @all = <$fh>; or do { local $/; <$fh> } for whole-file.'},
+  {col:'var(--xml)',  t:'④ CLOSE — close($fh) or die "Close failed: $!"\nAlways close! Failed writes (disk full, network) only surface at close(). Lexical $fh auto-closes at end of scope but check errors anyway.'},
+];
+function showPipe(n){
+  document.querySelectorAll('#iopipe .ps').forEach((p,i)=>{p.style.borderColor=i===n?`var(--core)`:''});
+  document.getElementById('pipeex').innerHTML=
+    `<span style="color:${pipeInfo[n].col}">${pipeInfo[n].t}</span>`;
+}
+showPipe(0);
+
+// ── WRITE / APPEND DEMO ──
+let writeContent=[], appendContent=[];
+let wCounter=0, aCounter=0;
+function renderFile(id, lines, border){
+  const el=document.getElementById(id);
+  el.innerHTML=lines.map((l,i)=>`<div style="animation:sin .2s ease;color:${i===lines.length-1?'var(--wh)':'var(--di)'}">${l}</div>`).join('')||
+    `<span style="color:var(--mu)">File is empty</span>`;
+}
+function demoWrite(){
+  wCounter++;
+  writeContent=[`Line ${wCounter} written at ${new Date().toLocaleTimeString()}`];
+  renderFile('write-viz',writeContent);
+  document.getElementById('file-stat').textContent=
+    `> write: file TRUNCATED and rewritten (${writeContent.length} line${writeContent.length>1?'s':''})`;
+}
+function demoAppend(){
+  aCounter++;
+  appendContent.push(`Appended line ${aCounter} at ${new Date().toLocaleTimeString()}`);
+  if(appendContent.length>5)appendContent.shift();
+  renderFile('append-viz',appendContent);
+  document.getElementById('file-stat').textContent=
+    `>> append: line added, now ${appendContent.length} line${appendContent.length>1?'s':''}`;
+}
+function clearFiles(){
+  writeContent=[];appendContent=[];wCounter=0;aCounter=0;
+  ['write-viz','append-viz'].forEach(id=>document.getElementById(id).innerHTML='<span style="color:var(--mu)">File is empty</span>');
+  document.getElementById('file-stat').textContent='Both files cleared';
+}
+
+// ── CSV PARSER ──
+function parseCSV(){
+  const raw=document.getElementById('csv-in').value;
+  const sep=document.getElementById('csv-sep').value;
+  const lines=raw.trim().split('\n');
+  if(lines.length<2){document.getElementById('csv-out').innerHTML='<span style="color:var(--err)">Need at least 2 rows (header + data)</span>';return;}
+  const headers=lines[0].split(sep).map(h=>h.replace(/"/g,'').trim());
+  const rows=lines.slice(1).map(l=>{
+    const cells=[];let cur='',inQ=false;
+    for(let c of l){
+      if(c==='"'){inQ=!inQ;}
+      else if(c===sep&&!inQ){cells.push(cur.trim());cur='';}
+      else cur+=c;
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+  const out=document.getElementById('csv-out');
+  let tbl=`<table class="csv-tbl"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach((r,ri)=>{
+    tbl+=`<tr onclick="selRow(this,${ri})">${r.map((c,ci)=>`<td>${c}</td>`).join('')}</tr>`;
+  });
+  tbl+=`</tbody></table><div style="margin-top:.4rem;font-family:Space Mono,monospace;font-size:.55rem;color:var(--mu)">${rows.length} rows × ${headers.length} columns parsed</div>`;
+  out.innerHTML=tbl;
+}
+function selRow(tr,i){
+  document.querySelectorAll('.csv-tbl tr').forEach(r=>r.classList.remove('sel'));
+  tr.classList.add('sel');
+}
+parseCSV();
+
+// ── CSV AoH ──
+const aohRaw=[
+  {name:'Alice', grade:'A', score:95, city:'Mumbai'},
+  {name:'Bob',   grade:'B', score:78, city:'Delhi'},
+  {name:'Carol', grade:'A', score:92, city:'Pune, MH'},
+  {name:'Dave',  grade:'C', score:65, city:'Mumbai'},
+  {name:'Eve',   grade:'B', score:83, city:'Bengaluru'},
+];
+function renderCsvAoH(data,desc){
+  const c=document.getElementById('csv-aoh-table');
+  if(typeof data[0]==='string'){
+    c.innerHTML=`<div style="font-family:Inconsolata,monospace;font-size:.78rem;color:var(--core)">[${data.map(n=>`"${n}"`).join(', ')}]</div>`;
+    document.getElementById('csv-aoh-stat').textContent=desc;return;
+  }
+  const hdrs=Object.keys(data[0]);
+  let t=`<table class="csv-tbl"><thead><tr>${hdrs.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+  data.forEach((r,i)=>{
+    const gc=r.grade==='A'?'var(--ok)':r.grade==='B'?'var(--io)':'var(--err)';
+    t+=`<tr>${hdrs.map(h=>`<td style="${h==='grade'?`color:${gc};font-weight:700`:''}">${r[h]}</td>`).join('')}</tr>`;
+  });
+  t+=`</tbody></table>`;
+  c.innerHTML=t;
+  document.getElementById('csv-aoh-stat').textContent=desc;
+}
+function csvAoH(op){
+  if(op==='all')renderCsvAoH(aohRaw,'All 5 records');
+  else if(op==='sort_score')renderCsvAoH([...aohRaw].sort((a,b)=>b.score-a.score),'sort { $b->{score} <=> $a->{score} } @students');
+  else if(op==='sort_name')renderCsvAoH([...aohRaw].sort((a,b)=>a.name.localeCompare(b.name)),'sort { $a->{name} cmp $b->{name} } @students');
+  else if(op==='filter_high')renderCsvAoH(aohRaw.filter(r=>r.score>=85),'grep { $_->{score} >= 85 } @students');
+  else if(op==='extract')renderCsvAoH(aohRaw.map(r=>r.name),'map { $_->{name} } @students');
+}
+csvAoH('all');
+
+// ── JSON PARSER ──
+function parseJSON(){
+  try{
+    const obj=JSON.parse(document.getElementById('json-in').value);
+    const out=document.getElementById('json-out');
+    out.innerHTML='';
+    function render(v,indent){
+      if(v===null)return`<span style="color:var(--xml)">null → undef</span>`;
+      if(typeof v==='boolean')return`<span style="color:var(--json)">${v} → ${v?1:0} (or JSON::true/false)</span>`;
+      if(typeof v==='number')return`<span style="color:var(--io)">${v} (number)</span>`;
+      if(typeof v==='string')return`<span style="color:var(--core)">"${v}" (string)</span>`;
+      if(Array.isArray(v))return`<span style="color:var(--csv)">[${v.length} element array ref]</span>`;
+      if(typeof v==='object'){
+        const keys=Object.keys(v);
+        return`<span style="color:var(--json)">{${keys.length}-key hash ref}</span>`;
+      }
+    }
+    if(typeof obj==='object'&&obj!==null&&!Array.isArray(obj)){
+      Object.entries(obj).forEach(([k,v])=>{
+        const el=document.createElement('span');
+        el.style.display='block';
+        el.innerHTML=`<span style="color:var(--core)">${k}</span>: ${render(v)}`;
+        out.appendChild(el);
+      });
+    }else{
+      out.innerHTML=`<span style="color:var(--ok)">Valid JSON: ${Array.isArray(obj)?`array[${obj.length}]`:typeof obj}</span>`;
+    }
+    out.style.borderColor='rgba(52,211,153,.4)';
+  }catch(e){
+    document.getElementById('json-out').innerHTML=`<span style="color:var(--err)">JSON Error: ${e.message}</span>`;
+    document.getElementById('json-out').style.borderColor='rgba(244,63,94,.4)';
+  }
+}
+function validateJSON(){
+  try{
+    JSON.parse(document.getElementById('json-in').value);
+    document.getElementById('json-out').innerHTML='<span style="color:var(--ok)">✓ Valid JSON</span>';
+    document.getElementById('json-out').style.borderColor='rgba(52,211,153,.4)';
+  }catch(e){
+    document.getElementById('json-out').innerHTML=`<span style="color:var(--err)">✗ Invalid: ${e.message}</span>`;
+    document.getElementById('json-out').style.borderColor='rgba(244,63,94,.4)';
+  }
+}
+function prettyJSON(){
+  try{
+    const obj=JSON.parse(document.getElementById('json-in').value);
+    document.getElementById('json-in').value=JSON.stringify(obj,null,2);
+  }catch(e){}
+}
+
+// ── JSON ENCODER ──
+const sampleObj={name:'Alice',age:28,scores:[95,87,92],active:true,extra:null};
+function showEnc(t){
+  const o=document.getElementById('enc-out');
+  if(t==='pretty')o.innerHTML=`<span style="color:var(--mu)">→ pretty(1):</span><br><span style="color:var(--json)">${JSON.stringify(sampleObj,null,2)}</span>`;
+  else if(t==='compact')o.innerHTML=`<span style="color:var(--mu)">→ compact:</span><br><span style="color:var(--csv)">${JSON.stringify(sampleObj)}</span>`;
+  else o.innerHTML=`<span style="color:var(--mu)">→ canonical(1) (sorted keys):</span><br><span style="color:var(--xml)">${JSON.stringify(sampleObj,Object.keys(sampleObj).sort(),2)}</span>`;
+}
+
+// ── TYPE MAP ──
+const mapData={
+  obj:{p:'%hash = (key => "value")',c:'var(--json)',n:'JSON object {} → Perl HASH ref. Access: $ref->{key}'},
+  arr:{p:'@array = (1, 2, 3) as ARRAY ref',c:'var(--csv)',n:'JSON array [] → Perl ARRAY ref. Access: $ref->[0], @{$ref}'},
+  str:{p:'"hello world" (string scalar)',c:'var(--core)',n:'JSON string → Perl string. Just assign to $var. No extra quotes needed.'},
+  num:{p:'42  or  3.14  (number scalar)',c:'var(--io)',n:'JSON number → Perl number. Note: "42" (quoted in JSON) → Perl string. Use +0 to numify.'},
+  bool:{p:'1 (true) or 0 (false). Or ref: \\1, \\0',c:'var(--xml)',n:'JSON true/false → Perl blessed object (JSON::true/JSON::false). Evaluates to 1/0 in boolean context.'},
+  null:{p:'undef',c:'var(--di)',n:'JSON null → Perl undef. Test with defined($var), not just $var.'},
+};
+function showMap(t){
+  const d=mapData[t];
+  document.getElementById('map-out').innerHTML=
+    `<span style="color:${d.c}">Perl: ${d.p}</span><br><span style="color:var(--mu);">${d.n}</span>`;
+}
+
+// ── DOM METHODS ──
+const domData={
+  root:{col:'var(--xml)',t:'$doc->documentElement → returns the root &lt;company&gt; node. This is your starting point for all navigation. Think of it as the outermost tag.'},
+  find:{col:'var(--core)',t:'$doc->findnodes("//employee") → returns a list of all employee nodes anywhere in the doc.\n$node->findvalue("name") → returns text content of first matching child.'},
+  attr:{col:'var(--csv)',t:'$node->getAttribute("id") → gets attribute value. $node->setAttribute("id","new") to set.\n$node->hasAttribute("id") → check existence.'},
+  text:{col:'var(--json)',t:'$node->textContent → all text content (including children). Use findvalue() for specific sub-elements.\n$node->appendTextNode("Alice") to add text.'},
+  child:{col:'var(--io)',t:'$node->childNodes → all child nodes (includes text nodes and whitespace!)\n$node->getChildrenByTagName("employee") → only named element children.'},
+};
+function showDOM(k){
+  const d=domData[k];
+  document.getElementById('dom-out').innerHTML=`<span style="color:${d.col}">${d.t}</span>`;
+}
+
+// ── XPATH ──
+const xpData={
+  'all-emp':{q:'//employee',r:'All 4 employee nodes anywhere in the document'},
+  'eng-emp':{q:'//department[@id="eng"]/employee',r:'Only employees inside <department id="eng"> — Alice and Bob'},
+  'names':{q:'//employee/name/text()',r:'Text nodes of all <name> elements: Alice, Bob'},
+  'salary-gt':{q:'//employee[salary>80000]',r:'Employees with salary > 80000 — Alice (90000)'},
+  'attr':{q:'//department/@id',r:'Attribute values of all id attributes: "eng"'},
+  'first':{q:'//employee[1]',r:'First employee node (XPath is 1-indexed, not 0!)'},
+};
+function xp(k){
+  const d=xpData[k];
+  document.getElementById('xp-out').innerHTML=
+    `XPath: <span style="color:var(--xml)">${d.q}</span><br>Result: <span style="color:var(--ok)">${d.r}</span>`;
+}
+
+// ── CONVERSIONS ──
+const convData={
+  csv2json:`use Text::CSV qw(csv);\nuse Cpanel::JSON::XS;\nuse Path::Tiny;\n\nmy @aoh = @{ csv(in=>'data.csv', headers=>'auto') };\n# @aoh = ({name=>"Alice",score=>95}, ...)\n\npath('data.json')->spew_utf8(\n  Cpanel::JSON::XS->new->pretty(1)->encode(\\@aoh)\n);\n# → [{\"name\":\"Alice\",\"score\":\"95\"}, ...]`,
+  json2csv:`use Cpanel::JSON::XS qw(decode_json);\nuse Text::CSV qw(csv);\nuse Path::Tiny;\n\nmy @data = @{ decode_json(path('data.json')->slurp_utf8) };\nmy @headers = sort keys %{$data[0]};\n\ncsv(in=>\\@data, out=>'output.csv', headers=>\\@headers);\n# CSV with auto-quoted fields`,
+  xml2json:`use XML::LibXML;\nuse Cpanel::JSON::XS;\nuse Path::Tiny;\n\nmy $doc = XML::LibXML->new->parse_file('data.xml');\nmy @out;\nfor ($doc->findnodes('//employee')) {\n  push @out, {\n    id     => $_->getAttribute('id'),\n    name   => $_->findvalue('name'),\n    salary => $_->findvalue('salary') + 0,\n  };\n}\npath('output.json')->spew_utf8(\n  Cpanel::JSON::XS->new->pretty(1)->encode(\\@out)\n);`,
+  json2xml:`use Cpanel::JSON::XS qw(decode_json);\nuse XML::LibXML;\nuse Path::Tiny;\n\nmy @data = @{ decode_json(path('data.json')->slurp_utf8) };\nmy $doc  = XML::LibXML::Document->new('1.0','UTF-8');\nmy $root = $doc->createElement('employees');\n$doc->setDocumentElement($root);\nfor my $item (@data) {\n  my $el = $doc->createElement('employee');\n  for my $k (sort keys %$item) {\n    my $child = $doc->createElement($k);\n    $child->appendTextNode($item->{$k});\n    $el->appendChild($child);\n  }\n  $root->appendChild($el);\n}\npath('output.xml')->spew_utf8($doc->toString(1));`,
+  csv2xml:`use Text::CSV qw(csv);\nuse XML::LibXML;\nuse Path::Tiny;\n\nmy @data = @{ csv(in=>'data.csv', headers=>'auto') };\nmy $doc  = XML::LibXML::Document->new('1.0','UTF-8');\nmy $root = $doc->createElement('records');\n$doc->setDocumentElement($root);\nfor my $r (@data) {\n  my $rec = $doc->createElement('record');\n  for my $k (sort keys %$r) {\n    my $el = $doc->createElement($k);\n    $el->appendTextNode($r->{$k});\n    $rec->appendChild($el);\n  }\n  $root->appendChild($rec);\n}\npath('output.xml')->spew_utf8($doc->toString(1));`,
+};
+function showConv(k){
+  document.getElementById('conv-out').innerHTML=
+    `<pre style="margin:0;font-size:.69rem;line-height:1.7;color:var(--tx)">${convData[k]}</pre>`;
+}
+
+// Scroll spy
+const sections=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19','s20','s21','s22'];
+const secColors={
+  s1:'active-core',s2:'active-core',s3:'active-core',s4:'active-core',
+  s5:'active-csv',s6:'active-csv',s7:'active-csv',s8:'active-csv',s9:'active-csv',
+  s10:'active-json',s11:'active-json',s12:'active-json',s13:'active-json',s14:'active-json',
+  s15:'active-xml',s16:'active-xml',s17:'active-xml',s18:'active-xml',s19:'active-xml',
+  s20:'active-json',s21:'active-core',s22:'active-core',
+};
+window.addEventListener('scroll',()=>{
+  let cur=sections[0];
+  sections.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<130)cur=id;});
+  const sis=document.querySelectorAll('.si');
+  sis.forEach(s=>s.classList.remove('active-core','active-csv','active-json','active-xml'));
+  const idx=sections.indexOf(cur);
+  if(idx>=0&&sis[idx])sis[idx].classList.add(secColors[cur]);
+});
+</script>
+</body>
+</html>

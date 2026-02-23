@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perl Data Structures — Complete Visual Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;600;700;800&family=Inconsolata:wght@400;500;600;700&display=swap');
+:root{--bg:#05080f;--s:#080c16;--c:#0c1120;--c2:#101828;--b:#162035;--b2:#1e2e48;--sc:#f7c948;--ar:#4ec9f0;--ha:#7bf0a0;--re:#e07bff;--dr:#ff8b5e;--cx:#ff6b9d;--di:#5a7090;--mu:#3a5070;--tx:#ccd8f0;--wh:#eef4ff;}
+*{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:'Sora',sans-serif;font-size:14.5px;line-height:1.65;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(rgba(78,201,240,.04) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0;}
+.page{max-width:1180px;margin:0 auto;padding:0 1.5rem 8rem;position:relative;z-index:1;}
+.pb{position:fixed;top:0;left:0;right:0;height:3px;background:var(--b);z-index:100;}
+.pf{height:100%;background:linear-gradient(90deg,var(--sc),var(--re),var(--cx));width:0;transition:width .15s;}
+.hero{text-align:center;padding:3rem 2rem 1.8rem;}
+.htag{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.28em;color:var(--sc);text-transform:uppercase;margin-bottom:.9rem;display:block;}
+.hero h1{font-family:'Sora',sans-serif;font-size:clamp(1.7rem,4vw,2.8rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.55rem;background:linear-gradient(135deg,#fff 0%,var(--sc) 40%,var(--re) 75%,var(--cx) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hsub{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--mu);margin-bottom:1.4rem;line-height:1.8;}
+.leg{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;}
+.lp{display:flex;align-items:center;gap:.38rem;font-family:'Space Mono',monospace;font-size:.56rem;padding:.26rem .7rem;border-radius:20px;border:1px solid;letter-spacing:.05em;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.layout{display:grid;grid-template-columns:210px 1fr;gap:1.75rem;padding-top:1.75rem;}
+.sidebar{position:sticky;top:1.2rem;background:var(--s);border:1px solid var(--b);border-radius:12px;overflow:hidden;max-height:calc(100vh - 2.4rem);overflow-y:auto;}
+.sbg{border-bottom:1px solid var(--b);}
+.sgl{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);padding:.52rem 1rem .26rem;background:rgba(0,0,0,.2);}
+.si{display:flex;align-items:center;gap:.48rem;padding:.34rem 1rem;font-family:'Sora',sans-serif;font-size:.76rem;color:var(--di);cursor:pointer;transition:all .15s;border-left:2px solid transparent;}
+.si:hover{color:var(--tx);background:rgba(255,255,255,.03);}
+.si.active{color:var(--sc);border-left-color:var(--sc);background:rgba(247,201,72,.05);}
+.sip{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.5;}
+.content{display:flex;flex-direction:column;gap:1.75rem;}
+.sec{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;scroll-margin-top:1.5rem;}
+.sh{padding:1.2rem 1.6rem .9rem;border-bottom:1px solid var(--b);display:flex;align-items:flex-start;gap:.85rem;}
+.si2{font-size:1.4rem;flex-shrink:0;margin-top:3px;}
+.sb2{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.13em;text-transform:uppercase;padding:.12rem .45rem;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:.3rem;}
+.lb{color:var(--ar);border-color:rgba(78,201,240,.4);background:rgba(78,201,240,.07);}
+.li{color:var(--re);border-color:rgba(224,123,255,.4);background:rgba(224,123,255,.07);}
+.la{color:var(--cx);border-color:rgba(255,107,157,.4);background:rgba(255,107,157,.07);}
+.st{font-family:'Sora',sans-serif;font-size:1.12rem;font-weight:700;color:var(--wh);margin-bottom:.16rem;}
+.sd{font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);line-height:1.7;}
+.sb{padding:1.5rem;}
+.viz{background:var(--bg);border:1px solid var(--b);border-radius:10px;position:relative;overflow:hidden;margin-bottom:1.1rem;}
+.vl{font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);letter-spacing:.09em;text-transform:uppercase;padding:.38rem .8rem;border-bottom:1px solid var(--b);background:rgba(255,255,255,.02);}
+.cw{background:#040710;border:1px solid var(--b);border-radius:8px;overflow:hidden;margin:1rem 0;}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:.36rem .82rem;background:rgba(255,255,255,.025);border-bottom:1px solid var(--b);}
+.cl{font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu);letter-spacing:.08em;}
+.cb{font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);background:none;border:1px solid var(--b2);padding:.13rem .45rem;border-radius:3px;cursor:pointer;transition:all .2s;}
+.cb:hover{color:var(--tx);border-color:var(--sc);}
+.cb.ok{color:var(--ha);border-color:var(--ha);}
+pre{padding:.9rem 1.05rem;overflow-x:auto;font-family:'Inconsolata',monospace;font-size:.78rem;line-height:1.78;color:#b8cce0;}
+.kw{color:var(--sc);}.fn{color:var(--ha);}.str{color:#86d8a0;}.cmt{color:#253a55;font-style:italic;}.num{color:#f9a8d4;}.var{color:#c0d4e8;}.idx{color:var(--ar);}.key{color:var(--ha);}.rfc{color:var(--re);}.op{color:var(--sc);}
+.cal{border-radius:7px;padding:.8rem .95rem;margin:1rem 0;font-size:.81rem;border-left:3px solid;line-height:1.6;}
+.cal strong{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:.26rem;opacity:.8;}
+.ct{background:rgba(123,240,160,.06);border-color:var(--ha);color:#c0e8d0;}
+.ci{background:rgba(78,201,240,.06);border-color:var(--ar);color:#a0c8e8;}
+.cw2{background:rgba(247,201,72,.07);border-color:var(--sc);color:#e8d090;}
+.cr{background:rgba(224,123,255,.06);border-color:var(--re);color:#c0a0e8;}
+.ctrl{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;margin-top:1rem;}
+.btn{font-family:'Space Mono',monospace;font-size:.61rem;padding:.4rem .95rem;border-radius:5px;cursor:pointer;border:1px solid;transition:all .2s;letter-spacing:.04em;background:none;}
+.bg{color:var(--ha);border-color:rgba(123,240,160,.4);}.bg:hover{background:rgba(123,240,160,.1);}
+.bb{color:var(--ar);border-color:rgba(78,201,240,.4);}.bb:hover{background:rgba(78,201,240,.1);}
+.br{color:var(--re);border-color:rgba(224,123,255,.4);}.br:hover{background:rgba(224,123,255,.1);}
+.bw{color:var(--dr);border-color:rgba(255,139,94,.4);}.bw:hover{background:rgba(255,139,94,.1);}
+.bn{color:var(--mu);border-color:var(--b2);}.bn:hover{color:var(--tx);background:rgba(255,255,255,.04);}
+.sbar{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--mu);padding:.34rem .62rem;background:rgba(0,0,0,.3);border:1px solid var(--b);border-radius:4px;flex:1;min-width:140px;}
+.out{background:var(--bg);border:1px solid var(--b2);border-radius:7px;padding:.72rem .95rem;font-family:'Inconsolata',monospace;font-size:.76rem;line-height:1.85;color:var(--di);min-height:44px;}
+.out span{display:block;animation:sin .2s ease;}
+@keyframes sin{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:translateX(0)}}
+.inp{background:var(--bg);border:1px solid var(--b2);border-radius:5px;color:var(--tx);font-family:'Inconsolata',monospace;font-size:.78rem;padding:.36rem .62rem;outline:none;transition:all .2s;}
+.inp:focus{border-color:var(--sc);}
+.isml{width:90px;}.imd{width:145px;}
+/* Array cells */
+.ac{display:flex;flex-direction:column;align-items:center;border:1.5px solid rgba(78,201,240,.35);border-right:none;background:var(--c2);min-width:65px;transition:all .3s;cursor:pointer;}
+.ac:last-child{border-right:1.5px solid rgba(78,201,240,.35);border-radius:0 8px 8px 0;}
+.ac:first-child{border-radius:8px 0 0 8px;}
+.ac:hover,.ac.on{background:rgba(78,201,240,.1);border-color:var(--ar);}
+.ai{font-family:'Space Mono',monospace;font-size:.51rem;color:var(--ar);padding:.26rem .42rem;background:rgba(78,201,240,.06);width:100%;text-align:center;border-bottom:1px solid rgba(78,201,240,.15);}
+.av{font-family:'Inconsolata',monospace;font-size:.78rem;font-weight:600;color:var(--wh);padding:.52rem .42rem;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;}
+/* Hash table */
+.ht{width:100%;border-collapse:collapse;font-family:'Inconsolata',monospace;font-size:.77rem;}
+.ht th{text-align:left;font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ha);padding:.4rem .72rem;border-bottom:2px solid rgba(123,240,160,.25);background:rgba(123,240,160,.04);}
+.ht td{padding:.4rem .72rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;transition:all .3s;}
+.ht tr{cursor:pointer;transition:all .2s;}
+.ht tr:hover td{background:rgba(123,240,160,.04);}
+.ht tr.ar td{background:rgba(123,240,160,.08);}
+.hk{color:var(--ha);font-weight:600;}.hv{color:var(--wh);}
+/* AoH */
+.arow{display:flex;align-items:stretch;gap:0;cursor:pointer;transition:all .2s;margin-bottom:.42rem;}
+.aix{background:rgba(78,201,240,.08);border:1px solid rgba(78,201,240,.3);border-right:none;border-radius:7px 0 0 7px;padding:.52rem .72rem;min-width:44px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ar);font-weight:700;}
+.ahsh{flex:1;display:flex;border:1px solid rgba(78,201,240,.3);border-radius:0 7px 7px 0;overflow:hidden;}
+.akv{flex:1;padding:.42rem .62rem;border-right:1px solid rgba(78,201,240,.12);background:var(--c2);}
+.akv:last-child{border-right:none;}
+.ak{font-family:'Space Mono',monospace;font-size:.5rem;color:var(--ha);letter-spacing:.06em;}
+.av2{font-family:'Inconsolata',monospace;font-size:.74rem;color:var(--wh);font-weight:600;margin-top:.06rem;}
+.arow:hover .ahsh,.arow:hover .aix{border-color:rgba(78,201,240,.6);}
+.arow.sel .ahsh{border-color:var(--ar);background:rgba(78,201,240,.04);}
+.arow.sel .aix{border-color:var(--ar);background:rgba(78,201,240,.15);}
+/* HoA */
+.hrow{display:flex;align-items:stretch;cursor:pointer;transition:all .2s;margin-bottom:.42rem;}
+.hkc{background:rgba(123,240,160,.06);border:1px solid rgba(123,240,160,.3);border-right:none;border-radius:7px 0 0 7px;padding:.62rem .88rem;min-width:105px;display:flex;align-items:center;font-family:'Inconsolata',monospace;font-size:.76rem;color:var(--ha);font-weight:700;}
+.harr{flex:1;display:flex;border:1px solid rgba(123,240,160,.3);border-radius:0 7px 7px 0;overflow:hidden;align-items:stretch;}
+.hel{flex:1;padding:.52rem .42rem;text-align:center;border-right:1px solid rgba(123,240,160,.1);background:var(--c2);min-width:52px;}
+.hel:last-child{border-right:none;}
+.heli{font-family:'Space Mono',monospace;font-size:.46rem;color:var(--mu);}
+.helv{font-family:'Inconsolata',monospace;font-size:.74rem;color:var(--wh);font-weight:600;margin-top:.16rem;}
+.hrow:hover .harr,.hrow:hover .hkc{border-color:rgba(123,240,160,.6);}
+.hrow.sel .harr{border-color:var(--ha);}
+.hrow.sel .hkc{border-color:var(--ha);background:rgba(123,240,160,.12);}
+/* HoH */
+.hhrow{display:flex;align-items:stretch;cursor:pointer;transition:all .2s;margin-bottom:.42rem;}
+.hhk{background:rgba(224,123,255,.06);border:1px solid rgba(224,123,255,.3);border-right:none;border-radius:7px 0 0 7px;padding:.62rem .88rem;min-width:105px;display:flex;align-items:center;font-family:'Inconsolata',monospace;font-size:.76rem;color:var(--re);font-weight:700;}
+.hhin{flex:1;display:flex;border:1px solid rgba(224,123,255,.3);border-radius:0 7px 7px 0;overflow:hidden;align-items:stretch;}
+.hhkv{flex:1;padding:.45rem .6rem;border-right:1px solid rgba(224,123,255,.1);background:var(--c2);}
+.hhkv:last-child{border-right:none;}
+.hhk2{font-family:'Space Mono',monospace;font-size:.49rem;color:var(--re);letter-spacing:.06em;}
+.hhv{font-family:'Inconsolata',monospace;font-size:.74rem;color:var(--wh);font-weight:600;margin-top:.06rem;}
+.hhrow:hover .hhin,.hhrow:hover .hhk{border-color:rgba(224,123,255,.6);}
+.hhrow.sel .hhin{border-color:var(--re);}
+.hhrow.sel .hhk{border-color:var(--re);background:rgba(224,123,255,.12);}
+/* AoA */
+.aarow{display:flex;align-items:stretch;gap:0;cursor:pointer;transition:all .2s;margin-bottom:.42rem;}
+.aaix{background:rgba(255,107,157,.08);border:1px solid rgba(255,107,157,.3);border-right:none;border-radius:7px 0 0 7px;padding:.52rem .72rem;min-width:44px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--cx);font-weight:700;}
+.aain{flex:1;display:flex;border:1px solid rgba(255,107,157,.3);border-radius:0 7px 7px 0;overflow:hidden;}
+.aael{flex:1;padding:.48rem .42rem;text-align:center;border-right:1px solid rgba(255,107,157,.12);background:var(--c2);min-width:50px;}
+.aael:last-child{border-right:none;}
+.aaeli{font-family:'Space Mono',monospace;font-size:.48rem;color:var(--mu);}
+.aaelv{font-family:'Inconsolata',monospace;font-size:.74rem;color:var(--wh);font-weight:600;margin-top:.14rem;}
+.aarow:hover .aain,.aarow:hover .aaix{border-color:rgba(255,107,157,.6);}
+.aarow.sel .aain{border-color:var(--cx);}
+.aarow.sel .aaix{border-color:var(--cx);background:rgba(255,107,157,.15);}
+/* Scalar box */
+.scb{display:inline-flex;flex-direction:column;align-items:center;background:var(--c2);border:1.5px solid rgba(247,201,72,.4);border-radius:10px;overflow:hidden;transition:all .3s;cursor:pointer;min-width:100px;}
+.scb:hover{border-color:var(--sc);box-shadow:0 0 14px rgba(247,201,72,.15);}
+.sclbl{width:100%;padding:.3rem .6rem;text-align:center;font-family:'Space Mono',monospace;font-size:.56rem;color:var(--sc);background:rgba(247,201,72,.06);border-bottom:1px solid rgba(247,201,72,.2);}
+.scval{padding:.52rem .85rem;font-family:'Inconsolata',monospace;font-size:.82rem;font-weight:700;color:var(--wh);text-align:center;}
+.sctyp{font-family:'Space Mono',monospace;font-size:.5rem;color:var(--mu);padding:.2rem;text-align:center;}
+/* Mem cell */
+.mc{background:var(--c2);border:1px solid var(--b2);border-radius:7px;padding:.48rem .52rem;text-align:center;transition:all .3s;cursor:pointer;}
+.mc:hover,.mc.hr{border-color:var(--re);}
+.mc.pt{border-color:var(--dr);background:rgba(255,139,94,.08);box-shadow:0 0 12px rgba(255,139,94,.15);}
+.ma{font-family:'Space Mono',monospace;font-size:.48rem;color:var(--mu);margin-bottom:.2rem;}
+.mv{font-family:'Inconsolata',monospace;font-size:.72rem;color:var(--wh);font-weight:600;}
+.mtp{font-family:'Space Mono',monospace;font-size:.46rem;color:var(--mu);margin-top:.16rem;}
+/* Tabs */
+.tbr{display:flex;gap:.26rem;flex-wrap:wrap;margin-bottom:0;}
+.tbn{font-family:'Space Mono',monospace;font-size:.56rem;padding:.36rem .82rem;border-radius:5px 5px 0 0;cursor:pointer;border:1px solid var(--b2);border-bottom:none;color:var(--mu);background:var(--s);transition:all .2s;letter-spacing:.04em;position:relative;bottom:-1px;white-space:nowrap;}
+.tbn:hover{color:var(--tx);}
+.tbn.ta{color:var(--sc);border-color:var(--b2);background:var(--c);border-bottom-color:var(--c);}
+.tp{display:none;background:var(--c);border:1px solid var(--b2);border-radius:0 8px 8px 8px;padding:.95rem;}
+.tp.ts{display:block;}
+/* Divider */
+.div{display:flex;align-items:center;gap:.72rem;margin:1rem 0;}
+.dl{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--b2),transparent);}
+.dt{font-family:'Space Mono',monospace;font-size:.51rem;letter-spacing:.14em;color:var(--mu);text-transform:uppercase;white-space:nowrap;}
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem;}
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;margin:.8rem 0;}
+.tbl th{text-align:left;font-family:'Space Mono',monospace;font-size:.51rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);padding:.4rem .68rem;border-bottom:2px solid var(--b2);}
+.tbl td{padding:.46rem .68rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.tbl code{font-family:'Inconsolata',monospace;font-size:.72rem;background:rgba(0,0,0,.4);padding:.08rem .34rem;border-radius:3px;color:var(--sc);}
+/* word badge */
+.wb{display:inline-flex;align-items:center;gap:.4rem;background:var(--c2);border:1px solid rgba(123,240,160,.3);border-radius:6px;padding:.35rem .65rem;font-family:'Inconsolata',monospace;font-size:.72rem;animation:sin .25s ease;}
+.wbk{color:var(--ha);font-weight:700;}.wbv{color:var(--wh);}
+/* deep node */
+.dn{background:var(--c2);border:1px solid var(--b2);border-radius:8px;padding:.6rem .9rem;font-family:'Inconsolata',monospace;font-size:.7rem;transition:all .3s;cursor:pointer;margin:.25rem 0;}
+.dn:hover,.dn.on{border-color:var(--re);background:rgba(224,123,255,.05);}
+.dk{color:var(--ha);}.dv{color:var(--wh);font-weight:600;}.dref{color:var(--re);}
+@keyframes pop{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}
+@keyframes pul{0%,100%{opacity:1}50%{opacity:.4}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px;}
+@media(max-width:780px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.g2,.g3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="pb"><div class="pf" id="prog"></div></div>
+<div class="page">
+
+<div class="hero">
+  <span class="htag">// Perl Data Structures — Complete Visual Guide</span>
+  <h1>Scalars · Arrays · Hashes · References · AoH · HoA · Deep Nesting</h1>
+  <p class="hsub">$scalar → @array → %hash → \reference → dereference → AoH · HoA · HoH · AoA → complex patterns</p>
+  <div class="leg">
+    <div class="lp" style="color:var(--sc);border-color:rgba(247,201,72,.35);background:rgba(247,201,72,.07)"><div class="ld" style="background:var(--sc)"></div>Scalar ($)</div>
+    <div class="lp" style="color:var(--ar);border-color:rgba(78,201,240,.35);background:rgba(78,201,240,.07)"><div class="ld" style="background:var(--ar)"></div>Array (@)</div>
+    <div class="lp" style="color:var(--ha);border-color:rgba(123,240,160,.35);background:rgba(123,240,160,.07)"><div class="ld" style="background:var(--ha)"></div>Hash (%)</div>
+    <div class="lp" style="color:var(--re);border-color:rgba(224,123,255,.35);background:rgba(224,123,255,.07)"><div class="ld" style="background:var(--re)"></div>Reference (\)</div>
+    <div class="lp" style="color:var(--dr);border-color:rgba(255,139,94,.35);background:rgba(255,139,94,.07)"><div class="ld" style="background:var(--dr)"></div>Dereference</div>
+    <div class="lp" style="color:var(--cx);border-color:rgba(255,107,157,.35);background:rgba(255,107,157,.07)"><div class="ld" style="background:var(--cx)"></div>Complex DS</div>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sbg">
+    <div class="sgl">Basics</div>
+    <div class="si active" onclick="goTo('s1')"><span class="sip"></span>Scalars ($)</div>
+    <div class="si" onclick="goTo('s2')"><span class="sip"></span>Arrays (@)</div>
+    <div class="si" onclick="goTo('s3')"><span class="sip"></span>Array Operations</div>
+    <div class="si" onclick="goTo('s4')"><span class="sip"></span>Hashes (%)</div>
+    <div class="si" onclick="goTo('s5')"><span class="sip"></span>Hash Operations</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">References</div>
+    <div class="si" onclick="goTo('s6')"><span class="sip"></span>What is a Reference?</div>
+    <div class="si" onclick="goTo('s7')"><span class="sip"></span>Creating References</div>
+    <div class="si" onclick="goTo('s8')"><span class="sip"></span>Dereferencing</div>
+    <div class="si" onclick="goTo('s9')"><span class="sip"></span>Anonymous Refs [] {}</div>
+    <div class="si" onclick="goTo('s10')"><span class="sip"></span>ref() Type Check</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">Complex Structures</div>
+    <div class="si" onclick="goTo('s11')"><span class="sip"></span>Array of Hashes (AoH)</div>
+    <div class="si" onclick="goTo('s12')"><span class="sip"></span>Hash of Arrays (HoA)</div>
+    <div class="si" onclick="goTo('s13')"><span class="sip"></span>Hash of Hashes (HoH)</div>
+    <div class="si" onclick="goTo('s14')"><span class="sip"></span>Array of Arrays (AoA)</div>
+  </div>
+  <div class="sbg">
+    <div class="sgl">Advanced</div>
+    <div class="si" onclick="goTo('s15')"><span class="sip"></span>Auto-vivification</div>
+    <div class="si" onclick="goTo('s16')"><span class="sip"></span>Deep Nesting</div>
+    <div class="si" onclick="goTo('s17')"><span class="sip"></span>Data::Dumper</div>
+    <div class="si" onclick="goTo('s18')"><span class="sip"></span>Patterns & Recipes</div>
+  </div>
+</nav>
+<div class="content">
+
+<!-- S1: SCALARS -->
+<div class="sec" id="s1">
+  <div class="sh"><div class="si2">💛</div><div>
+    <span class="sb2 lb">Basic</span>
+    <div class="st">Scalars — Single Values</div>
+    <div class="sd"># The simplest data type. $var holds ONE value: number, string, or reference.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">SCALAR TYPES — click any box</div>
+      <div style="padding:.9rem;display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center" id="sboxes">
+        <div class="scb" onclick="sshow('str')"><div class="sclbl">$name</div><div class="scval">"Alice"</div><div class="sctyp">string</div></div>
+        <div class="scb" onclick="sshow('int')"><div class="sclbl">$age</div><div class="scval">28</div><div class="sctyp">integer</div></div>
+        <div class="scb" onclick="sshow('flt')"><div class="sclbl">$pi</div><div class="scval">3.14159</div><div class="sctyp">float</div></div>
+        <div class="scb" onclick="sshow('undef')"><div class="sclbl">$empty</div><div class="scval" style="color:var(--mu)">undef</div><div class="sctyp">undefined</div></div>
+        <div class="scb" onclick="sshow('bool')"><div class="sclbl">$flag</div><div class="scval">1</div><div class="sctyp">true (1/0/"")</div></div>
+        <div class="scb" onclick="sshow('ref')"><div class="sclbl">$aref</div><div class="scval" style="color:var(--re);font-size:.65rem">ARRAY(0x55f2)</div><div class="sctyp">reference</div></div>
+      </div>
+      <div id="sex" style="margin:0 .9rem .9rem;padding:.62rem .85rem;background:rgba(0,0,0,.3);border-radius:7px;font-family:'Space Mono',monospace;font-size:.63rem;color:var(--mu);min-height:36px">← Click any scalar box to inspect it</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — scalar types &amp; operations</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use strict</span>; <span class="kw">use warnings</span>;
+
+<span class="cmt"># Strings — single vs double quotes</span>
+<span class="kw">my</span> <span class="var">$name</span>    = <span class="str">"Alice"</span>;        <span class="cmt"># double: interpolates $vars</span>
+<span class="kw">my</span> <span class="var">$literal</span> = <span class="str">'No $interp'</span>;  <span class="cmt"># single: no interpolation</span>
+<span class="kw">my</span> <span class="var">$msg</span>     = <span class="str">"Hi, $name!"</span>;   <span class="cmt"># "Hi, Alice!" — interpolated</span>
+<span class="kw">my</span> <span class="var">$concat</span>  = <span class="var">$name</span> . <span class="str">" rocks"</span>;  <span class="cmt"># . joins strings</span>
+<span class="kw">my</span> <span class="var">$rep</span>     = <span class="str">"ha"</span> x <span class="num">3</span>;       <span class="cmt"># "hahaha" — x repeats</span>
+
+<span class="cmt"># Numbers</span>
+<span class="kw">my</span> <span class="var">$int</span>     = <span class="num">42</span>;
+<span class="kw">my</span> <span class="var">$float</span>   = <span class="num">3.14159</span>;
+<span class="kw">my</span> <span class="var">$hex</span>     = <span class="num">0xFF</span>;           <span class="cmt"># 255 in hex</span>
+<span class="kw">my</span> <span class="var">$sci</span>     = <span class="num">1.5e10</span>;         <span class="cmt"># scientific notation</span>
+
+<span class="cmt"># Perl auto-converts string ↔ number by context</span>
+<span class="kw">my</span> <span class="var">$s</span>       = <span class="str">"42"</span>;            <span class="cmt"># string</span>
+<span class="kw">my</span> <span class="var">$n</span>       = <span class="var">$s</span> + <span class="num">8</span>;          <span class="cmt"># 50 (numeric context)</span>
+<span class="kw">my</span> <span class="var">$c</span>       = <span class="var">$s</span> . <span class="str">" items"</span>;  <span class="cmt"># "42 items" (string context)</span>
+
+<span class="cmt"># Undef — no value</span>
+<span class="kw">my</span> <span class="var">$empty</span>;                     <span class="cmt"># undef by default</span>
+<span class="fn">defined</span>(<span class="var">$empty</span>);               <span class="cmt"># "" false</span>
+<span class="fn">defined</span>(<span class="var">$name</span>);                <span class="cmt"># 1  true</span>
+
+<span class="cmt"># String functions</span>
+<span class="fn">length</span>(<span class="var">$name</span>)                   <span class="cmt"># 5</span>
+<span class="fn">uc</span>(<span class="var">$name</span>)                       <span class="cmt"># "ALICE"</span>
+<span class="fn">lc</span>(<span class="var">$name</span>)                       <span class="cmt"># "alice"</span>
+<span class="fn">substr</span>(<span class="var">$name</span>, <span class="num">0</span>, <span class="num">3</span>)            <span class="cmt"># "Ali"</span>
+<span class="fn">index</span>(<span class="var">$name</span>, <span class="str">"li"</span>)             <span class="cmt"># 1</span>
+<span class="fn">reverse</span>(<span class="var">$name</span>)                  <span class="cmt"># "ecilA"</span>
+<span class="var">$name</span> =~ <span class="fn">s/Alice/Bob/</span>;        <span class="cmt"># in-place substitution</span></pre></div>
+    <div class="cal ci"><strong>💡 Context Magic</strong>In Perl, 0, "", "0", and undef are <em>false</em>. Everything else is <em>true</em>. The same value acts as string or number depending on context — Perl detects and converts automatically.</div>
+    <div class="div"><div class="dl"></div><div class="dt">Interactive Scalar Tester</div><div class="dl"></div></div>
+    <div style="display:flex;gap:.9rem;align-items:flex-start;flex-wrap:wrap">
+      <div><div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.38rem">Enter any value:</div>
+        <input class="inp imd" id="scin" value="42" oninput="evalSc()">
+      </div>
+      <div class="out" style="flex:1;min-width:180px" id="scout">
+        <span style="color:var(--sc)">Type: integer</span>
+        <span style="color:var(--ha)">length("42") = 2</span>
+        <span style="color:var(--ar)">Numeric: 42</span>
+        <span style="color:var(--re)">Defined: YES</span>
+        <span style="color:var(--ha)">Truthy: YES</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: ARRAYS -->
+<div class="sec" id="s2">
+  <div class="sh"><div class="si2">🔵</div><div>
+    <span class="sb2 lb">Basic</span>
+    <div class="st">Arrays (@) — Ordered Lists</div>
+    <div class="sd"># @array holds an ORDERED list. Zero-indexed. Access elements with $array[n].</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">ARRAY — click cells, use buttons to manipulate live</div>
+      <div style="padding:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.5rem" id="albl">@fruits = ("apple","banana","cherry","date","elderberry")</div>
+        <div id="adisp" style="display:flex;gap:0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:.4rem"></div>
+        <div style="margin-top:.42rem;display:flex;gap:1.1rem">
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu)">$#arr = <span id="ali" style="color:var(--ar)">4</span></div>
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu)">scalar(@arr) = <span id="acnt" style="color:var(--sc)">5</span></div>
+        </div>
+      </div>
+      <div id="aex" style="margin:0 .9rem .9rem;padding:.58rem .82rem;background:rgba(0,0,0,.3);border-radius:6px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:28px">Click an element to inspect it</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — array creation and access</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># Creating arrays</span>
+<span class="kw">my</span> <span class="var">@fruits</span>  = (<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>);
+<span class="kw">my</span> <span class="var">@nums</span>    = (<span class="num">1</span>..<span class="num">10</span>);              <span class="cmt"># range 1 to 10</span>
+<span class="kw">my</span> <span class="var">@words</span>   = <span class="fn">qw(cat dog bird)</span>;    <span class="cmt"># qw = quote words</span>
+<span class="kw">my</span> <span class="var">@mixed</span>   = (<span class="num">1</span>, <span class="str">"two"</span>, <span class="num">3.0</span>);     <span class="cmt"># any scalar types</span>
+<span class="kw">my</span> <span class="var">@empty</span>   = ();
+
+<span class="cmt"># Accessing — $ sigil (single value) + [] index</span>
+<span class="kw">print</span> <span class="var">$fruits</span>[<span class="idx">0</span>];    <span class="cmt"># "apple"  — first element</span>
+<span class="kw">print</span> <span class="var">$fruits</span>[<span class="idx">2</span>];    <span class="cmt"># "cherry"</span>
+<span class="kw">print</span> <span class="var">$fruits</span>[<span class="idx">-1</span>];   <span class="cmt"># "cherry" — last (negative index)</span>
+<span class="kw">print</span> <span class="var">$fruits</span>[<span class="idx">-2</span>];   <span class="cmt"># "banana"</span>
+
+<span class="cmt"># Array metadata</span>
+<span class="kw">my</span> <span class="var">$count</span>    = <span class="fn">scalar</span>(<span class="var">@fruits</span>);  <span class="cmt"># 3 — number of elements</span>
+<span class="kw">my</span> <span class="var">$last</span>     = <span class="var">$#fruits</span>;          <span class="cmt"># 2 — last valid index</span>
+
+<span class="cmt"># Slices — get multiple at once (@ sigil!)</span>
+<span class="kw">my</span> <span class="var">@two</span>      = <span class="var">@fruits</span>[<span class="idx">0</span>,<span class="idx">1</span>];     <span class="cmt"># ("apple","banana")</span>
+<span class="kw">my</span> <span class="var">@range</span>    = <span class="var">@fruits</span>[<span class="idx">1</span>..<span class="idx">2</span>];    <span class="cmt"># ("banana","cherry")</span>
+
+<span class="cmt"># Modify</span>
+<span class="var">$fruits</span>[<span class="idx">1</span>]   = <span class="str">"blueberry"</span>;      <span class="cmt"># replace</span>
+<span class="var">$fruits</span>[<span class="idx">5</span>]   = <span class="str">"fig"</span>;            <span class="cmt"># extend (gaps = undef)</span></pre></div>
+    <div class="ctrl">
+      <button class="btn bg"  onclick="aop('push')">push →</button>
+      <button class="btn bw" onclick="aop('pop')">← pop</button>
+      <button class="btn bb" onclick="aop('unshift')">← unshift</button>
+      <button class="btn bn" onclick="aop('shift')">shift →</button>
+      <button class="btn bn" onclick="aop('reverse')">reverse</button>
+      <button class="btn bn" onclick="aop('sort')">sort</button>
+      <input class="inp isml" id="apv" value="fig" placeholder="value">
+      <div class="sbar" id="astat">Click operations to manipulate the array</div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: ARRAY OPERATIONS -->
+<div class="sec" id="s3">
+  <div class="sh"><div class="si2">⚙️</div><div>
+    <span class="sb2 lb">Basic</span>
+    <div class="st">Array Operations — map, grep, sort, join, splice</div>
+    <div class="sd"># Perl's functional toolkit. map transforms, grep filters, sort orders elements.</div>
+  </div></div>
+  <div class="sb">
+    <div class="tbr">
+      <div class="tbn ta" onclick="stab('ao','t-mg',this)">map &amp; grep</div>
+      <div class="tbn" onclick="stab('ao','t-srt',this)">sort</div>
+      <div class="tbn" onclick="stab('ao','t-spl',this)">splice</div>
+      <div class="tbn" onclick="stab('ao','t-js',this)">join &amp; split</div>
+    </div>
+    <div class="tp ts" id="t-mg">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — map (transform) and grep (filter)</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">@nums</span>    = (<span class="num">1</span>..<span class="num">8</span>);           <span class="cmt"># (1,2,3,4,5,6,7,8)</span>
+
+<span class="cmt"># MAP — transform every element, returns NEW array</span>
+<span class="cmt"># $_ = current element inside the block</span>
+<span class="kw">my</span> <span class="var">@doubled</span> = <span class="fn">map</span> { <span class="var">$_</span> * <span class="num">2</span> }    <span class="var">@nums</span>; <span class="cmt"># (2,4,6,8,10,12,14,16)</span>
+<span class="kw">my</span> <span class="var">@squared</span> = <span class="fn">map</span> { <span class="var">$_</span> ** <span class="num">2</span> }   <span class="var">@nums</span>; <span class="cmt"># (1,4,9,16,25,36,49,64)</span>
+<span class="kw">my</span> <span class="var">@strs</span>    = <span class="fn">map</span> { <span class="str">"item_$_"</span> } <span class="var">@nums</span>; <span class="cmt"># ("item_1","item_2",...)</span>
+<span class="kw">my</span> <span class="var">@pairs</span>   = <span class="fn">map</span> { (<span class="var">$_</span>, <span class="var">$_</span>**<span class="num">2</span>) } <span class="var">@nums</span>; <span class="cmt"># flat list of pairs</span>
+
+<span class="cmt"># GREP — filter, keeps elements where block is TRUE</span>
+<span class="kw">my</span> <span class="var">@evens</span>   = <span class="fn">grep</span> { <span class="var">$_</span> % <span class="num">2</span> == <span class="num">0</span> } <span class="var">@nums</span>; <span class="cmt"># (2,4,6,8)</span>
+<span class="kw">my</span> <span class="var">@big</span>     = <span class="fn">grep</span> { <span class="var">$_</span> > <span class="num">5</span> }        <span class="var">@nums</span>; <span class="cmt"># (6,7,8)</span>
+<span class="kw">my</span> <span class="var">@defined</span> = <span class="fn">grep</span> { <span class="fn">defined</span> }        <span class="var">@nums</span>; <span class="cmt"># removes undefs</span>
+
+<span class="cmt"># CHAIN — grep then map (functional pipeline)</span>
+<span class="kw">my</span> <span class="var">@result</span>  = <span class="fn">map</span>  { <span class="var">$_</span> ** <span class="num">2</span> }
+               <span class="fn">grep</span> { <span class="var">$_</span> % <span class="num">2</span> == <span class="num">0</span> }
+               <span class="var">@nums</span>;
+<span class="cmt"># grep gets evens: (2,4,6,8)</span>
+<span class="cmt"># map squares them: (4,16,36,64)</span></pre></div>
+      <div style="margin-top:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.42rem">Try it — @nums = (1..8):</div>
+        <div style="display:flex;gap:.42rem;flex-wrap:wrap;margin-bottom:.55rem">
+          <button class="btn bg"  onclick="mg('m2')">map × 2</button>
+          <button class="btn bg"  onclick="mg('msq')">map ²</button>
+          <button class="btn bb"  onclick="mg('ge')">grep even</button>
+          <button class="btn bb"  onclick="mg('g5')">grep > 5</button>
+          <button class="btn br"  onclick="mg('chain')">chain both</button>
+          <button class="btn bn"  onclick="mg('mstr')">map to string</button>
+        </div>
+        <div class="out" id="mgout">Click a button to see result</div>
+      </div>
+    </div>
+    <div class="tp" id="t-srt">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — sort with custom comparators</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">@words</span>  = <span class="fn">qw(banana apple cherry date elderberry)</span>;
+<span class="kw">my</span> <span class="var">@nums</span>   = (<span class="num">10</span>, <span class="num">3</span>, <span class="num">25</span>, <span class="num">1</span>, <span class="num">8</span>);
+
+<span class="cmt"># DEFAULT sort — lexicographic (string comparison)</span>
+<span class="fn">sort</span> <span class="var">@words</span>   <span class="cmt"># (apple,banana,cherry,date,elderberry)</span>
+<span class="fn">sort</span> <span class="var">@nums</span>    <span class="cmt"># (1,10,25,3,8) ← WRONG for numbers!</span>
+
+<span class="cmt"># $a and $b are special sort comparison variables</span>
+<span class="cmt"># <=> = numeric comparison,  cmp = string comparison</span>
+<span class="fn">sort</span> { <span class="var">$a</span> <op>&lt;=&gt;</op> <span class="var">$b</span> } <span class="var">@nums</span>   <span class="cmt"># (1,3,8,10,25) numeric asc</span>
+<span class="fn">sort</span> { <span class="var">$b</span> <op>&lt;=&gt;</op> <span class="var">$a</span> } <span class="var">@nums</span>   <span class="cmt"># (25,10,8,3,1) numeric desc</span>
+<span class="fn">sort</span> { <span class="var">$a</span> <op>cmp</op> <span class="var">$b</span> } <span class="var">@words</span>  <span class="cmt"># string asc (same as default)</span>
+<span class="fn">sort</span> { <span class="var">$b</span> <op>cmp</op> <span class="var">$a</span> } <span class="var">@words</span>  <span class="cmt"># string desc</span>
+
+<span class="cmt"># Sort by string length</span>
+<span class="fn">sort</span> { <span class="fn">length</span>(<span class="var">$a</span>) <op>&lt;=&gt;</op> <span class="fn">length</span>(<span class="var">$b</span>) } <span class="var">@words</span>
+
+<span class="cmt"># Multi-key: length first, then alpha</span>
+<span class="fn">sort</span> { <span class="fn">length</span>(<span class="var">$a</span>) <op>&lt;=&gt;</op> <span class="fn">length</span>(<span class="var">$b</span>) || <span class="var">$a</span> <op>cmp</op> <span class="var">$b</span> } <span class="var">@words</span>
+
+<span class="cmt"># Schwartzian transform — sort by computed value efficiently</span>
+<span class="kw">my</span> <span class="var">@by_len</span> = <span class="fn">map</span>  { <span class="var">$_</span>->[<span class="idx">0</span>] }
+              <span class="fn">sort</span> { <span class="var">$a</span>->[<span class="idx">1</span>] <op>&lt;=&gt;</op> <span class="var">$b</span>->[<span class="idx">1</span>] }
+              <span class="fn">map</span>  { [<span class="var">$_</span>, <span class="fn">length</span>(<span class="var">$_</span>)] }
+              <span class="var">@words</span>;</pre></div>
+    </div>
+    <div class="tp" id="t-spl">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — splice (insert, delete, replace)</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">@a</span> = (<span class="str">"a"</span>,<span class="str">"b"</span>,<span class="str">"c"</span>,<span class="str">"d"</span>,<span class="str">"e"</span>);
+<span class="cmt"># splice(ARRAY, OFFSET, LENGTH, REPLACEMENTS...)</span>
+
+<span class="cmt"># DELETE 2 elements at index 1</span>
+<span class="kw">my</span> <span class="var">@rem</span> = <span class="fn">splice</span>(<span class="var">@a</span>, <span class="num">1</span>, <span class="num">2</span>);
+<span class="cmt"># @a = ("a","d","e"),  @rem = ("b","c")</span>
+
+<span class="cmt"># INSERT at index 1 (length=0 means no deletion)</span>
+<span class="fn">splice</span>(<span class="var">@a</span>, <span class="num">1</span>, <span class="num">0</span>, <span class="str">"X"</span>, <span class="str">"Y"</span>);
+<span class="cmt"># @a = ("a","X","Y","d","e")</span>
+
+<span class="cmt"># REPLACE — delete 1, insert 1</span>
+<span class="fn">splice</span>(<span class="var">@a</span>, <span class="num">0</span>, <span class="num">1</span>, <span class="str">"NEW"</span>);
+<span class="cmt"># @a = ("NEW","X","Y","d","e")</span>
+
+<span class="cmt"># DELETE from end (negative offset)</span>
+<span class="fn">splice</span>(<span class="var">@a</span>, <span class="num">-2</span>);              <span class="cmt"># remove last 2</span></pre></div>
+    </div>
+    <div class="tp" id="t-js">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — join and split</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">@fruits</span> = (<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>);
+
+<span class="cmt"># JOIN — array → string</span>
+<span class="kw">my</span> <span class="var">$csv</span>  = <span class="fn">join</span>(<span class="str">","</span>,   <span class="var">@fruits</span>);  <span class="cmt"># "apple,banana,cherry"</span>
+<span class="kw">my</span> <span class="var">$pipe</span> = <span class="fn">join</span>(<span class="str">"|"</span>,   <span class="var">@fruits</span>);  <span class="cmt"># "apple|banana|cherry"</span>
+<span class="kw">my</span> <span class="var">$none</span> = <span class="fn">join</span>(<span class="str">""</span>,    <span class="var">@fruits</span>);  <span class="cmt"># "applebananacherry"</span>
+<span class="kw">my</span> <span class="var">$nl</span>   = <span class="fn">join</span>(<span class="str">"\n"</span>,  <span class="var">@fruits</span>);  <span class="cmt"># one per line</span>
+
+<span class="cmt"># SPLIT — string → array</span>
+<span class="kw">my</span> <span class="var">@back</span>  = <span class="fn">split</span>(<span class="str">/,/</span>,   <span class="var">$csv</span>);      <span class="cmt"># ("apple","banana","cherry")</span>
+<span class="kw">my</span> <span class="var">@words</span> = <span class="fn">split</span>(<span class="str">/\s+/</span>, <span class="str">"a b  c"</span>); <span class="cmt"># ("a","b","c")</span>
+<span class="kw">my</span> <span class="var">@chars</span> = <span class="fn">split</span>(<span class="str">//</span>,   <span class="str">"hello"</span>);   <span class="cmt"># ("h","e","l","l","o")</span>
+<span class="kw">my</span> <span class="var">@two</span>   = <span class="fn">split</span>(<span class="str">/,/</span>, <span class="str">"a,b,c,d"</span>, <span class="num">2</span>); <span class="cmt"># ("a","b,c,d") — limit</span></pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: HASHES -->
+<div class="sec" id="s4">
+  <div class="sh"><div class="si2">🟢</div><div>
+    <span class="sb2 lb">Basic</span>
+    <div class="st">Hashes (%) — Key-Value Pairs</div>
+    <div class="sd"># %hash stores key→value pairs. Access with $hash{key}. Keys are strings. UNORDERED.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">HASH TABLE — click rows to inspect</div>
+      <div style="padding:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.6rem">%person = (name=>"Alice", age=>28, city=>"Mumbai", job=>"Engineer")</div>
+        <table class="ht" id="htbl"><thead><tr><th>Key</th><th></th><th>Value</th><th>Type</th></tr></thead><tbody id="htbody"></tbody></table>
+      </div>
+      <div id="hex" style="margin:0 .9rem .9rem;padding:.58rem .82rem;background:rgba(0,0,0,.3);border-radius:6px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:28px">Click a row to see access code</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — hash fundamentals</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># => is "fat comma" — auto-quotes left side</span>
+<span class="kw">my</span> <span class="var">%person</span> = (
+    name => <span class="str">"Alice"</span>,
+    age  => <span class="num">28</span>,
+    city => <span class="str">"Mumbai"</span>,
+    job  => <span class="str">"Engineer"</span>,
+);
+<span class="cmt"># Equivalent: ('name','Alice','age',28,...)</span>
+
+<span class="cmt"># Access — $ sigil + {} braces</span>
+<span class="kw">print</span> <span class="var">$person</span>{<span class="key">name</span>};      <span class="cmt"># "Alice"</span>
+<span class="kw">print</span> <span class="var">$person</span>{<span class="key">age</span>};       <span class="cmt"># 28</span>
+
+<span class="cmt"># Add / Update</span>
+<span class="var">$person</span>{<span class="key">phone</span>} = <span class="str">"9876"</span>;  <span class="cmt"># add new key</span>
+<span class="var">$person</span>{<span class="key">age</span>}   = <span class="num">29</span>;     <span class="cmt"># update</span>
+
+<span class="cmt"># Delete a key</span>
+<span class="kw">delete</span> <span class="var">$person</span>{<span class="key">job</span>};      <span class="cmt"># removes key+value</span>
+
+<span class="cmt"># Check existence</span>
+<span class="fn">exists</span>  <span class="var">$person</span>{<span class="key">name</span>};    <span class="cmt"># 1 — key present</span>
+<span class="fn">defined</span> <span class="var">$person</span>{<span class="key">name</span>};   <span class="cmt"># 1 — value not undef</span>
+<span class="fn">exists</span>  <span class="var">$person</span>{<span class="key">email</span>};  <span class="cmt"># "" — key absent</span>
+
+<span class="cmt"># Iterate (keys() returns RANDOM order!)</span>
+<span class="kw">for my</span> <span class="var">$k</span> (<span class="fn">sort keys</span> <span class="var">%person</span>) {
+    <span class="kw">print</span> <span class="str">"$k: $person{$k}\n"</span>;
+}
+<span class="kw">my</span> <span class="var">@k</span> = <span class="fn">keys</span>   <span class="var">%person</span>;   <span class="cmt"># all keys</span>
+<span class="kw">my</span> <span class="var">@v</span> = <span class="fn">values</span> <span class="var">%person</span>;   <span class="cmt"># all values</span></pre></div>
+    <div class="div"><div class="dl"></div><div class="dt">Hash Builder</div><div class="dl"></div></div>
+    <div style="display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:.6rem">
+      <input class="inp isml" id="hkin" placeholder="key">
+      <input class="inp isml" id="hvin" placeholder="value">
+      <button class="btn bg" onclick="hadd()">+ Add</button>
+      <button class="btn bn" onclick="hclear()">↺ Clear</button>
+    </div>
+    <div id="hbuild" style="background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:.7rem;min-height:75px;display:flex;flex-wrap:wrap;gap:.32rem;align-content:flex-start"></div>
+    <div class="out" style="margin-top:.6rem" id="hcout"><span style="color:var(--mu)">Add keys above → Perl code appears here</span></div>
+  </div>
+</div>
+
+<!-- S5: HASH OPERATIONS -->
+<div class="sec" id="s5">
+  <div class="sh"><div class="si2">🔑</div><div>
+    <span class="sb2 lb">Basic</span>
+    <div class="st">Hash Operations — Slices, Merge, Invert, Count</div>
+    <div class="sd"># Slice, merge two hashes, invert key↔value, count word frequencies.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — advanced hash patterns</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">%h</span> = (a=><span class="num">1</span>, b=><span class="num">2</span>, c=><span class="num">3</span>, d=><span class="num">4</span>);
+
+<span class="cmt"># HASH SLICE — get multiple values (@ sigil!)</span>
+<span class="kw">my</span> <span class="var">@vals</span>   = <span class="var">@h</span>{<span class="key">'a'</span>,<span class="key">'c'</span>};       <span class="cmt"># (1, 3)</span>
+
+<span class="cmt"># HASH SLICE assignment — set multiple keys</span>
+<span class="var">@h</span>{<span class="key">'e'</span>,<span class="key">'f'</span>} = (<span class="num">5</span>, <span class="num">6</span>);
+
+<span class="cmt"># MERGE two hashes (later keys win on conflict)</span>
+<span class="kw">my</span> <span class="var">%h1</span>     = (a=><span class="num">1</span>, b=><span class="num">2</span>);
+<span class="kw">my</span> <span class="var">%h2</span>     = (b=><span class="num">99</span>, c=><span class="num">3</span>);
+<span class="kw">my</span> <span class="var">%merged</span> = (<span class="var">%h1</span>, <span class="var">%h2</span>);       <span class="cmt"># {a=>1, b=>99, c=>3}</span>
+
+<span class="cmt"># INVERT — swap keys and values</span>
+<span class="kw">my</span> <span class="var">%inv</span>    = <span class="fn">reverse</span> <span class="var">%h</span>;       <span class="cmt"># {1=>'a',2=>'b',...}</span>
+
+<span class="cmt"># WORD FREQUENCY COUNTER</span>
+<span class="kw">my</span> <span class="var">@words</span>  = <span class="fn">qw(cat dog cat bird dog cat)</span>;
+<span class="kw">my</span> <span class="var">%freq</span>;
+<span class="var">$freq</span>{<span class="var">$_</span>}++ <span class="kw">for</span> <span class="var">@words</span>;        <span class="cmt"># {cat=>3, dog=>2, bird=>1}</span>
+
+<span class="cmt"># Sort hash by value (descending)</span>
+<span class="kw">my</span> <span class="var">@ranked</span> = <span class="fn">sort</span> { <span class="var">$freq</span>{<span class="var">$b</span>} <op>&lt;=&gt;</op> <span class="var">$freq</span>{<span class="var">$a</span>} } <span class="fn">keys</span> <span class="var">%freq</span>;
+<span class="cmt"># ("cat","dog","bird")</span>
+
+<span class="cmt"># Filter hash by value</span>
+<span class="kw">my</span> <span class="var">%popular</span> = <span class="fn">map</span>  { <span class="var">$_</span> => <span class="var">$freq</span>{<span class="var">$_</span>} }
+               <span class="fn">grep</span> { <span class="var">$freq</span>{<span class="var">$_</span>} > <span class="num">1</span> }
+               <span class="fn">keys</span> <span class="var">%freq</span>;
+
+<span class="cmt"># UNIQUE array trick using hash</span>
+<span class="kw">my</span> <span class="var">@dupes</span>   = <span class="fn">qw(a b a c b a)</span>;
+<span class="kw">my</span> <span class="var">%seen</span>;
+<span class="kw">my</span> <span class="var">@uniq</span>    = <span class="fn">grep</span> { !<span class="var">$seen</span>{<span class="var">$_</span>}++ } <span class="var">@dupes</span>; <span class="cmt"># (a,b,c)</span>
+
+<span class="cmt"># Delete multiple keys at once</span>
+<span class="kw">delete</span> <span class="var">@h</span>{<span class="key">'a'</span>,<span class="key">'b'</span>};            <span class="cmt"># removes a and b</span></pre></div>
+    <div class="viz" style="padding:.9rem">
+      <div class="vl">WORD COUNTER — type text and watch %freq build live</div>
+      <div style="padding:.9rem">
+        <textarea id="wtin" class="inp" style="width:100%;height:52px;resize:none;font-size:.76rem" placeholder="Type words...">cat dog cat bird dog cat fish bird</textarea>
+        <button class="btn bg" style="margin-top:.42rem" onclick="countW()">Count Words</button>
+        <div id="wout" style="margin-top:.6rem;display:flex;gap:.38rem;flex-wrap:wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: WHAT IS A REFERENCE -->
+<div class="sec" id="s6">
+  <div class="sh"><div class="si2">🔮</div><div>
+    <span class="sb2 li">Intermediate</span>
+    <div class="st">What is a Reference?</div>
+    <div class="sd"># A reference is a SCALAR that holds a MEMORY ADDRESS of another variable. The key to all complex data structures.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">MEMORY MODEL — animate reference creation step by step</div>
+      <div style="padding:1rem">
+        <div class="g2" style="gap:1.3rem;align-items:center">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.42rem">ORIGINAL VARIABLE</div>
+            <div class="mc" style="border-color:rgba(78,201,240,.5);background:rgba(78,201,240,.06)">
+              <div class="ma">0x1a2b</div>
+              <div class="mv" style="color:var(--ar)">@colors</div>
+              <div class="mv" style="font-size:.66rem;color:var(--wh)">["red","green","blue"]</div>
+              <div class="mtp">lives at address 0x1a2b</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.42rem">REFERENCE VARIABLE</div>
+            <div class="mc" id="rmb" style="border-color:rgba(224,123,255,.5);background:rgba(224,123,255,.06);opacity:.25;transition:all .5s">
+              <div class="ma">0xdead</div>
+              <div class="mv" style="color:var(--re)">$aref</div>
+              <div class="mv" style="font-size:.66rem;color:var(--re)">0x1a2b ← address!</div>
+              <div class="mtp">scalar holding address</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1.1rem;padding:.9rem;background:rgba(0,0,0,.3);border-radius:8px">
+          <div style="display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap">
+            <div style="border:1.5px solid rgba(78,201,240,.4);border-radius:8px;padding:.55rem .95rem;transition:all .4s" id="rs1">
+              <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu)">Step 1: original</div>
+              <div style="font-family:'Inconsolata',monospace;font-size:.78rem;color:var(--ar);font-weight:700">@colors</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--mu);transition:all .4s" id="rs-arr">──\──▶</div>
+            <div style="border:1.5px solid rgba(224,123,255,.4);border-radius:8px;padding:.55rem .95rem;opacity:.25;transition:all .5s" id="rs2">
+              <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu)">Step 2: reference</div>
+              <div style="font-family:'Inconsolata',monospace;font-size:.78rem;color:var(--re);font-weight:700">$aref = \@colors</div>
+            </div>
+            <div style="opacity:.25;transition:all .5s" id="rs3w">
+              <div style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--mu);margin-bottom:.28rem">──@{$aref}──▶</div>
+              <div style="border:1.5px solid rgba(255,139,94,.4);border-radius:8px;padding:.55rem .95rem" id="rs3">
+                <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu)">Step 3: dereference</div>
+                <div style="font-family:'Inconsolata',monospace;font-size:.78rem;color:var(--dr);font-weight:700">@{$aref} = SAME data!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cal cr"><strong>🔮 Why References Exist</strong>
+      <b>Problem:</b> Perl arrays flatten! <code style="font-family:Inconsolata,monospace">@a = (1,(2,3),4)</code> gives <code style="font-family:Inconsolata,monospace">(1,2,3,4)</code> — inner list collapses.<br>
+      <b>Solution:</b> References. <code style="font-family:Inconsolata,monospace">@a = (1,[2,3],4)</code> — <code style="font-family:Inconsolata,monospace">[2,3]</code> is a scalar (ref), so no flattening. This is how <b>ALL complex data structures</b> work in Perl.
+    </div>
+    <div class="ctrl">
+      <button class="btn bg" onclick="animRef()">▶ Animate ref creation</button>
+      <button class="btn bn" onclick="resetRef()">↺ Reset</button>
+      <div class="sbar" id="rstat">Click ▶ to watch a variable become a reference, step by step</div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: CREATING REFERENCES -->
+<div class="sec" id="s7">
+  <div class="sh"><div class="si2">🔗</div><div>
+    <span class="sb2 li">Intermediate</span>
+    <div class="st">Creating References — the \ backslash operator</div>
+    <div class="sd"># \$var, \@arr, \%hash, \&sub — put backslash before any variable.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">REF TYPES — click each to see code</div>
+      <div style="padding:.9rem;display:flex;gap:.75rem;flex-wrap:wrap">
+        <div onclick="showRT('s')" style="background:var(--c2);border:1.5px solid rgba(247,201,72,.35);border-radius:9px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:105px;text-align:center" id="rt-s">
+          <div style="font-size:1.05rem;margin-bottom:.28rem">💛</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--sc);font-weight:700">\$scalar</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.62rem;color:var(--di);margin-top:.16rem">Scalar Ref</div>
+        </div>
+        <div onclick="showRT('a')" style="background:var(--c2);border:1.5px solid rgba(78,201,240,.35);border-radius:9px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:105px;text-align:center" id="rt-a">
+          <div style="font-size:1.05rem;margin-bottom:.28rem">🔵</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ar);font-weight:700">\@array</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.62rem;color:var(--di);margin-top:.16rem">Array Ref</div>
+        </div>
+        <div onclick="showRT('h')" style="background:var(--c2);border:1.5px solid rgba(123,240,160,.35);border-radius:9px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:105px;text-align:center" id="rt-h">
+          <div style="font-size:1.05rem;margin-bottom:.28rem">🟢</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ha);font-weight:700">\%hash</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.62rem;color:var(--di);margin-top:.16rem">Hash Ref</div>
+        </div>
+        <div onclick="showRT('c')" style="background:var(--c2);border:1.5px solid rgba(255,107,157,.35);border-radius:9px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:105px;text-align:center" id="rt-c">
+          <div style="font-size:1.05rem;margin-bottom:.28rem">🔴</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--cx);font-weight:700">\&amp;sub</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.62rem;color:var(--di);margin-top:.16rem">Code Ref</div>
+        </div>
+      </div>
+      <div id="rtcode" style="margin:0 .9rem .9rem;background:rgba(0,0,0,.4);border:1px solid var(--b);border-radius:7px;padding:.85rem .95rem;font-family:'Inconsolata',monospace;font-size:.73rem;color:#a0c0d8;line-height:1.85;min-height:52px">Click a type above to see example code</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — creating all reference types</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># Scalar reference</span>
+<span class="kw">my</span> <span class="var">$name</span>   = <span class="str">"Alice"</span>;
+<span class="rfc">my $sref</span>   = \<span class="var">$name</span>;          <span class="cmt"># SCALAR(0x...)</span>
+<span class="kw">print</span>  <span class="rfc">$$sref</span>;                 <span class="cmt"># "Alice" — deref</span>
+       <span class="rfc">$$sref</span> = <span class="str">"Bob"</span>;          <span class="cmt"># modifies $name too (same memory)</span>
+
+<span class="cmt"># Array reference</span>
+<span class="kw">my</span> <span class="var">@colors</span> = (<span class="str">"red"</span>,<span class="str">"green"</span>);
+<span class="rfc">my $aref</span>   = \<span class="var">@colors</span>;        <span class="cmt"># ARRAY(0x...)</span>
+<span class="kw">print</span>  <span class="rfc">$aref</span>->[<span class="idx">0</span>];             <span class="cmt"># "red" — arrow notation</span>
+<span class="kw">print</span>  <span class="rfc">$$aref</span>[<span class="idx">1</span>];              <span class="cmt"># "green" — compact</span>
+<span class="kw">my</span> <span class="var">@copy</span>   = @{<span class="rfc">$aref</span>};        <span class="cmt"># whole array</span>
+
+<span class="cmt"># Hash reference</span>
+<span class="kw">my</span> <span class="var">%p</span>      = (name=><span class="str">"Alice"</span>);
+<span class="rfc">my $href</span>   = \<span class="var">%p</span>;              <span class="cmt"># HASH(0x...)</span>
+<span class="kw">print</span>  <span class="rfc">$href</span>->{<span class="key">name</span>};           <span class="cmt"># "Alice" — arrow</span>
+<span class="fn">keys</span>  %{<span class="rfc">$href</span>};               <span class="cmt"># whole hash keys</span>
+
+<span class="cmt"># Code reference — store a sub as data!</span>
+<span class="rfc">my $greet</span>  = <span class="kw">sub</span> { <span class="str">"Hello, $_[0]!"</span> };
+<span class="kw">print</span>  <span class="rfc">$greet</span>->("Alice");      <span class="cmt"># "Hello, Alice!"</span>
+<span class="rfc">my $add</span>    = \&amp;<span class="fn">main::some_sub</span>; <span class="cmt"># ref to named sub</span></pre></div>
+  </div>
+</div>
+
+<!-- S8: DEREFERENCING -->
+<div class="sec" id="s8">
+  <div class="sh"><div class="si2">🔓</div><div>
+    <span class="sb2 li">Intermediate</span>
+    <div class="st">Dereferencing — Getting Data Back from References</div>
+    <div class="sd"># Three syntaxes: $ref->[i], ${$ref}[i], $$ref[i]. Arrow notation is always clearest.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">THREE DEREF SYNTAXES — click each to compare</div>
+      <div style="padding:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.6rem">Given: $aref = ["Alice","Bob","Charlie"] and $href = {name=>"Alice", age=>28}</div>
+        <div style="display:flex;flex-direction:column;gap:.4rem">
+          <div onclick="showDR('arrow')" id="dr1" style="display:flex;align-items:center;gap:.9rem;padding:.55rem .82rem;background:var(--c2);border:1px solid rgba(255,139,94,.35);border-radius:7px;cursor:pointer;transition:all .2s">
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);min-width:85px">Arrow → (BEST)</div>
+            <div style="font-family:'Inconsolata',monospace;font-size:.8rem;color:var(--dr)">$aref->[0]  &nbsp;  $href->{name}</div>
+            <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.54rem;color:var(--ha)">✓ Use this</div>
+          </div>
+          <div onclick="showDR('block')" id="dr2" style="display:flex;align-items:center;gap:.9rem;padding:.55rem .82rem;background:var(--c2);border:1px solid rgba(224,123,255,.3);border-radius:7px;cursor:pointer;transition:all .2s">
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);min-width:85px">Block {} deref</div>
+            <div style="font-family:'Inconsolata',monospace;font-size:.8rem;color:var(--re)">${$aref}[0]  &nbsp; ${$href}{name}</div>
+            <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu)">explicit</div>
+          </div>
+          <div onclick="showDR('compact')" id="dr3" style="display:flex;align-items:center;gap:.9rem;padding:.55rem .82rem;background:var(--c2);border:1px solid rgba(123,240,160,.3);border-radius:7px;cursor:pointer;transition:all .2s">
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);min-width:85px">$$ compact</div>
+            <div style="font-family:'Inconsolata',monospace;font-size:.8rem;color:var(--ha)">$$aref[0]  &nbsp;&nbsp;&nbsp; $$href{name}</div>
+            <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.54rem;color:var(--mu)">avoid (confusing)</div>
+          </div>
+        </div>
+        <div id="drex" style="margin-top:.7rem;padding:.62rem .85rem;background:rgba(0,0,0,.3);border-radius:7px;font-family:'Inconsolata',monospace;font-size:.73rem;color:var(--di);min-height:32px">Click a row</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — complete dereference syntax guide</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="rfc">my $aref</span> = [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>, <span class="str">"Charlie"</span>];
+<span class="rfc">my $href</span> = { name => <span class="str">"Alice"</span>, age => <span class="num">28</span> };
+
+<span class="cmt">## ARRAY element access — all identical:</span>
+<span class="rfc">$aref</span>->[<span class="idx">0</span>]     <span class="cmt"># "Alice"  ← ARROW (best)</span>
+${<span class="rfc">$aref</span>}[<span class="idx">0</span>]    <span class="cmt"># "Alice"  ← block</span>
+<span class="rfc">$$aref</span>[<span class="idx">0</span>]      <span class="cmt"># "Alice"  ← compact</span>
+
+<span class="cmt"># Whole array:</span>
+@{<span class="rfc">$aref</span>}         <span class="cmt"># ("Alice","Bob","Charlie")</span>
+<span class="fn">scalar</span> @{<span class="rfc">$aref</span>} <span class="cmt"># 3 — count</span>
+$#{<span class="rfc">$aref</span>}        <span class="cmt"># 2 — last index</span>
+
+<span class="cmt">## HASH key access — all identical:</span>
+<span class="rfc">$href</span>->{<span class="key">name</span>}   <span class="cmt"># "Alice"  ← ARROW (best)</span>
+${<span class="rfc">$href</span>}{<span class="key">name</span>}  <span class="cmt"># "Alice"  ← block</span>
+<span class="rfc">$$href</span>{<span class="key">name</span>}    <span class="cmt"># "Alice"  ← compact</span>
+
+<span class="cmt"># Whole hash:</span>
+%{<span class="rfc">$href</span>}          <span class="cmt"># (name=>"Alice",age=>28)</span>
+<span class="fn">keys</span> %{<span class="rfc">$href</span>}    <span class="cmt"># ("name","age")</span>
+
+<span class="cmt">## KEY RULE: Adjacent arrows between [] and {} can be DROPPED</span>
+<span class="rfc">$r</span>->[<span class="idx">0</span>]->[<span class="idx">1</span>]  =  <span class="rfc">$r</span>->[<span class="idx">0</span>][<span class="idx">1</span>]   <span class="cmt"># identical!</span>
+<span class="rfc">$r</span>->{a}->{b}  =  <span class="rfc">$r</span>->{a}{b}    <span class="cmt"># identical!</span>
+<span class="rfc">$r</span>->[<span class="idx">0</span>]{<span class="key">name</span>}                   <span class="cmt"># array then hash</span></pre></div>
+  </div>
+</div>
+
+<!-- S9: ANONYMOUS REFS -->
+<div class="sec" id="s9">
+  <div class="sh"><div class="si2">📦</div><div>
+    <span class="sb2 li">Intermediate</span>
+    <div class="st">Anonymous References — [] and {}</div>
+    <div class="sd"># Create references directly WITHOUT a named variable. [] = anon array ref, {} = anon hash ref.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">NAMED vs ANONYMOUS REF</div>
+      <div style="padding:.9rem" class="g2">
+        <div style="background:rgba(78,201,240,.05);border:1px solid rgba(78,201,240,.3);border-radius:9px;padding:.95rem">
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--ar);margin-bottom:.42rem">NAMED (two steps)</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:#a0c0d8;line-height:1.85">
+            my @tmp = (1, 2, 3);<br>
+            my $ref = \@tmp;<br>
+            <span style="color:var(--mu)"># @tmp AND $ref both exist</span><br>
+            <span style="color:var(--mu)"># they share data in memory</span>
+          </div>
+        </div>
+        <div style="background:rgba(224,123,255,.05);border:1px solid rgba(224,123,255,.3);border-radius:9px;padding:.95rem">
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--re);margin-bottom:.42rem">ANONYMOUS ← USE THIS</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:#a0c0d8;line-height:1.85">
+            <span style="color:var(--re)">my $ref = [1, 2, 3];</span><br>
+            <span style="color:var(--mu)"># [] creates ref directly</span><br>
+            <span style="color:var(--mu)"># no named @tmp needed</span><br>
+            <span style="color:var(--mu)"># access only via $ref</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — anonymous references are the building blocks</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># [] creates anonymous ARRAY reference</span>
+<span class="rfc">my $aref</span>   = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="rfc">my $nested</span> = [<span class="num">1</span>, [<span class="num">2</span>,<span class="num">3</span>], [<span class="num">4</span>,<span class="num">5</span>]];   <span class="cmt"># nested! inner [] are refs</span>
+
+<span class="cmt"># {} creates anonymous HASH reference</span>
+<span class="rfc">my $href</span>   = { name=><span class="str">"Alice"</span>, age=><span class="num">28</span> };
+
+<span class="cmt"># These ARE the building blocks of complex structures:</span>
+
+<span class="cmt"># Array of Hashes — @array containing {} hash refs</span>
+<span class="kw">my</span> <span class="var">@students</span> = (
+    { name=><span class="str">"Alice"</span>, grade=><span class="str">"A"</span> },   <span class="cmt"># anon hash ref</span>
+    { name=><span class="str">"Bob"</span>,   grade=><span class="str">"B"</span> },
+);
+
+<span class="cmt"># Hash of Arrays — %hash with [] array ref values</span>
+<span class="kw">my</span> <span class="var">%courses</span> = (
+    math    => [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>],    <span class="cmt"># anon array ref</span>
+    science => [<span class="str">"Alice"</span>, <span class="str">"Carol"</span>],
+);
+
+<span class="cmt"># Sub (code) reference stored in variable</span>
+<span class="rfc">my $greet</span>  = <span class="kw">sub</span> { <span class="str">"Hello, $_[0]!"</span> };
+<span class="kw">print</span>  <span class="rfc">$greet</span>->("Alice");            <span class="cmt"># "Hello, Alice!"</span>
+
+<span class="cmt"># Array of code refs (dispatch table)</span>
+<span class="kw">my</span> <span class="var">@ops</span> = (
+    <span class="kw">sub</span> { <span class="var">$_</span>[<span class="idx">0</span>] + <span class="var">$_</span>[<span class="idx">1</span>] },  <span class="cmt"># add</span>
+    <span class="kw">sub</span> { <span class="var">$_</span>[<span class="idx">0</span>] * <span class="var">$_</span>[<span class="idx">1</span>] },  <span class="cmt"># multiply</span>
+);
+<span class="kw">print</span> <span class="var">$ops</span>[<span class="idx">0</span>]->(<span class="num">3</span>, <span class="num">4</span>);              <span class="cmt"># 7</span>
+<span class="kw">print</span> <span class="var">$ops</span>[<span class="idx">1</span>]->(<span class="num">3</span>, <span class="num">4</span>);              <span class="cmt"># 12</span></pre></div>
+  </div>
+</div>
+
+<!-- S10: ref() -->
+<div class="sec" id="s10">
+  <div class="sh"><div class="si2">🔎</div><div>
+    <span class="sb2 li">Intermediate</span>
+    <div class="st">ref() — Inspect Reference Type at Runtime</div>
+    <div class="sd"># ref($x) returns "SCALAR", "ARRAY", "HASH", "CODE", "REF", or "" (not a ref).</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">ref() RETURN VALUES — click each to see result</div>
+      <div style="padding:.9rem;display:flex;gap:.7rem;flex-wrap:wrap">
+        <div onclick="crt('sr')"  style="background:var(--c2);border:1px solid rgba(247,201,72,.3);border-radius:8px;padding:.78rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:110px;text-align:center">
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:var(--sc)">\$x</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);margin-top:.18rem">ref() = ?</div>
+        </div>
+        <div onclick="crt('ar')" style="background:var(--c2);border:1px solid rgba(78,201,240,.3);border-radius:8px;padding:.78rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:110px;text-align:center">
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:var(--ar)">[...] or \@arr</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);margin-top:.18rem">ref() = ?</div>
+        </div>
+        <div onclick="crt('hr')" style="background:var(--c2);border:1px solid rgba(123,240,160,.3);border-radius:8px;padding:.78rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:110px;text-align:center">
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:var(--ha)">{...} or \%h</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);margin-top:.18rem">ref() = ?</div>
+        </div>
+        <div onclick="crt('cr')" style="background:var(--c2);border:1px solid rgba(255,107,157,.3);border-radius:8px;padding:.78rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:110px;text-align:center">
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:var(--cx)">sub{...}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);margin-top:.18rem">ref() = ?</div>
+        </div>
+        <div onclick="crt('nr')" style="background:var(--c2);border:1px solid var(--b2);border-radius:8px;padding:.78rem 1rem;cursor:pointer;transition:all .2s;flex:1;min-width:110px;text-align:center">
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:var(--di)">42 or "hello"</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--mu);margin-top:.18rem">ref() = ?</div>
+        </div>
+      </div>
+      <div id="crtex" style="margin:0 .9rem .9rem;padding:.65rem .88rem;background:rgba(0,0,0,.3);border-radius:7px;font-family:'Inconsolata',monospace;font-size:.76rem;color:var(--di);min-height:34px">Click a type above to see what ref() returns</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — ref() for safe type-based dispatch</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">$s</span>    = <span class="str">"hello"</span>;
+<span class="rfc">my $sref</span> = \<span class="var">$s</span>;
+<span class="rfc">my $aref</span> = [<span class="num">1</span>, <span class="num">2</span>];
+<span class="rfc">my $href</span> = { a => <span class="num">1</span> };
+<span class="rfc">my $cref</span> = <span class="kw">sub</span> { <span class="num">42</span> };
+
+<span class="fn">ref</span>(<span class="var">$s</span>)    <span class="cmt"># ""       ← NOT a reference</span>
+<span class="fn">ref</span>(<span class="rfc">$sref</span>) <span class="cmt"># "SCALAR"</span>
+<span class="fn">ref</span>(<span class="rfc">$aref</span>) <span class="cmt"># "ARRAY"</span>
+<span class="fn">ref</span>(<span class="rfc">$href</span>) <span class="cmt"># "HASH"</span>
+<span class="fn">ref</span>(<span class="rfc">$cref</span>) <span class="cmt"># "CODE"</span>
+
+<span class="cmt"># Blessed ref returns the CLASS name:</span>
+<span class="kw">my</span> <span class="var">$obj</span> = <span class="fn">bless</span> {}, <span class="str">"Dog"</span>;
+<span class="fn">ref</span>(<span class="var">$obj</span>)  <span class="cmt"># "Dog"  ← class name, not "HASH"!</span>
+
+<span class="cmt"># Use ref() for type-safe dispatch:</span>
+<span class="kw">sub</span> <span class="fn">process</span> {
+    <span class="kw">my</span> <span class="var">$data</span> = <span class="kw">shift</span>;
+    <span class="kw">my</span> <span class="var">$type</span> = <span class="fn">ref</span>(<span class="var">$data</span>);
+    <span class="kw">if</span>    (<span class="var">$type</span> <op>eq</op> <span class="str">'ARRAY'</span>) { <span class="kw">print</span> <span class="str">"Array of "</span>.<span class="fn">scalar</span>@{<span class="var">$data</span>}.<span class="str">" items\n"</span> }
+    <span class="kw">elsif</span> (<span class="var">$type</span> <op>eq</op> <span class="str">'HASH'</span>)  { <span class="kw">print</span> <span class="str">"Hash: "</span>.<span class="fn">join</span>(<span class="str">","</span>,<span class="fn">keys</span>%{<span class="var">$data</span>}).<span class="str">"\n"</span>   }
+    <span class="kw">elsif</span> (<span class="var">$type</span> <op>eq</op> <span class="str">'CODE'</span>)  { <span class="kw">print</span> <span class="str">"Code: "</span>.<span class="var">$data</span>->().<span class="str">"\n"</span>                }
+    <span class="kw">else</span>                       { <span class="kw">print</span> <span class="str">"Scalar: $data\n"</span>                      }
+}</pre></div>
+  </div>
+</div>
+
+<!-- S11: ARRAY OF HASHES -->
+<div class="sec" id="s11">
+  <div class="sh"><div class="si2">📋</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Array of Hashes (AoH) — The Most Common Structure</div>
+    <div class="sd"># @array of hash refs. Think of it as a DATABASE TABLE — rows of records.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" id="aohviz">
+      <div class="vl">AoH — each element is a hash ref. Click a row.</div>
+      <div style="padding:1.1rem" id="aohd"></div>
+      <div id="aohex" style="margin:0 .9rem .9rem;padding:.6rem .82rem;background:rgba(0,0,0,.3);border-radius:6px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:28px">Click a row to see access code</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — Array of Hashes: build, access, sort, filter, modify</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># BUILD — @array of anonymous hash refs {}</span>
+<span class="kw">my</span> <span class="var">@students</span> = (
+    { name=><span class="str">"Alice"</span>,  grade=><span class="str">"A"</span>, score=><span class="num">95</span>, city=><span class="str">"Mumbai"</span> },
+    { name=><span class="str">"Bob"</span>,    grade=><span class="str">"B"</span>, score=><span class="num">78</span>, city=><span class="str">"Delhi"</span>  },
+    { name=><span class="str">"Carol"</span>,  grade=><span class="str">"A"</span>, score=><span class="num">92</span>, city=><span class="str">"Pune"</span>   },
+    { name=><span class="str">"Dave"</span>,   grade=><span class="str">"C"</span>, score=><span class="num">65</span>, city=><span class="str">"Mumbai"</span> },
+);
+
+<span class="cmt"># ACCESS — $array[index]{key}</span>
+<span class="kw">print</span> <span class="var">$students</span>[<span class="idx">0</span>]{<span class="key">name</span>};           <span class="cmt"># "Alice"</span>
+<span class="kw">print</span> <span class="var">$students</span>[<span class="idx">0</span>]->{<span class="key">score</span>};        <span class="cmt"># 95 (arrow optional)</span>
+<span class="kw">print</span> <span class="var">$students</span>[<span class="idx">-1</span>]{<span class="key">name</span>};          <span class="cmt"># "Dave" (last element)</span>
+
+<span class="cmt"># ITERATE — $_ is current hash ref</span>
+<span class="kw">for my</span> <span class="rfc">$s</span> (<span class="var">@students</span>) {
+    <span class="kw">printf</span> <span class="str">"%-10s %s  %d\n"</span>,
+           <span class="rfc">$s</span>->{<span class="key">name</span>}, <span class="rfc">$s</span>->{<span class="key">grade</span>}, <span class="rfc">$s</span>->{<span class="key">score</span>};
+}
+
+<span class="cmt"># SORT by score descending</span>
+<span class="kw">my</span> <span class="var">@ranked</span>    = <span class="fn">sort</span> { <span class="var">$b</span>->{<span class="key">score</span>} <op>&lt;=&gt;</op> <span class="var">$a</span>->{<span class="key">score</span>} } <span class="var">@students</span>;
+
+<span class="cmt"># FILTER — only A students</span>
+<span class="kw">my</span> <span class="var">@honor</span>     = <span class="fn">grep</span> { <span class="var">$_</span>->{<span class="key">grade</span>} <op>eq</op> <span class="str">"A"</span> } <span class="var">@students</span>;
+
+<span class="cmt"># MAP — extract a field from all records</span>
+<span class="kw">my</span> <span class="var">@names</span>     = <span class="fn">map</span>  { <span class="var">$_</span>->{<span class="key">name</span>}  } <span class="var">@students</span>;
+<span class="kw">my</span> <span class="var">@scores</span>    = <span class="fn">map</span>  { <span class="var">$_</span>->{<span class="key">score</span>} } <span class="var">@students</span>;
+
+<span class="cmt"># ADD a record</span>
+<span class="fn">push</span> <span class="var">@students</span>, { name=><span class="str">"Eve"</span>, grade=><span class="str">"B"</span>, score=><span class="num">82</span>, city=><span class="str">"Bengaluru"</span> };
+
+<span class="cmt"># MODIFY a field</span>
+<span class="var">$students</span>[<span class="idx">0</span>]{<span class="key">score</span>} = <span class="num">98</span>;
+
+<span class="cmt"># INDEX by name — build lookup hash from AoH</span>
+<span class="kw">my</span> <span class="var">%by_name</span>   = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">name</span>} => <span class="var">$_</span> } <span class="var">@students</span>;
+<span class="kw">print</span> <span class="var">$by_name</span>{<span class="key">Alice</span>}{<span class="key">score</span>};      <span class="cmt"># 95</span>
+
+<span class="cmt"># GROUP by city — AoH → HoA</span>
+<span class="kw">my</span> <span class="var">%by_city</span>;
+<span class="fn">push</span> @{<span class="var">$by_city</span>{<span class="var">$_</span>->{<span class="key">city</span>}}}, <span class="var">$_</span>->{<span class="key">name</span>} <span class="kw">for</span> <span class="var">@students</span>;</pre></div>
+    <div class="div"><div class="dl"></div><div class="dt">Interactive AoH Operations</div><div class="dl"></div></div>
+    <div style="display:flex;gap:.42rem;flex-wrap:wrap;margin-bottom:.65rem">
+      <button class="btn bg"  onclick="aoht('score')">Sort by score</button>
+      <button class="btn bb"  onclick="aoht('name')">Sort by name</button>
+      <button class="btn br"  onclick="aohr('A')">Filter grade A</button>
+      <button class="btn br"  onclick="aohr('B')">Filter grade B</button>
+      <button class="btn bn"  onclick="aohR()">Show all</button>
+    </div>
+    <div id="aohint" style="display:flex;flex-direction:column;gap:.4rem"></div>
+  </div>
+</div>
+
+<!-- S12: HASH OF ARRAYS -->
+<div class="sec" id="s12">
+  <div class="sh"><div class="si2">🗂️</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Hash of Arrays (HoA) — Grouped Lists</div>
+    <div class="sd"># %hash where each value is an array ref. Think "categories → list of items".</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" id="hoaviz">
+      <div class="vl">HoA — keys are categories, values are lists. Click rows.</div>
+      <div style="padding:1.1rem" id="hoad"></div>
+      <div id="hoaex" style="margin:0 .9rem .9rem;padding:.6rem .82rem;background:rgba(0,0,0,.3);border-radius:6px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:28px">Click a row</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — Hash of Arrays: build, push, access, iterate</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># BUILD — hash values are anonymous array refs []</span>
+<span class="kw">my</span> <span class="var">%courses</span> = (
+    math    => [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>, <span class="str">"Dave"</span>],
+    science => [<span class="str">"Alice"</span>, <span class="str">"Carol"</span>],
+    english => [<span class="str">"Bob"</span>, <span class="str">"Carol"</span>, <span class="str">"Eve"</span>],
+    history => [<span class="str">"Dave"</span>, <span class="str">"Eve"</span>],
+);
+
+<span class="cmt"># ACCESS — $hash{key}[index]</span>
+<span class="kw">print</span> <span class="var">$courses</span>{<span class="key">math</span>}[<span class="idx">0</span>];           <span class="cmt"># "Alice" (first math student)</span>
+<span class="kw">print</span> <span class="var">$courses</span>{<span class="key">math</span>}->[<span class="idx">1</span>];         <span class="cmt"># "Bob" (arrow optional)</span>
+<span class="kw">print</span> <span class="var">$courses</span>{<span class="key">math</span>}[-<span class="idx">1</span>];          <span class="cmt"># "Dave" (last)</span>
+
+<span class="cmt"># Count students in a course</span>
+<span class="kw">my</span> <span class="var">$n</span> = <span class="fn">scalar</span> @{<span class="var">$courses</span>{<span class="key">math</span>}};  <span class="cmt"># 3</span>
+
+<span class="cmt"># ADD a student to existing course</span>
+<span class="fn">push</span> @{<span class="var">$courses</span>{<span class="key">math</span>}}, <span class="str">"Frank"</span>;
+
+<span class="cmt"># ADD a whole new course</span>
+<span class="var">$courses</span>{<span class="key">art</span>} = [<span class="str">"Alice"</span>, <span class="str">"Eve"</span>];
+
+<span class="cmt"># ITERATE all courses and students</span>
+<span class="kw">for my</span> <span class="var">$course</span> (<span class="fn">sort keys</span> <span class="var">%courses</span>) {
+    <span class="kw">my</span> <span class="var">$count</span>    = <span class="fn">scalar</span> @{<span class="var">$courses</span>{<span class="var">$course</span>}};
+    <span class="kw">my</span> <span class="var">$students</span> = <span class="fn">join</span>(<span class="str">", "</span>, @{<span class="var">$courses</span>{<span class="var">$course</span>}});
+    <span class="kw">printf</span> <span class="str">"%-10s (%d): %s\n"</span>, <span class="var">$course</span>, <span class="var">$count</span>, <span class="var">$students</span>;
+}
+
+<span class="cmt"># SLICE — get subset of a course's students</span>
+<span class="kw">my</span> <span class="var">@first_two</span> = @{<span class="var">$courses</span>{<span class="key">math</span>}}[<span class="idx">0</span>,<span class="idx">1</span>];
+
+<span class="cmt"># BUILD HoA from flat list (group-by pattern)</span>
+<span class="kw">my</span> <span class="var">@data</span> = (
+    {city=><span class="str">"Mumbai"</span>, name=><span class="str">"Alice"</span>},
+    {city=><span class="str">"Delhi"</span>,  name=><span class="str">"Bob"</span>},
+    {city=><span class="str">"Mumbai"</span>, name=><span class="str">"Carol"</span>},
+);
+<span class="kw">my</span> <span class="var">%by_city</span>;
+<span class="fn">push</span> @{<span class="var">$by_city</span>{ <span class="var">$_</span>->{<span class="key">city</span>} }}, <span class="var">$_</span>->{<span class="key">name</span>} <span class="kw">for</span> <span class="var">@data</span>;
+<span class="cmt"># %by_city = (Mumbai=>["Alice","Carol"], Delhi=>["Bob"])</span></pre></div>
+  </div>
+</div>
+
+<!-- S13: HASH OF HASHES -->
+<div class="sec" id="s13">
+  <div class="sh"><div class="si2">🗃️</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Hash of Hashes (HoH) — Nested Records</div>
+    <div class="sd"># %hash where each value is a hash ref. Think "ID/name → record of properties".</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" id="hohviz">
+      <div class="vl">HoH — outer key maps to inner hash. Click rows.</div>
+      <div style="padding:1.1rem" id="hohd"></div>
+      <div id="hohex" style="margin:0 .9rem .9rem;padding:.6rem .82rem;background:rgba(0,0,0,.3);border-radius:6px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:28px">Click a row</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — Hash of Hashes: build, access, iterate, merge</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># BUILD — hash values are anonymous hash refs {}</span>
+<span class="kw">my</span> <span class="var">%employees</span> = (
+    alice => { name=><span class="str">"Alice"</span>, dept=><span class="str">"Eng"</span>,     salary=><span class="num">90000</span> },
+    bob   => { name=><span class="str">"Bob"</span>,   dept=><span class="str">"Sales"</span>,   salary=><span class="num">75000</span> },
+    carol => { name=><span class="str">"Carol"</span>, dept=><span class="str">"Eng"</span>,     salary=><span class="num">95000</span> },
+    dave  => { name=><span class="str">"Dave"</span>,  dept=><span class="str">"HR"</span>,      salary=><span class="num">70000</span> },
+);
+
+<span class="cmt"># ACCESS — $hash{outerkey}{innerkey}</span>
+<span class="kw">print</span> <span class="var">$employees</span>{<span class="key">alice</span>}{<span class="key">name</span>};         <span class="cmt"># "Alice"</span>
+<span class="kw">print</span> <span class="var">$employees</span>{<span class="key">alice</span>}->{<span class="key">salary</span>};     <span class="cmt"># 90000</span>
+
+<span class="cmt"># ADD a new employee</span>
+<span class="var">$employees</span>{<span class="key">eve</span>} = { name=><span class="str">"Eve"</span>, dept=><span class="str">"Eng"</span>, salary=><span class="num">85000</span> };
+
+<span class="cmt"># UPDATE a field</span>
+<span class="var">$employees</span>{<span class="key">bob</span>}{<span class="key">salary</span>} = <span class="num">80000</span>;
+
+<span class="cmt"># ITERATE — outer key, then inner keys</span>
+<span class="kw">for my</span> <span class="var">$id</span> (<span class="fn">sort keys</span> <span class="var">%employees</span>) {
+    <span class="kw">my</span> <span class="rfc">$emp</span> = <span class="var">$employees</span>{<span class="var">$id</span>};
+    <span class="kw">printf</span> <span class="str">"%-8s %-8s %6d\n"</span>,
+           <span class="rfc">$emp</span>->{<span class="key">name</span>}, <span class="rfc">$emp</span>->{<span class="key">dept</span>}, <span class="rfc">$emp</span>->{<span class="key">salary</span>};
+}
+
+<span class="cmt"># FILTER engineers</span>
+<span class="kw">my</span> <span class="var">@engineers</span> = <span class="fn">grep</span> { <span class="var">$employees</span>{<span class="var">$_</span>}{<span class="key">dept</span>} <op>eq</op> <span class="str">"Eng"</span> } <span class="fn">keys</span> <span class="var">%employees</span>;
+
+<span class="cmt"># AVERAGE salary</span>
+<span class="kw">my</span> <span class="var">@sals</span>   = <span class="fn">map</span> { <span class="var">$employees</span>{<span class="var">$_</span>}{<span class="key">salary</span>} } <span class="fn">keys</span> <span class="var">%employees</span>;
+<span class="kw">my</span> <span class="var">$avg</span>    = (<span class="fn">List::Util::sum</span>(<span class="var">@sals</span>) || <span class="num">0</span>) / <span class="fn">scalar</span>(<span class="var">@sals</span>);
+
+<span class="cmt"># EXISTS check for nested keys</span>
+<span class="fn">exists</span> <span class="var">$employees</span>{<span class="key">alice</span>}               <span class="cmt"># outer key exists</span>
+<span class="fn">exists</span> <span class="var">$employees</span>{<span class="key">alice</span>}{<span class="key">salary</span>}       <span class="cmt"># inner key exists</span></pre></div>
+  </div>
+</div>
+
+<!-- S14: ARRAY OF ARRAYS -->
+<div class="sec" id="s14">
+  <div class="sh"><div class="si2">🔢</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Array of Arrays (AoA) — Matrices & Multi-Dimensional Data</div>
+    <div class="sd"># @array of array refs. Use for matrices, grids, tables, or any 2D data.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" id="aoaviz">
+      <div class="vl">AoA — like a 2D grid / matrix. Click rows.</div>
+      <div style="padding:1.1rem" id="aoad"></div>
+      <div id="aoaex" style="margin:0 .9rem .9rem;padding:.6rem .82rem;background:rgba(0,0,0,.3);border-radius:6px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:28px">Click a row</div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — Array of Arrays: matrices and 2D data</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># BUILD — @array of anonymous array refs []</span>
+<span class="kw">my</span> <span class="var">@matrix</span> = (
+    [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>],
+    [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>],
+    [<span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>],
+);
+
+<span class="cmt"># ACCESS — $array[row][col]</span>
+<span class="kw">print</span> <span class="var">$matrix</span>[<span class="idx">0</span>][<span class="idx">0</span>];   <span class="cmt"># 1 (top-left)</span>
+<span class="kw">print</span> <span class="var">$matrix</span>[<span class="idx">1</span>][<span class="idx">2</span>];   <span class="cmt"># 6 (row 1, col 2)</span>
+<span class="kw">print</span> <span class="var">$matrix</span>[<span class="idx">2</span>][<span class="idx">1</span>];   <span class="cmt"># 8</span>
+<span class="kw">print</span> <span class="var">$matrix</span>[<span class="idx">-1</span>][<span class="idx">-1</span>]; <span class="cmt"># 9 (bottom-right)</span>
+
+<span class="cmt"># ITERATE with nested loops</span>
+<span class="kw">for my</span> <span class="var">$row</span> (<span class="var">@matrix</span>) {
+    <span class="kw">print</span> <span class="fn">join</span>(<span class="str">" "</span>, @{<span class="var">$row</span>}), <span class="str">"\n"</span>;
+}
+
+<span class="cmt"># ITERATE with indices</span>
+<span class="kw">for my</span> <span class="var">$i</span> (<span class="num">0</span>..<span class="var">$#matrix</span>) {
+    <span class="kw">for my</span> <span class="var">$j</span> (<span class="num">0</span>..$#{<span class="var">$matrix</span>[<span class="var">$i</span>]}) {
+        <span class="kw">print</span> <span class="str">"[$i][$j] = $matrix[$i][$j]\n"</span>;
+    }
+}
+
+<span class="cmt"># TRANSPOSE — rows become columns</span>
+<span class="kw">my</span> <span class="var">@transposed</span>;
+<span class="kw">for my</span> <span class="var">$i</span> (<span class="num">0</span>..<span class="var">$#matrix</span>) {
+    <span class="kw">for my</span> <span class="var">$j</span> (<span class="num">0</span>..$#{<span class="var">$matrix</span>[<span class="var">$i</span>]}) {
+        <span class="var">$transposed</span>[<span class="var">$j</span>][<span class="var">$i</span>] = <span class="var">$matrix</span>[<span class="var">$i</span>][<span class="var">$j</span>];
+    }
+}
+
+<span class="cmt"># ADD a row</span>
+<span class="fn">push</span> <span class="var">@matrix</span>, [<span class="num">10</span>, <span class="num">11</span>, <span class="num">12</span>];
+
+<span class="cmt"># GET a column (map over rows)</span>
+<span class="kw">my</span> <span class="var">@col0</span> = <span class="fn">map</span> { <span class="var">$_</span>->[<span class="idx">0</span>] } <span class="var">@matrix</span>;   <span class="cmt"># (1,4,7) first column</span></pre></div>
+  </div>
+</div>
+
+<!-- S15: AUTO-VIVIFICATION -->
+<div class="sec" id="s15">
+  <div class="sh"><div class="si2">🌱</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Auto-vivification — Structures That Build Themselves</div>
+    <div class="sd"># Perl automatically creates intermediate structures when you assign to nested references.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">AUTO-VIVIFICATION — structures spring into existence</div>
+      <div style="padding:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mu);margin-bottom:.65rem">Click each step to watch the structure auto-build:</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem">
+          <div onclick="avStep(1)" id="av1" style="display:flex;align-items:flex-start;gap:.9rem;padding:.62rem .85rem;background:var(--c2);border:1px solid var(--b2);border-radius:7px;cursor:pointer;transition:all .2s">
+            <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mu);min-width:30px;padding-top:2px">①</div>
+            <div>
+              <div style="font-family:'Inconsolata',monospace;font-size:.78rem;color:var(--re)">$data{users}{alice}{age} = 28;</div>
+              <div id="av1-ex" style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-top:.28rem">Click to reveal what Perl auto-creates...</div>
+            </div>
+          </div>
+          <div onclick="avStep(2)" id="av2" style="display:flex;align-items:flex-start;gap:.9rem;padding:.62rem .85rem;background:var(--c2);border:1px solid var(--b2);border-radius:7px;cursor:pointer;transition:all .2s">
+            <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mu);min-width:30px;padding-top:2px">②</div>
+            <div>
+              <div style="font-family:'Inconsolata',monospace;font-size:.78rem;color:var(--ar)">push @{$list{fruits}}, "apple";</div>
+              <div id="av2-ex" style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-top:.28rem">Click to reveal...</div>
+            </div>
+          </div>
+          <div onclick="avStep(3)" id="av3" style="display:flex;align-items:flex-start;gap:.9rem;padding:.62rem .85rem;background:var(--c2);border:1px solid var(--b2);border-radius:7px;cursor:pointer;transition:all .2s">
+            <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mu);min-width:30px;padding-top:2px">③</div>
+            <div>
+              <div style="font-family:'Inconsolata',monospace;font-size:.78rem;color:var(--ha)">$matrix[2][4] = 99;</div>
+              <div id="av3-ex" style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-top:.28rem">Click to reveal...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — auto-vivification deep dive</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># Auto-vivification: Perl creates intermediate structures</span>
+<span class="cmt"># automatically when you assign to nested references</span>
+
+<span class="cmt"># Deep HoH assignment — creates %data, keys, nested hashes</span>
+<span class="kw">my</span> <span class="var">%data</span>;
+<span class="var">$data</span>{<span class="key">users</span>}{<span class="key">alice</span>}{<span class="key">age</span>}  = <span class="num">28</span>;      <span class="cmt"># ← creates 3 levels!</span>
+<span class="var">$data</span>{<span class="key">users</span>}{<span class="key">alice</span>}{<span class="key">city</span>} = <span class="str">"Mumbai"</span>; <span class="cmt"># ← reuses existing</span>
+<span class="var">$data</span>{<span class="key">users</span>}{<span class="key">bob</span>}{<span class="key">age</span>}    = <span class="num">32</span>;      <span class="cmt"># ← new entry</span>
+
+<span class="cmt"># HoA auto-vivification — push onto undefined key</span>
+<span class="kw">my</span> <span class="var">%list</span>;
+<span class="fn">push</span> @{<span class="var">$list</span>{<span class="key">fruits</span>}}, <span class="str">"apple"</span>;    <span class="cmt"># creates $list{fruits} = []</span>
+<span class="fn">push</span> @{<span class="var">$list</span>{<span class="key">fruits</span>}}, <span class="str">"banana"</span>;   <span class="cmt"># appends to existing ref</span>
+
+<span class="cmt"># AoA auto-vivification</span>
+<span class="kw">my</span> <span class="var">@matrix</span>;
+<span class="var">$matrix</span>[<span class="idx">2</span>][<span class="idx">4</span>] = <span class="num">99</span>;                 <span class="cmt"># rows 0,1 created with undefs</span>
+
+<span class="cmt"># WARNING: Auto-viv can create ghost keys!</span>
+<span class="kw">my</span> <span class="var">%h</span>;
+<span class="kw">if</span> (<span class="fn">exists</span> <span class="var">$h</span>{<span class="key">a</span>}{<span class="key">b</span>}) { ... }          <span class="cmt"># CREATES $h{a} = {} !!!</span>
+<span class="cmt"># Safe approach:</span>
+<span class="kw">if</span> (<span class="fn">exists</span> <span class="var">$h</span>{<span class="key">a</span>} &amp;&amp; <span class="fn">exists</span> <span class="var">$h</span>{<span class="key">a</span>}{<span class="key">b</span>}) { ... }  <span class="cmt"># no ghost!</span>
+
+<span class="cmt"># Use defined-or //= to initialize safely</span>
+<span class="var">$h</span>{<span class="key">count</span>} //= <span class="num">0</span>;                    <span class="cmt"># set to 0 only if undef/missing</span>
+<span class="var">$h</span>{<span class="key">count</span>}++;                         <span class="cmt"># safe increment</span></pre></div>
+    <div class="cal cw2"><strong>⚠️ Auto-viv Warning</strong>
+      Checking <code style="font-family:Inconsolata,monospace">if (exists $h{a}{b})</code> silently creates <code style="font-family:Inconsolata,monospace">$h{a} = {}</code> as a side effect! Always check outer keys first: <code style="font-family:Inconsolata,monospace">exists $h{a} && exists $h{a}{b}</code>.
+    </div>
+  </div>
+</div>
+
+<!-- S16: DEEP NESTING -->
+<div class="sec" id="s16">
+  <div class="sh"><div class="si2">🌀</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Deep Nesting — Complex Real-World Structures</div>
+    <div class="sd"># Combine AoH, HoA, HoH arbitrarily deep. Navigate with -> and [] {}.</div>
+  </div></div>
+  <div class="sb">
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">DEEP STRUCTURE EXPLORER — click nodes to drill down</div>
+      <div style="padding:.9rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.6rem">A company with departments, each having employees with skills:</div>
+        <div id="deepviz" style="display:flex;flex-direction:column;gap:.28rem"></div>
+        <div id="deepex" style="margin-top:.65rem;padding:.62rem .85rem;background:rgba(0,0,0,.3);border-radius:7px;font-family:'Space Mono',monospace;font-size:.61rem;color:var(--mu);min-height:30px">Click a node to see the access path</div>
+      </div>
+    </div>
+    <div class="cw"><div class="ch"><span class="cl">perl — real-world deeply nested structure</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># HoH of AoH — company → departments → employees</span>
+<span class="kw">my</span> <span class="var">%company</span> = (
+    name => <span class="str">"TechCorp"</span>,
+    depts => {
+        engineering => {
+            head      => <span class="str">"Alice"</span>,
+            budget    => <span class="num">500000</span>,
+            employees => [
+                { name=><span class="str">"Alice"</span>, role=><span class="str">"Lead"</span>,  skills=>[<span class="str">"Perl"</span>,<span class="str">"C++"</span>] },
+                { name=><span class="str">"Bob"</span>,   role=><span class="str">"Dev"</span>,   skills=>[<span class="str">"Perl"</span>,<span class="str">"Go"</span>]  },
+            ],
+        },
+        sales => {
+            head      => <span class="str">"Carol"</span>,
+            budget    => <span class="num">300000</span>,
+            employees => [
+                { name=><span class="str">"Carol"</span>, role=><span class="str">"Lead"</span>,  skills=>[<span class="str">"CRM"</span>]        },
+                { name=><span class="str">"Dave"</span>,  role=><span class="str">"Sales"</span>, skills=>[<span class="str">"CRM"</span>,<span class="str">"Excel"</span>] },
+            ],
+        },
+    },
+);
+
+<span class="cmt"># NAVIGATE — chain arrows and [] {}</span>
+<span class="kw">print</span> <span class="var">$company</span>{<span class="key">name</span>};                        <span class="cmt"># "TechCorp"</span>
+<span class="kw">print</span> <span class="var">$company</span>{<span class="key">depts</span>}{<span class="key">engineering</span>}{<span class="key">head</span>};   <span class="cmt"># "Alice"</span>
+
+<span class="cmt"># Access first engineer's name</span>
+<span class="kw">print</span> <span class="var">$company</span>{<span class="key">depts</span>}{<span class="key">engineering</span>}{<span class="key">employees</span>}[<span class="idx">0</span>]{<span class="key">name</span>};
+<span class="cmt"># "Alice"</span>
+
+<span class="cmt"># Get all skills of first engineer</span>
+<span class="kw">my</span> <span class="var">@skills</span> = @{ <span class="var">$company</span>{<span class="key">depts</span>}{<span class="key">engineering</span>}{<span class="key">employees</span>}[<span class="idx">0</span>]{<span class="key">skills</span>} };
+<span class="cmt"># ("Perl","C++")</span>
+
+<span class="cmt"># All employees across all depts</span>
+<span class="kw">my</span> <span class="var">@all</span> = <span class="fn">map</span>  { @{<span class="var">$_</span>->{<span class="key">employees</span>}} }
+           <span class="fn">values</span> <span class="var">%</span>{<span class="var">$company</span>{<span class="key">depts</span>}};
+
+<span class="cmt"># All names who know Perl</span>
+<span class="kw">my</span> <span class="var">@perl_devs</span> = <span class="fn">map</span>  { <span class="var">$_</span>->{<span class="key">name</span>} }
+                 <span class="fn">grep</span> { <span class="fn">grep</span> { <span class="var">$_</span> <op>eq</op> <span class="str">"Perl"</span> } @{<span class="var">$_</span>->{<span class="key">skills</span>}} }
+                 <span class="var">@all</span>;</pre></div>
+  </div>
+</div>
+
+<!-- S17: DATA::DUMPER -->
+<div class="sec" id="s17">
+  <div class="sh"><div class="si2">🖨️</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Data::Dumper — Inspect Any Data Structure</div>
+    <div class="sd"># Perl's built-in debug tool. Dumper() prints any structure in readable format.</div>
+  </div></div>
+  <div class="sb">
+    <div class="cw"><div class="ch"><span class="cl">perl — Data::Dumper and Storable for inspection & copying</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">use</span> <span class="fn">Data::Dumper</span>;
+<span class="kw">use</span> <span class="fn">Storable</span> <span class="fn">qw(dclone freeze thaw)</span>;
+
+<span class="kw">my</span> <span class="var">%data</span> = (
+    name    => <span class="str">"Alice"</span>,
+    scores  => [<span class="num">95</span>, <span class="num">87</span>, <span class="num">92</span>],
+    address => { city=><span class="str">"Mumbai"</span>, zip=><span class="str">"400001"</span> },
+);
+
+<span class="cmt"># PRINT any structure</span>
+<span class="kw">print</span> <span class="fn">Dumper</span>(\<span class="var">%data</span>);
+<span class="cmt"># $VAR1 = {</span>
+<span class="cmt">#   'name' => 'Alice',</span>
+<span class="cmt">#   'scores' => [ 95, 87, 92 ],</span>
+<span class="cmt">#   'address' => { 'city' => 'Mumbai', 'zip' => '400001' }</span>
+<span class="cmt"># };</span>
+
+<span class="cmt"># Customize output</span>
+<span class="var">$Data::Dumper::Sortkeys</span> = <span class="num">1</span>;    <span class="cmt"># sort hash keys</span>
+<span class="var">$Data::Dumper::Indent</span>   = <span class="num">1</span>;    <span class="cmt"># compact indent</span>
+<span class="var">$Data::Dumper::Terse</span>    = <span class="num">1</span>;    <span class="cmt"># no $VAR1 = prefix</span>
+
+<span class="cmt"># DEEP COPY — Storable::dclone</span>
+<span class="kw">my</span> <span class="var">$orig</span>  = { a => [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>], b => {x=><span class="num">1</span>} };
+<span class="kw">my</span> <span class="var">$copy</span>  = <span class="fn">dclone</span>(<span class="var">$orig</span>);      <span class="cmt"># independent deep copy</span>
+<span class="var">$copy</span>->{<span class="key">a</span>}[<span class="idx">0</span>] = <span class="num">99</span>;               <span class="cmt"># does NOT affect $orig</span>
+
+<span class="cmt"># SERIALISE — freeze/thaw for storage</span>
+<span class="kw">my</span> <span class="var">$frozen</span> = <span class="fn">freeze</span>(\<span class="var">%data</span>);     <span class="cmt"># binary string</span>
+<span class="kw">my</span> <span class="var">$thawed</span> = <span class="fn">thaw</span>(<span class="var">$frozen</span>);      <span class="cmt"># back to structure</span>
+
+<span class="cmt"># JSON (modern approach)</span>
+<span class="kw">use</span> <span class="fn">JSON</span>;
+<span class="kw">my</span> <span class="var">$json</span>     = <span class="fn">encode_json</span>(\<span class="var">%data</span>);
+<span class="kw">my</span> <span class="var">$restored</span> = <span class="fn">decode_json</span>(<span class="var">$json</span>);
+
+<span class="cmt"># YAML (even more readable)</span>
+<span class="kw">use</span> <span class="fn">YAML</span>;
+<span class="kw">print</span>  <span class="fn">Dump</span>(\<span class="var">%data</span>);
+<span class="kw">my</span> <span class="var">$back</span> = <span class="fn">Load</span>(<span class="fn">Dump</span>(\<span class="var">%data</span>));</pre></div>
+
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">SHALLOW vs DEEP COPY — why you need dclone</div>
+      <div style="padding:.9rem" class="g2">
+        <div style="background:rgba(247,201,72,.05);border:1px solid rgba(247,201,72,.3);border-radius:9px;padding:.95rem">
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--sc);margin-bottom:.42rem">SHALLOW COPY (WRONG)</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:#a0c0d8;line-height:1.85">
+            my $copy = $orig;<br>
+            <span style="color:var(--mu)"># $copy IS $orig!</span><br>
+            <span style="color:var(--mu)"># same reference</span><br>
+            <span style="color:#f87171">$copy->{a}[0] = 99; # breaks $orig too!</span>
+          </div>
+        </div>
+        <div style="background:rgba(123,240,160,.05);border:1px solid rgba(123,240,160,.3);border-radius:9px;padding:.95rem">
+          <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--ha);margin-bottom:.42rem">DEEP COPY (CORRECT)</div>
+          <div style="font-family:'Inconsolata',monospace;font-size:.73rem;color:#a0c0d8;line-height:1.85">
+            <span style="color:var(--ha)">use Storable qw(dclone);</span><br>
+            my $copy = dclone($orig);<br>
+            <span style="color:var(--mu)"># fully independent</span><br>
+            <span style="color:#5ae0a0">$copy->{a}[0] = 99; # $orig safe!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S18: PATTERNS -->
+<div class="sec" id="s18">
+  <div class="sh"><div class="si2">🧩</div><div>
+    <span class="sb2 la">Advanced</span>
+    <div class="st">Patterns &amp; Recipes — Common Data Structure Idioms</div>
+    <div class="sd"># The most useful real-world patterns: group-by, index, transform, pivot.</div>
+  </div></div>
+  <div class="sb">
+    <div class="tbr">
+      <div class="tbn ta" onclick="stab('pt','p-grp',this)">Group-by</div>
+      <div class="tbn" onclick="stab('pt','p-idx',this)">Index / Lookup</div>
+      <div class="tbn" onclick="stab('pt','p-pvt',this)">Pivot / Invert</div>
+      <div class="tbn" onclick="stab('pt','p-trn',this)">Transform</div>
+      <div class="tbn" onclick="stab('pt','p-mrg',this)">Merge / Compare</div>
+    </div>
+    <div class="tp ts" id="p-grp">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — group-by pattern (AoH → HoA)</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># GROUP records by a field value</span>
+<span class="kw">my</span> <span class="var">@people</span> = (
+    {name=><span class="str">"Alice"</span>, city=><span class="str">"Mumbai"</span>, age=><span class="num">28</span>},
+    {name=><span class="str">"Bob"</span>,   city=><span class="str">"Delhi"</span>,  age=><span class="num">32</span>},
+    {name=><span class="str">"Carol"</span>, city=><span class="str">"Mumbai"</span>, age=><span class="num">25</span>},
+    {name=><span class="str">"Dave"</span>,  city=><span class="str">"Delhi"</span>,  age=><span class="num">29</span>},
+);
+
+<span class="cmt"># GROUP BY city → HoA of names</span>
+<span class="kw">my</span> <span class="var">%by_city</span>;
+<span class="fn">push</span> @{<span class="var">$by_city</span>{<span class="var">$_</span>->{<span class="key">city</span>}}}, <span class="var">$_</span>->{<span class="key">name</span>} <span class="kw">for</span> <span class="var">@people</span>;
+<span class="cmt"># (Mumbai=>["Alice","Carol"], Delhi=>["Bob","Dave"])</span>
+
+<span class="cmt"># GROUP BY city → HoH of AoH (full records)</span>
+<span class="kw">my</span> <span class="var">%by_city2</span>;
+<span class="fn">push</span> @{<span class="var">$by_city2</span>{<span class="var">$_</span>->{<span class="key">city</span>}}}, <span class="var">$_</span> <span class="kw">for</span> <span class="var">@people</span>;
+
+<span class="cmt"># Count per group</span>
+<span class="kw">my</span> <span class="var">%count_by_city</span> = <span class="fn">map</span> { <span class="var">$_</span> => <span class="fn">scalar</span>@{<span class="var">$by_city</span>{<span class="var">$_</span>}} } <span class="fn">keys</span> <span class="var">%by_city</span>;
+
+<span class="cmt"># Functional style with List::Util</span>
+<span class="kw">use</span> <span class="fn">List::Util</span> <span class="fn">qw(sum max min first reduce)</span>;
+<span class="kw">my</span> <span class="var">$total_age</span> = <span class="fn">sum</span>  <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">age</span>} } <span class="var">@people</span>;  <span class="cmt"># 114</span>
+<span class="kw">my</span> <span class="var">$max_age</span>   = <span class="fn">max</span>  <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">age</span>} } <span class="var">@people</span>;  <span class="cmt"># 32</span>
+<span class="kw">my</span> <span class="var">$youngest</span>  = <span class="fn">first</span> { <span class="var">$_</span>->{<span class="key">age</span>} == <span class="fn">min</span> <span class="fn">map</span>{<span class="var">$_</span>->{<span class="key">age</span>}}<span class="var">@people</span> } <span class="var">@people</span>;</pre></div>
+    </div>
+    <div class="tp" id="p-idx">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — index / lookup patterns</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># BUILD LOOKUP HASH — O(1) access by key field</span>
+<span class="kw">my</span> <span class="var">@users</span>    = ({id=><span class="num">1</span>,name=><span class="str">"Alice"</span>},{id=><span class="num">2</span>,name=><span class="str">"Bob"</span>});
+<span class="kw">my</span> <span class="var">%by_id</span>   = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">id</span>}   => <span class="var">$_</span> } <span class="var">@users</span>;
+<span class="kw">my</span> <span class="var">%by_name</span> = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">name</span>} => <span class="var">$_</span> } <span class="var">@users</span>;
+
+<span class="kw">print</span> <span class="var">$by_id</span>{<span class="num">1</span>}{<span class="key">name</span>};          <span class="cmt"># "Alice" — O(1) lookup</span>
+<span class="kw">print</span> <span class="var">$by_name</span>{<span class="key">Bob</span>}{<span class="key">id</span>};        <span class="cmt"># 2</span>
+
+<span class="cmt"># SET MEMBERSHIP — fast exists check</span>
+<span class="kw">my</span> <span class="var">@allowed</span>    = <span class="fn">qw(read write admin)</span>;
+<span class="kw">my</span> <span class="var">%is_allowed</span> = <span class="fn">map</span> { <span class="var">$_</span> => <span class="num">1</span> } <span class="var">@allowed</span>;
+<span class="kw">print</span> <span class="str">"OK"</span> <span class="kw">if</span> <span class="var">$is_allowed</span>{<span class="key">write</span>};  <span class="cmt"># O(1) instead of grep O(n)</span>
+
+<span class="cmt"># REVERSE LOOKUP — value → key</span>
+<span class="kw">my</span> <span class="var">%code</span>    = (red=><span class="str">'#f00'</span>, green=><span class="str">'#0f0'</span>);
+<span class="kw">my</span> <span class="var">%by_hex</span>  = <span class="fn">reverse</span> <span class="var">%code</span>;     <span class="cmt"># {'#f00'=>'red',...}</span></pre></div>
+    </div>
+    <div class="tp" id="p-pvt">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — pivot / invert / transpose</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># PIVOT HoA — flip keys and values</span>
+<span class="kw">my</span> <span class="var">%student_courses</span> = (  <span class="cmt"># student → courses</span>
+    alice => [<span class="str">"math"</span>,<span class="str">"science"</span>],
+    bob   => [<span class="str">"math"</span>,<span class="str">"english"</span>],
+);
+
+<span class="cmt"># PIVOT to: course → students</span>
+<span class="kw">my</span> <span class="var">%course_students</span>;
+<span class="kw">for my</span> <span class="var">$student</span> (<span class="fn">keys</span> <span class="var">%student_courses</span>) {
+    <span class="kw">for my</span> <span class="var">$course</span> (@{<span class="var">$student_courses</span>{<span class="var">$student</span>}}) {
+        <span class="fn">push</span> @{<span class="var">$course_students</span>{<span class="var">$course</span>}}, <span class="var">$student</span>;
+    }
+}
+<span class="cmt"># (math=>["alice","bob"], science=>["alice"], english=>["bob"])</span>
+
+<span class="cmt"># INVERT a flat hash</span>
+<span class="kw">my</span> <span class="var">%orig</span>    = (a=><span class="num">1</span>, b=><span class="num">2</span>, c=><span class="num">3</span>);
+<span class="kw">my</span> <span class="var">%inverted</span> = <span class="fn">reverse</span> <span class="var">%orig</span>;    <span class="cmt"># (1=>'a',2=>'b',3=>'c')</span>
+
+<span class="cmt"># TRANSPOSE a matrix (AoA)</span>
+<span class="kw">my</span> <span class="var">@m</span>  = ([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>],[<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>],[<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>]);
+<span class="kw">my</span> <span class="var">@t</span>;
+<span class="var">$t</span>[<span class="var">$_</span>][<span class="var">$i</span>] = <span class="var">$m</span>[<span class="var">$i</span>][<span class="var">$_</span>] <span class="kw">for</span> <span class="var">$i</span> (<span class="num">0</span>..<span class="var">$#m</span>), <span class="var">$_</span> (<span class="num">0</span>..$#{<span class="var">$m</span>[<span class="num">0</span>]});</pre></div>
+    </div>
+    <div class="tp" id="p-trn">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — transform structures with map</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="kw">my</span> <span class="var">@students</span> = (
+    {name=><span class="str">"Alice"</span>,score=><span class="num">95</span>,grade=><span class="str">"A"</span>},
+    {name=><span class="str">"Bob"</span>,  score=><span class="num">78</span>,grade=><span class="str">"B"</span>},
+);
+
+<span class="cmt"># AoH → flat list of field values</span>
+<span class="kw">my</span> <span class="var">@names</span>   = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">name</span>}  } <span class="var">@students</span>;
+
+<span class="cmt"># AoH → new AoH (add a computed field)</span>
+<span class="kw">my</span> <span class="var">@enriched</span> = <span class="fn">map</span> {
+    { %{<span class="var">$_</span>}, pass => (<span class="var">$_</span>->{<span class="key">score</span>} >= <span class="num">80</span> ? <span class="str">"YES"</span> : <span class="str">"NO"</span>) }
+} <span class="var">@students</span>;
+
+<span class="cmt"># AoH → Hash (for quick lookup)</span>
+<span class="kw">my</span> <span class="var">%by_name</span>  = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">name</span>} => <span class="var">$_</span> } <span class="var">@students</span>;
+
+<span class="cmt"># Array of values → AoH</span>
+<span class="kw">my</span> <span class="var">@scores</span>   = (<span class="num">95</span>, <span class="num">78</span>, <span class="num">83</span>);
+<span class="kw">my</span> <span class="var">@records</span>  = <span class="fn">map</span> { {score=><span class="var">$_</span>, pass=>(<span class="var">$_</span>>=<span class="num">80</span>?<span class="str">"Y"</span>:<span class="str">"N"</span>)} } <span class="var">@scores</span>;
+
+<span class="cmt"># Flatten AoA into 1D array</span>
+<span class="kw">my</span> <span class="var">@matrix</span>   = ([<span class="num">1</span>,<span class="num">2</span>],[<span class="num">3</span>,<span class="num">4</span>],[<span class="num">5</span>,<span class="num">6</span>]);
+<span class="kw">my</span> <span class="var">@flat</span>     = <span class="fn">map</span> { @{<span class="var">$_</span>} } <span class="var">@matrix</span>;  <span class="cmt"># (1,2,3,4,5,6)</span></pre></div>
+    </div>
+    <div class="tp" id="p-mrg">
+      <div class="cw" style="margin:0"><div class="ch"><span class="cl">perl — merge, diff, intersect structures</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt"># MERGE two AoH by key field</span>
+<span class="kw">my</span> <span class="var">@a</span> = ({id=><span class="num">1</span>,name=><span class="str">"Alice"</span>},{id=><span class="num">2</span>,name=><span class="str">"Bob"</span>});
+<span class="kw">my</span> <span class="var">@b</span> = ({id=><span class="num">1</span>,score=><span class="num">95</span>},  {id=><span class="num">3</span>,score=><span class="num">70</span>});
+
+<span class="cmt"># Index @b by id</span>
+<span class="kw">my</span> <span class="var">%bidx</span>  = <span class="fn">map</span> { <span class="var">$_</span>->{<span class="key">id</span>} => <span class="var">$_</span> } <span class="var">@b</span>;
+
+<span class="cmt"># Left join @a with @b</span>
+<span class="kw">my</span> <span class="var">@merged</span> = <span class="fn">map</span> {
+    my <span class="var">$extra</span> = <span class="var">$bidx</span>{ <span class="var">$_</span>->{<span class="key">id</span>} } // {};
+    { %{<span class="var">$_</span>}, %{<span class="var">$extra</span>} }          <span class="cmt"># merge hashes</span>
+} <span class="var">@a</span>;
+
+<span class="cmt"># ARRAY SET OPERATIONS using hash trick</span>
+<span class="kw">my</span> <span class="var">@x</span>   = <span class="fn">qw(a b c d)</span>;
+<span class="kw">my</span> <span class="var">@y</span>   = <span class="fn">qw(c d e f)</span>;
+<span class="kw">my</span> <span class="var">%xh</span>  = <span class="fn">map</span> { <span class="var">$_</span>=><span class="num">1</span> } <span class="var">@x</span>;
+<span class="kw">my</span> <span class="var">%yh</span>  = <span class="fn">map</span> { <span class="var">$_</span>=><span class="num">1</span> } <span class="var">@y</span>;
+
+<span class="cmt"># Intersection — elements in BOTH</span>
+<span class="kw">my</span> <span class="var">@inter</span>= <span class="fn">grep</span> { <span class="var">$yh</span>{<span class="var">$_</span>} } <span class="var">@x</span>;       <span class="cmt"># (c,d)</span>
+
+<span class="cmt"># Difference — in @x but NOT in @y</span>
+<span class="kw">my</span> <span class="var">@diff</span> = <span class="fn">grep</span> { !<span class="var">$yh</span>{<span class="var">$_</span>} } <span class="var">@x</span>;      <span class="cmt"># (a,b)</span>
+
+<span class="cmt"># Union — all unique elements</span>
+<span class="kw">my</span> <span class="var">@union</span>= <span class="fn">keys</span> %{ {<span class="var">%xh</span>, <span class="var">%yh</span>} };      <span class="cmt"># (a,b,c,d,e,f)</span></pre></div>
+    </div>
+
+    <div class="div"><div class="dl"></div><div class="dt">Quick Reference Table</div><div class="dl"></div></div>
+    <table class="tbl">
+      <thead><tr><th>Structure</th><th>Syntax</th><th>Access</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--sc)">Scalar $</td><td><code>my $x = 42</code></td><td><code>$x</code></td><td>Single value, string, number, ref</td></tr>
+        <tr><td style="color:var(--ar)">Array @</td><td><code>my @a = (1,2,3)</code></td><td><code>$a[0]</code></td><td>Ordered list, stack, queue</td></tr>
+        <tr><td style="color:var(--ha)">Hash %</td><td><code>my %h = (k=>v)</code></td><td><code>$h{key}</code></td><td>Key-value map, record</td></tr>
+        <tr><td style="color:var(--re)">Array Ref</td><td><code>my $r = [1,2,3]</code></td><td><code>$r->[0]</code></td><td>Array inside structure</td></tr>
+        <tr><td style="color:var(--re)">Hash Ref</td><td><code>my $r = {k=>v}</code></td><td><code>$r->{key}</code></td><td>Hash inside structure</td></tr>
+        <tr><td style="color:var(--ar)">AoH</td><td><code>@a = ({k=>v},...)</code></td><td><code>$a[0]{key}</code></td><td>Table / list of records</td></tr>
+        <tr><td style="color:var(--ha)">HoA</td><td><code>%h = (k=>[...])</code></td><td><code>$h{k}[0]</code></td><td>Groups / categories</td></tr>
+        <tr><td style="color:var(--re)">HoH</td><td><code>%h = (k=>{k=>v})</code></td><td><code>$h{k1}{k2}</code></td><td>Nested records</td></tr>
+        <tr><td style="color:var(--cx)">AoA</td><td><code>@a = ([1,2],[3,4])</code></td><td><code>$a[0][1]</code></td><td>Matrix, 2D grid</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- S19: STACK & QUEUE -->
+<div class="sec" id="s19">
+  <div class="sh"><div class="si2">📚</div><div>
+    <span class="sb2 lb">Basic → Advanced</span>
+    <div class="st">Stack &amp; Queue — push/pop/shift/unshift in Action</div>
+    <div class="sd"># Perl arrays implement both Stack (LIFO) and Queue (FIFO) natively. No extra module needed.</div>
+  </div></div>
+  <div class="sb">
+
+    <div class="viz" style="padding:1.3rem">
+      <div class="vl">STACK (LIFO) vs QUEUE (FIFO) — click buttons to animate</div>
+      <div style="padding:.9rem">
+        <div class="g2" style="gap:1.5rem">
+          <!-- STACK -->
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--sc);margin-bottom:.55rem;letter-spacing:.1em">STACK — Last In, First Out (LIFO)</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.35rem">push adds to TOP ↑ &nbsp; pop removes from TOP ↑</div>
+            <div id="stack-viz" style="display:flex;flex-direction:column-reverse;gap:.3rem;min-height:180px;justify-content:flex-start;border:1px solid rgba(247,201,72,.25);border-radius:8px;padding:.65rem;background:var(--bg);position:relative">
+              <div style="position:absolute;top:.4rem;right:.6rem;font-family:'Space Mono',monospace;font-size:.5rem;color:var(--mu)">↑ TOP</div>
+            </div>
+            <div style="display:flex;gap:.45rem;margin-top:.55rem;flex-wrap:wrap">
+              <button class="btn bg" onclick="stackPush()">push</button>
+              <button class="btn bw" onclick="stackPop()">pop</button>
+              <input class="inp isml" id="stack-val" value="item" placeholder="value">
+            </div>
+            <div id="stack-log" style="margin-top:.45rem;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mu);min-height:20px"></div>
+          </div>
+          <!-- QUEUE -->
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ar);margin-bottom:.55rem;letter-spacing:.1em">QUEUE — First In, First Out (FIFO)</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.56rem;color:var(--mu);margin-bottom:.35rem">push adds to BACK → &nbsp; shift removes from FRONT ←</div>
+            <div id="queue-viz" style="display:flex;flex-direction:column;gap:.3rem;min-height:180px;justify-content:flex-start;border:1px solid rgba(78,201,240,.25);border-radius:8px;padding:.65rem;background:var(--bg);position:relative">
+              <div style="position:absolute;bottom:.4rem;right:.6rem;font-family:'Space Mono',monospace;font-size:.5rem;color:var(--mu)">← FRONT</div>
+            </div>
+            <div style="display:flex;gap:.45rem;margin-top:.55rem;flex-wrap:wrap">
+              <button class="btn bb" onclick="queuePush()">enqueue (push)</button>
+              <button class="btn bw" onclick="queueShift()">dequeue (shift)</button>
+              <input class="inp isml" id="queue-val" value="task" placeholder="value">
+            </div>
+            <div id="queue-log" style="margin-top:.45rem;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mu);min-height:20px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cw"><div class="ch"><span class="cl">perl — Stack implementation using arrays</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt">## STACK — Last In, First Out (LIFO)</span>
+<span class="cmt"># Think: browser back-button history, function call stack, undo</span>
+
+<span class="kw">my</span> <span class="var">@stack</span> = ();             <span class="cmt"># start empty</span>
+
+<span class="cmt"># PUSH — add to top</span>
+<span class="fn">push</span> <span class="var">@stack</span>, <span class="str">"page1"</span>;      <span class="cmt"># ("page1")</span>
+<span class="fn">push</span> <span class="var">@stack</span>, <span class="str">"page2"</span>;      <span class="cmt"># ("page1","page2")</span>
+<span class="fn">push</span> <span class="var">@stack</span>, <span class="str">"page3"</span>;      <span class="cmt"># ("page1","page2","page3")</span>
+
+<span class="cmt"># POP — remove from top (LIFO order)</span>
+<span class="kw">my</span> <span class="var">$top</span> = <span class="fn">pop</span> <span class="var">@stack</span>;      <span class="cmt"># "page3" ← removed last added</span>
+<span class="kw">my</span> <span class="var">$nxt</span> = <span class="fn">pop</span> <span class="var">@stack</span>;      <span class="cmt"># "page2"</span>
+
+<span class="cmt"># PEEK — look at top without removing</span>
+<span class="kw">my</span> <span class="var">$peek</span> = <span class="var">$stack</span>[<span class="idx">-1</span>];     <span class="cmt"># last element, no removal</span>
+
+<span class="cmt"># SIZE and EMPTY CHECK</span>
+<span class="kw">my</span> <span class="var">$size</span>   = <span class="fn">scalar</span> <span class="var">@stack</span>; <span class="cmt"># number of items</span>
+<span class="kw">my</span> <span class="var">$empty</span>  = !<span class="var">@stack</span>;       <span class="cmt"># true if empty</span>
+
+<span class="cmt"># REAL EXAMPLE: Balanced parentheses checker</span>
+<span class="kw">sub</span> <span class="fn">balanced</span> {
+    <span class="kw">my</span> (<span class="var">$str</span>) = <span class="var">@_</span>;
+    <span class="kw">my</span> <span class="var">@stack</span>;
+    <span class="kw">my</span> <span class="var">%match</span> = (')'=>'(', ']'=>'[', '}'=>'{');
+    <span class="kw">for my</span> <span class="var">$ch</span> (<span class="fn">split</span> <span class="str">//</span>, <span class="var">$str</span>) {
+        <span class="kw">if</span>    (<span class="var">$ch</span> =~ <span class="fn">/[({[]/</span>)   { <span class="fn">push</span> <span class="var">@stack</span>, <span class="var">$ch</span> }
+        <span class="kw">elsif</span> (<span class="var">%match</span>{<span class="var">$ch</span>})    {
+            <span class="kw">return</span> <span class="num">0</span> <span class="kw">unless</span> <span class="var">@stack</span> &amp;&amp; <span class="fn">pop</span>(<span class="var">@stack</span>) <op>eq</op> <span class="var">$match</span>{<span class="var">$ch</span>};
+        }
+    }
+    <span class="kw">return</span> !<span class="var">@stack</span>;           <span class="cmt"># true if stack empty at end</span>
+}
+<span class="fn">balanced</span>(<span class="str">"({[]})"</span>)              <span class="cmt"># 1 (true)</span>
+<span class="fn">balanced</span>(<span class="str">"({[}])"</span>)              <span class="cmt"># 0 (false)</span></pre></div>
+
+    <div class="cw"><div class="ch"><span class="cl">perl — Queue implementation using arrays</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt">## QUEUE — First In, First Out (FIFO)</span>
+<span class="cmt"># Think: print queue, task scheduler, BFS graph traversal</span>
+
+<span class="kw">my</span> <span class="var">@queue</span> = ();
+
+<span class="cmt"># ENQUEUE — add to back</span>
+<span class="fn">push</span> <span class="var">@queue</span>, <span class="str">"task1"</span>;      <span class="cmt"># ("task1")</span>
+<span class="fn">push</span> <span class="var">@queue</span>, <span class="str">"task2"</span>;      <span class="cmt"># ("task1","task2")</span>
+<span class="fn">push</span> <span class="var">@queue</span>, <span class="str">"task3"</span>;      <span class="cmt"># ("task1","task2","task3")</span>
+
+<span class="cmt"># DEQUEUE — remove from front (FIFO order)</span>
+<span class="kw">my</span> <span class="var">$first</span> = <span class="fn">shift</span> <span class="var">@queue</span>;  <span class="cmt"># "task1" ← first added, first out</span>
+<span class="kw">my</span> <span class="var">$next</span>  = <span class="fn">shift</span> <span class="var">@queue</span>;  <span class="cmt"># "task2"</span>
+
+<span class="cmt"># PEEK — front without removing</span>
+<span class="kw">my</span> <span class="var">$front</span> = <span class="var">$queue</span>[<span class="idx">0</span>];     <span class="cmt"># first element</span>
+
+<span class="cmt"># REAL EXAMPLE: BFS (Breadth-First Search)</span>
+<span class="kw">sub</span> <span class="fn">bfs</span> {
+    <span class="kw">my</span> (<span class="rfc">$graph</span>, <span class="var">$start</span>) = <span class="var">@_</span>;  <span class="cmt"># $graph is HoA adjacency list</span>
+    <span class="kw">my</span> <span class="var">@queue</span>   = (<span class="var">$start</span>);
+    <span class="kw">my</span> <span class="var">%visited</span> = (<span class="var">$start</span> => <span class="num">1</span>);
+    <span class="kw">my</span> <span class="var">@order</span>;
+    <span class="kw">while</span> (<span class="var">@queue</span>) {
+        <span class="kw">my</span> <span class="var">$node</span> = <span class="fn">shift</span> <span class="var">@queue</span>;  <span class="cmt"># dequeue</span>
+        <span class="fn">push</span> <span class="var">@order</span>, <span class="var">$node</span>;
+        <span class="kw">for my</span> <span class="var">$nb</span> (@{ <span class="rfc">$graph</span>->{<span class="var">$node</span>} }) {
+            <span class="kw">unless</span> (<span class="var">$visited</span>{<span class="var">$nb</span>}++) {
+                <span class="fn">push</span> <span class="var">@queue</span>, <span class="var">$nb</span>;    <span class="cmt"># enqueue</span>
+            }
+        }
+    }
+    <span class="kw">return</span> <span class="var">@order</span>;
+}</pre></div>
+
+    <div class="cw"><div class="ch"><span class="cl">perl — Priority Queue and Deque using modules</span><button class="cb" onclick="cp(this)">copy</button></div>
+<pre><span class="cmt">## PRIORITY QUEUE — highest priority out first</span>
+<span class="cmt"># Manual implementation using sorted array</span>
+<span class="kw">my</span> <span class="var">@pq</span>;   <span class="cmt"># array of [priority, value] pairs</span>
+
+<span class="kw">sub</span> <span class="fn">pq_push</span> {
+    <span class="kw">my</span> (<span class="var">$priority</span>, <span class="var">$value</span>) = <span class="var">@_</span>;
+    <span class="fn">push</span> <span class="var">@pq</span>, [<span class="var">$priority</span>, <span class="var">$value</span>];
+    <span class="var">@pq</span> = <span class="fn">sort</span> { <span class="var">$b</span>->[<span class="idx">0</span>] <op>&lt;=&gt;</op> <span class="var">$a</span>->[<span class="idx">0</span>] } <span class="var">@pq</span>;  <span class="cmt"># sort desc</span>
+}
+<span class="kw">sub</span> <span class="fn">pq_pop</span>  { (<span class="fn">shift</span> <span class="var">@pq</span>)->[<span class="idx">1</span>] }  <span class="cmt"># highest priority first</span>
+
+<span class="fn">pq_push</span>(<span class="num">3</span>, <span class="str">"low"</span>);
+<span class="fn">pq_push</span>(<span class="num">9</span>, <span class="str">"urgent"</span>);
+<span class="fn">pq_push</span>(<span class="num">6</span>, <span class="str">"medium"</span>);
+<span class="kw">print</span> <span class="fn">pq_pop</span>();  <span class="cmt"># "urgent" (priority 9)</span>
+<span class="kw">print</span> <span class="fn">pq_pop</span>();  <span class="cmt"># "medium" (priority 6)</span>
+
+<span class="cmt">## DEQUE (Double-Ended Queue)</span>
+<span class="cmt"># Perl arrays ARE deques — push/pop + shift/unshift both ends</span>
+<span class="kw">my</span> <span class="var">@deque</span>;
+<span class="fn">push</span>    <span class="var">@deque</span>, <span class="str">"back1"</span>;   <span class="cmt"># add to back</span>
+<span class="fn">unshift</span> <span class="var">@deque</span>, <span class="str">"front1"</span>; <span class="cmt"># add to front</span>
+<span class="fn">pop</span>     <span class="var">@deque</span>;            <span class="cmt"># remove from back</span>
+<span class="fn">shift</span>   <span class="var">@deque</span>;            <span class="cmt"># remove from front</span>
+
+<span class="cmt">## With Heap::Priority module (CPAN)</span>
+<span class="kw">use</span> <span class="fn">Heap::Priority</span>;
+<span class="kw">my</span> <span class="var">$h</span> = <span class="fn">Heap::Priority</span>-><span class="fn">new</span>;
+<span class="var">$h</span>-><span class="fn">add</span>(<span class="num">5</span>, <span class="str">"task_A"</span>);
+<span class="var">$h</span>-><span class="fn">add</span>(<span class="num">1</span>, <span class="str">"task_B"</span>);
+<span class="kw">my</span> <span class="var">$best</span> = <span class="var">$h</span>-><span class="fn">pop</span>;         <span class="cmt"># "task_A" (priority 5)</span></pre></div>
+
+    <div style="margin-top:1.2rem">
+      <div class="div"><div class="dl"></div><div class="dt">Stack vs Queue Comparison</div><div class="dl"></div></div>
+      <table class="tbl">
+        <thead><tr><th>Feature</th><th>Stack (LIFO)</th><th>Queue (FIFO)</th><th>Deque</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--mu)">Add element</td><td><code>push @s, $v</code></td><td><code>push @q, $v</code></td><td><code>push</code> or <code>unshift</code></td></tr>
+          <tr><td style="color:var(--mu)">Remove element</td><td><code>pop @s</code></td><td><code>shift @q</code></td><td><code>pop</code> or <code>shift</code></td></tr>
+          <tr><td style="color:var(--mu)">Peek</td><td><code>$s[-1]</code></td><td><code>$q[0]</code></td><td><code>$d[0]</code> or <code>$d[-1]</code></td></tr>
+          <tr><td style="color:var(--mu)">Order out</td><td style="color:var(--sc)">Last added first</td><td style="color:var(--ar)">First added first</td><td style="color:var(--re)">Either end</td></tr>
+          <tr><td style="color:var(--mu)">Use case</td><td>Undo, recursion, DFS</td><td>Tasks, BFS, buffering</td><td>Sliding window, both ends</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /layout -->
+</div><!-- /page -->
+<script>
+// Progress bar
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('prog').style.width=pct+'%';
+});
+
+// Navigation
+function goTo(id){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.si').forEach(e=>e.classList.remove('active'));
+  const sects=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19'];
+  const idx=sects.indexOf(id);
+  if(idx>=0) document.querySelectorAll('.si')[idx].classList.add('active');
+}
+
+// Copy code
+function cp(btn){
+  const pre=btn.closest('.cw').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='✓ copied';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('ok');},1800);
+  });
+}
+
+// Tabs
+function stab(grp,id,btn){
+  document.querySelectorAll('#'+id).forEach(t=>{t.classList.add('ts');});
+  // hide siblings
+  const panel=document.getElementById(id);
+  const parent=panel.parentElement;
+  parent.querySelectorAll('.tp').forEach(t=>t.classList.remove('ts'));
+  panel.classList.add('ts');
+  const row=btn.closest('.tbr');
+  row.querySelectorAll('.tbn').forEach(b=>b.classList.remove('ta'));
+  btn.classList.add('ta');
+}
+
+// ── SCALARS ──
+const scData={
+  str:{type:'string',len:5,num:'NaN',def:'YES',truth:'YES',info:'Double-quoted string. Supports $var interpolation.'},
+  int:{type:'integer',len:2,num:'42',def:'YES',truth:'YES',info:'Plain integer. No quotes needed.'},
+  flt:{type:'float',len:7,num:'3.14159',def:'YES',truth:'YES',info:'Floating-point number. Precise to ~15 digits.'},
+  undef:{type:'undef',len:'0',num:'0',def:'NO',truth:'NO (falsy)',info:'undef = nothing. Causes warnings if used without defined() check.'},
+  bool:{type:'integer (bool)',len:1,num:'1',def:'YES',truth:'YES',info:'Perl has no boolean type. 1=true, 0/""/"0"/undef=false.'},
+  ref:{type:'reference',len:'~16',num:'0 (stringified addr)',def:'YES',truth:'YES',info:'A scalar holding a memory address. Print shows ARRAY(0x...) or HASH(0x...)'}
+};
+function sshow(k){
+  const d=scData[k];
+  document.getElementById('sex').innerHTML=
+    `<span style="color:var(--sc)">Type: ${d.type}</span> &nbsp;|&nbsp; `+
+    `<span style="color:var(--ha)">length: ${d.len}</span> &nbsp;|&nbsp; `+
+    `<span style="color:var(--ar)">Numeric ctx: ${d.num}</span> &nbsp;|&nbsp; `+
+    `<span style="color:var(--re)">defined: ${d.def}</span> &nbsp;|&nbsp; `+
+    `<span style="color:var(--cx)">truthy: ${d.truth}</span><br>`+
+    `<span style="color:var(--mu);font-size:.6rem">${d.info}</span>`;
+}
+function evalSc(){
+  const v=document.getElementById('scin').value;
+  const isNum=!isNaN(v)&&v.trim()!=='';
+  const isUndef=v===''||v==='undef';
+  const truthy=!(v===''||v==='0'||v==='undef');
+  const o=document.getElementById('scout');
+  o.innerHTML=
+    `<span style="color:var(--sc)">Type: ${isUndef?'undef':isNum?'number':'string'}</span>`+
+    `<span style="color:var(--ha)">length("${v}") = ${v.length}</span>`+
+    `<span style="color:var(--ar)">Numeric: ${isNum?parseFloat(v):(parseInt(v)||0)}</span>`+
+    `<span style="color:var(--re)">Defined: ${isUndef?'NO':'YES'}</span>`+
+    `<span style="color:var(--ha)">Truthy: ${truthy?'YES (true)':'NO (false)'}</span>`;
+}
+
+// ── ARRAYS ──
+let arr=['apple','banana','cherry','date','elderberry'];
+function renderArr(){
+  const d=document.getElementById('adisp');
+  d.innerHTML='';
+  arr.forEach((v,i)=>{
+    const c=document.createElement('div');
+    c.className='ac';c.innerHTML=`<div class="ai">[${i}]</div><div class="av">${v}</div>`;
+    c.onclick=()=>{
+      document.querySelectorAll('.ac').forEach(x=>x.classList.remove('on'));
+      c.classList.add('on');
+      document.getElementById('aex').innerHTML=
+        `<span style="color:var(--ar)">$arr[${i}]</span> = <span style="color:var(--wh)">"${v}"</span> &nbsp;|&nbsp; `+
+        `<span style="color:var(--ar)">$arr[-${arr.length-i}]</span> = same (from end) &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">index ${i} of ${arr.length-1}</span>`;
+    };
+    d.appendChild(c);
+  });
+  document.getElementById('ali').textContent=arr.length-1;
+  document.getElementById('acnt').textContent=arr.length;
+}
+function aop(op){
+  const v=document.getElementById('apv').value||'item';
+  let msg='';
+  if(op==='push')   {arr.push(v);msg=`push "${v}" → length now ${arr.length}`;}
+  else if(op==='pop' && arr.length){const r=arr.pop();msg=`pop returned "${r}" → length now ${arr.length}`;}
+  else if(op==='unshift'){arr.unshift(v);msg=`unshift "${v}" → length now ${arr.length}`;}
+  else if(op==='shift' && arr.length){const r=arr.shift();msg=`shift returned "${r}" → length now ${arr.length}`;}
+  else if(op==='reverse'){arr.reverse();msg='Array reversed';}
+  else if(op==='sort'){arr.sort();msg='Array sorted alphabetically';}
+  document.getElementById('astat').textContent=msg||'Nothing to do';
+  renderArr();
+}
+renderArr();
+
+// ── MAP/GREP ──
+function mg(op){
+  const nums=[1,2,3,4,5,6,7,8];
+  let res,desc;
+  if(op==='m2'){res=nums.map(x=>x*2);desc='map { $_ * 2 } @nums';}
+  else if(op==='msq'){res=nums.map(x=>x*x);desc='map { $_ ** 2 } @nums';}
+  else if(op==='ge'){res=nums.filter(x=>x%2===0);desc='grep { $_ % 2 == 0 } @nums';}
+  else if(op==='g5'){res=nums.filter(x=>x>5);desc='grep { $_ > 5 } @nums';}
+  else if(op==='chain'){res=nums.filter(x=>x%2===0).map(x=>x*x);desc='map { $_**2 } grep { $_%2==0 } @nums';}
+  else if(op==='mstr'){res=nums.map(x=>'item_'+x);desc='map { "item_$_" } @nums';}
+  document.getElementById('mgout').innerHTML=
+    `<span style="color:var(--mu)">${desc}</span><br>`+
+    `<span style="color:var(--ha)">Result: </span><span style="color:var(--ar)">(${res.join(', ')})</span><br>`+
+    `<span style="color:var(--mu)">Length: ${res.length}</span>`;
+}
+
+// ── HASH TABLE ──
+const hdata=[
+  {k:'name',v:'Alice',t:'String'},
+  {k:'age',v:'28',t:'Integer'},
+  {k:'city',v:'Mumbai',t:'String'},
+  {k:'job',v:'Engineer',t:'String'}
+];
+function renderHash(){
+  const tb=document.getElementById('htbody');
+  tb.innerHTML='';
+  hdata.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="hk">${r.k}</td><td style="color:var(--mu)">→</td><td class="hv">${r.v}</td><td style="color:var(--di);font-size:.7rem">${r.t}</td>`;
+    tr.onclick=()=>{
+      document.querySelectorAll('#htbody tr').forEach(t=>t.classList.remove('ar'));
+      tr.classList.add('ar');
+      document.getElementById('hex').innerHTML=
+        `<span style="color:var(--ha)">$person{${r.k}}</span> = <span style="color:var(--wh)">"${r.v}"</span> &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">exists $person{${r.k}} → 1 &nbsp;|&nbsp; defined $person{${r.k}} → 1</span>`;
+    };
+    tb.appendChild(tr);
+  });
+}
+renderHash();
+
+// ── HASH BUILDER ──
+let hbuilt={};
+function hadd(){
+  const k=document.getElementById('hkin').value.trim();
+  const v=document.getElementById('hvin').value.trim();
+  if(!k)return;
+  hbuilt[k]=v;
+  renderHB();
+}
+function hclear(){hbuilt={};document.getElementById('hbuild').innerHTML='';document.getElementById('hcout').innerHTML='<span style="color:var(--mu)">Add keys above → code here</span>';}
+function renderHB(){
+  const b=document.getElementById('hbuild');
+  b.innerHTML='';
+  const keys=Object.keys(hbuilt);
+  keys.forEach(k=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:inline-flex;align-items:center;gap:.4rem;background:var(--c2);border:1px solid var(--b2);border-radius:5px;padding:.28rem .55rem;font-family:Inconsolata,monospace;font-size:.72rem;animation:pop .2s ease;cursor:pointer;';
+    d.innerHTML=`<span style="color:var(--ha)">${k}</span><span style="color:var(--mu)">=></span><span style="color:var(--wh)">"${hbuilt[k]}"</span><span onclick="delH('${k}')" style="color:#f87171;margin-left:.3rem;opacity:.6;font-size:.7rem">✕</span>`;
+    b.appendChild(d);
+  });
+  const lines=keys.map(k=>`    <span class="key">${k}</span> => <span class="str">"${hbuilt[k]}"</span>,`).join('\n');
+  document.getElementById('hcout').innerHTML=
+    keys.length===0?'<span style="color:var(--mu)">my %h = ();</span>':
+    `<span style="color:var(--kw)">my</span> <span style="color:var(--ar)">%h</span> = (\n${lines}\n);`;
+}
+function delH(k){delete hbuilt[k];renderHB();}
+
+// ── WORD COUNTER ──
+function countW(){
+  const txt=document.getElementById('wtin').value;
+  const words=txt.trim().split(/\s+/).filter(Boolean);
+  const freq={};
+  words.forEach(w=>{freq[w]=(freq[w]||0)+1;});
+  const out=document.getElementById('wout');
+  out.innerHTML='';
+  Object.entries(freq).sort((a,b)=>b[1]-a[1]).forEach(([w,c])=>{
+    const d=document.createElement('div');
+    d.className='wb';
+    d.innerHTML=`<span class="wbk">${w}</span><span style="color:var(--mu)">=></span><span class="wbv">${c}</span>`;
+    out.appendChild(d);
+  });
+}
+countW();
+
+// ── REFERENCE ANIMATION ──
+let rStep=0;
+function animRef(){
+  rStep++;
+  const rmb=document.getElementById('rmb');
+  const rs2=document.getElementById('rs2');
+  const rs3w=document.getElementById('rs3w');
+  if(rStep>=1){rmb.style.opacity='1';rs2.style.opacity='1';document.getElementById('rstat').textContent='Step 2: $aref = \\@colors — $aref now holds the address of @colors';}
+  if(rStep>=2){rs3w.style.opacity='1';document.getElementById('rstat').textContent='Step 3: @{$aref} dereferences back to the SAME array — one source of truth!';}
+  if(rStep>2)rStep=2;
+}
+function resetRef(){
+  rStep=0;
+  ['rmb','rs2','rs3w'].forEach(id=>{document.getElementById(id).style.opacity='.25';});
+  document.getElementById('rstat').textContent='Click ▶ to animate';
+}
+
+// ── REF TYPES ──
+const rtInfo={
+  s:{col:'var(--sc)',code:`my $name = "Alice";\nmy $sref = \\$name;      # SCALAR(0x...)\nprint $$sref;          # "Alice"\n$$sref = "Bob";        # also changes $name!`},
+  a:{col:'var(--ar)',code:`my @arr  = (1,2,3);\nmy $aref = \\@arr;       # ARRAY(0x...)\nprint $aref->[0];      # 1 (arrow notation)\nprint $$aref[1];       # 2 (compact)\nmy @copy = @{$aref};   # whole array`},
+  h:{col:'var(--ha)',code:`my %h    = (a=>1,b=>2);\nmy $href = \\%h;         # HASH(0x...)\nprint $href->{a};      # 1\nprint $$href{b};       # 2\nmy %copy = %{$href};   # whole hash`},
+  c:{col:'var(--cx)',code:`my $cref = sub { "Hello, $_[0]!" };\nprint $cref->("Alice");   # "Hello, Alice!"\n\n# Or ref to named sub:\nsub greet { "Hi $_[0]" }\nmy $r = \\&greet;\nprint $r->("Bob");        # "Hi Bob"`}
+};
+function showRT(t){
+  const d=rtInfo[t];
+  document.getElementById('rtcode').innerHTML=
+    `<span style="color:${d.col};font-weight:700"># ${t.toUpperCase()} REFERENCE</span>\n`+d.code;
+}
+
+// ── DEREF ROWS ──
+function showDR(t){
+  const ex=document.getElementById('drex');
+  const rows=['dr1','dr2','dr3'];
+  rows.forEach(r=>document.getElementById(r).style.background='var(--c2)');
+  if(t==='arrow'){
+    document.getElementById('dr1').style.background='rgba(255,139,94,.08)';
+    ex.innerHTML=`<span style="color:var(--dr)">$aref->[0]</span> = <span style="color:var(--wh)">"Alice"</span> &nbsp;|&nbsp; <span style="color:var(--dr)">$href->{name}</span> = <span style="color:var(--wh)">"Alice"</span> &nbsp;|&nbsp; <span style="color:var(--ha)">Best practice — clear, unambiguous, works for multi-level</span>`;
+  }else if(t==='block'){
+    document.getElementById('dr2').style.background='rgba(224,123,255,.08)';
+    ex.innerHTML=`<span style="color:var(--re)">\${$aref}[0]</span> = <span style="color:var(--wh)">"Alice"</span> &nbsp;|&nbsp; <span style="color:var(--re)">\${$href}{name}</span> = <span style="color:var(--wh)">"Alice"</span> &nbsp;|&nbsp; <span style="color:var(--mu)">Block makes scope explicit — good for complex expressions</span>`;
+  }else{
+    document.getElementById('dr3').style.background='rgba(123,240,160,.05)';
+    ex.innerHTML=`<span style="color:var(--ha)">$$aref[0]</span> = <span style="color:var(--wh)">"Alice"</span> &nbsp;|&nbsp; <span style="color:var(--ha)">$$href{name}</span> = <span style="color:var(--wh)">"Alice"</span> &nbsp;|&nbsp; <span style="color:var(--mu)">Compact but ambiguous — avoid in complex code</span>`;
+  }
+}
+
+// ── ref() CHECK ──
+const crtData={
+  sr:{r:'"SCALAR"',c:'var(--sc)',m:'Scalar reference — holds address of a scalar'},
+  ar:{r:'"ARRAY"', c:'var(--ar)',m:'Array reference — holds address of an array or [] anon array'},
+  hr:{r:'"HASH"',  c:'var(--ha)',m:'Hash reference — holds address of a hash or {} anon hash'},
+  cr:{r:'"CODE"',  c:'var(--cx)',m:'Code reference — holds address of a subroutine'},
+  nr:{r:'""',      c:'var(--mu)',m:'Empty string — NOT a reference, just a plain scalar'}
+};
+function crt(t){
+  const d=crtData[t];
+  document.getElementById('crtex').innerHTML=
+    `ref() returns: <span style="color:${d.c};font-weight:700">${d.r}</span> &nbsp;|&nbsp; `+
+    `<span style="color:var(--mu)">${d.m}</span>`;
+}
+
+// ── AoH DATA ──
+const aohData=[
+  {name:'Alice', grade:'A',score:95,city:'Mumbai'},
+  {name:'Bob',   grade:'B',score:78,city:'Delhi'},
+  {name:'Carol', grade:'A',score:92,city:'Pune'},
+  {name:'Dave',  grade:'C',score:65,city:'Mumbai'},
+  {name:'Eve',   grade:'B',score:83,city:'Bengaluru'},
+];
+let aohCurrent=[...aohData];
+function renderAoH(data,containerId){
+  const c=document.getElementById(containerId);
+  c.innerHTML='';
+  data.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='arow';
+    row.innerHTML=`<div class="aix">[${i}]</div><div class="ahsh">`+
+      ['name','grade','score','city'].map(k=>`<div class="akv"><div class="ak">${k}</div><div class="av2">${s[k]}</div></div>`).join('')+
+      `</div>`;
+    row.onclick=()=>{
+      document.querySelectorAll('#'+containerId+' .arow').forEach(r=>r.classList.remove('sel'));
+      row.classList.add('sel');
+      const ex=containerId==='aohd'?'aohex':'aohex';
+      document.getElementById('aohex').innerHTML=
+        `<span style="color:var(--ar)">$students[${i}]{name}</span> = "${s.name}" &nbsp;|&nbsp; `+
+        `<span style="color:var(--ar)">$students[${i}]{score}</span> = ${s.score} &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">$students[${i}]->{ any_key }</span>`;
+    };
+    c.appendChild(row);
+  });
+}
+renderAoH(aohData,'aohd');
+
+// AoH interactive
+function renderAoHInt(data){
+  const c=document.getElementById('aohint');c.innerHTML='';
+  data.forEach((s,i)=>{
+    const row=document.createElement('div');row.className='arow';
+    const gradeCol=s.grade==='A'?'var(--ha)':s.grade==='B'?'var(--sc)':'var(--cx)';
+    row.innerHTML=`<div class="aix">[${i}]</div><div class="ahsh">`+
+      `<div class="akv"><div class="ak">name</div><div class="av2">${s.name}</div></div>`+
+      `<div class="akv"><div class="ak">grade</div><div class="av2" style="color:${gradeCol}">${s.grade}</div></div>`+
+      `<div class="akv"><div class="ak">score</div><div class="av2">${s.score}</div></div>`+
+      `<div class="akv"><div class="ak">city</div><div class="av2">${s.city}</div></div></div>`;
+    c.appendChild(row);
+  });
+}
+renderAoHInt(aohData);
+function aoht(f){const d=[...aohData].sort((a,b)=>f==='score'?b.score-a.score:a.name.localeCompare(b.name));renderAoHInt(d);}
+function aohr(g){renderAoHInt(aohData.filter(s=>s.grade===g));}
+function aohR(){renderAoHInt(aohData);}
+
+// ── HoA DATA ──
+const hoaData={
+  math:    ['Alice','Bob','Dave'],
+  science: ['Alice','Carol'],
+  english: ['Bob','Carol','Eve'],
+  history: ['Dave','Eve'],
+};
+function renderHoA(){
+  const c=document.getElementById('hoad');c.innerHTML='';
+  Object.entries(hoaData).sort().forEach(([k,arr])=>{
+    const row=document.createElement('div');row.className='hrow';
+    row.innerHTML=`<div class="hkc">${k}</div><div class="harr">`+
+      arr.map((v,i)=>`<div class="hel"><div class="heli">[${i}]</div><div class="helv">${v}</div></div>`).join('')+
+      `</div>`;
+    row.onclick=()=>{
+      document.querySelectorAll('#hoad .hrow').forEach(r=>r.classList.remove('sel'));
+      row.classList.add('sel');
+      document.getElementById('hoaex').innerHTML=
+        `<span style="color:var(--ha)">$courses{${k}}[0]</span> = "${arr[0]}" &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">scalar @{$courses{${k}}} = ${arr.length} students</span> &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">push @{$courses{${k}}}, "NewStudent"</span>`;
+    };
+    c.appendChild(row);
+  });
+}
+renderHoA();
+
+// ── HoH DATA ──
+const hohData={
+  alice: {name:'Alice',dept:'Eng',  salary:90000},
+  bob:   {name:'Bob',  dept:'Sales',salary:75000},
+  carol: {name:'Carol',dept:'Eng',  salary:95000},
+  dave:  {name:'Dave', dept:'HR',   salary:70000},
+};
+function renderHoH(){
+  const c=document.getElementById('hohd');c.innerHTML='';
+  Object.entries(hohData).forEach(([k,v])=>{
+    const row=document.createElement('div');row.className='hhrow';
+    row.innerHTML=`<div class="hhk">${k}</div><div class="hhin">`+
+      Object.entries(v).map(([fk,fv])=>`<div class="hhkv"><div class="hhk2">${fk}</div><div class="hhv">${fv}</div></div>`).join('')+
+      `</div>`;
+    row.onclick=()=>{
+      document.querySelectorAll('#hohd .hhrow').forEach(r=>r.classList.remove('sel'));
+      row.classList.add('sel');
+      document.getElementById('hohex').innerHTML=
+        `<span style="color:var(--re)">$employees{${k}}{name}</span> = "${v.name}" &nbsp;|&nbsp; `+
+        `<span style="color:var(--re)">$employees{${k}}{salary}</span> = ${v.salary} &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">$employees{${k}}{dept} = "${v.dept}"</span>`;
+    };
+    c.appendChild(row);
+  });
+}
+renderHoH();
+
+// ── AoA DATA ──
+const aoaData=[[1,2,3],[4,5,6],[7,8,9]];
+function renderAoA(){
+  const c=document.getElementById('aoad');c.innerHTML='';
+  aoaData.forEach((row,i)=>{
+    const d=document.createElement('div');d.className='aarow';
+    d.innerHTML=`<div class="aaix">[${i}]</div><div class="aain">`+
+      row.map((v,j)=>`<div class="aael"><div class="aaeli">[${j}]</div><div class="aaelv">${v}</div></div>`).join('')+
+      `</div>`;
+    d.onclick=()=>{
+      document.querySelectorAll('#aoad .aarow').forEach(r=>r.classList.remove('sel'));
+      d.classList.add('sel');
+      document.getElementById('aoaex').innerHTML=
+        `<span style="color:var(--cx)">$matrix[${i}][0..${row.length-1}]</span> = (${row.join(',')}) &nbsp;|&nbsp; `+
+        `<span style="color:var(--mu)">Access: $matrix[${i}][col] &nbsp;|&nbsp; Whole row: @{$matrix[${i}]}</span>`;
+    };
+    c.appendChild(d);
+  });
+}
+renderAoA();
+
+// ── AUTO-VIV STEPS ──
+function avStep(n){
+  const msgs=[
+    `$data{users}{alice}{age} = 28; → Perl auto-creates: %data, $data{users} = {}, $data{users}{alice} = {}, then assigns age=>28`,
+    `push @{$list{fruits}}, "apple"; → $list{fruits} didn't exist → Perl auto-creates $list{fruits} = [], then pushes "apple"`,
+    `$matrix[2][4] = 99; → Row 0 and 1 don't exist → created with undef elements. Row 2 has 5 slots, [4]=99, rest undef`
+  ];
+  const el=document.getElementById('av'+n);
+  el.style.borderColor='var(--re)';el.style.background='rgba(224,123,255,.06)';
+  document.getElementById('av'+n+'-ex').innerHTML=
+    `<span style="color:var(--ha)">${msgs[n-1]}</span>`;
+}
+
+// ── DEEP VIZ ──
+const deepNodes=[
+  {path:'$company{name}',val:'"TechCorp"',color:'var(--sc)',indent:0},
+  {path:'$company{depts}{engineering}{head}',val:'"Alice"',color:'var(--ha)',indent:1},
+  {path:'$company{depts}{engineering}{budget}',val:'500000',color:'var(--sc)',indent:1},
+  {path:'$company{depts}{engineering}{employees}[0]{name}',val:'"Alice"',color:'var(--ar)',indent:2},
+  {path:'$company{depts}{engineering}{employees}[0]{skills}[0]',val:'"Perl"',color:'var(--re)',indent:3},
+  {path:'$company{depts}{sales}{head}',val:'"Carol"',color:'var(--ha)',indent:1},
+  {path:'$company{depts}{sales}{employees}[1]{name}',val:'"Dave"',color:'var(--ar)',indent:2},
+];
+function renderDeep(){
+  const c=document.getElementById('deepviz');c.innerHTML='';
+  deepNodes.forEach((n,i)=>{
+    const d=document.createElement('div');
+    d.className='dn';
+    d.style.marginLeft=(n.indent*24)+'px';
+    d.innerHTML=`<span class="dref">${n.path}</span><span style="color:var(--mu)"> → </span><span class="dv">${n.val}</span>`;
+    d.onclick=()=>{
+      document.querySelectorAll('.dn').forEach(x=>x.classList.remove('on'));
+      d.classList.add('on');
+      document.getElementById('deepex').innerHTML=
+        `Access: <span style="color:${n.color}">${n.path}</span> = <span style="color:var(--wh)">${n.val}</span> &nbsp;&nbsp; depth: ${n.indent+1} level${n.indent>0?'s':''}`;
+    };
+    c.appendChild(d);
+  });
+}
+renderDeep();
+
+// Scroll spy
+const sections=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19'];
+window.addEventListener('scroll',()=>{
+  let cur=sections[0];
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.getBoundingClientRect().top<120)cur=id;
+  });
+  const sis=document.querySelectorAll('.si');
+  sis.forEach(s=>s.classList.remove('active'));
+  const idx=sections.indexOf(cur);
+  if(idx>=0&&sis[idx])sis[idx].classList.add('active');
+});
+
+// ── STACK ──
+let stack=[];
+function renderStack(){
+  const c=document.getElementById('stack-viz');
+  const arrow=c.querySelector('div');
+  c.innerHTML='';c.appendChild(arrow);
+  stack.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:.6rem;padding:.42rem .75rem;background:var(--c2);border:1.5px solid rgba(247,201,72,'+(0.3+i*0.1)+');border-radius:6px;font-family:Inconsolata,monospace;font-size:.75rem;animation:pop .25s ease;';
+    d.innerHTML='<span style="color:var(--sc);font-family:Space Mono,monospace;font-size:.52rem">['+i+']</span><span style="color:var(--wh);font-weight:600">'+v+'</span>'+(i===stack.length-1?'<span style="color:var(--sc);font-size:.55rem;margin-left:auto;font-family:Space Mono,monospace">← TOP</span>':'');
+    c.appendChild(d);
+  });
+}
+function stackPush(){
+  const v=document.getElementById('stack-val').value||'item';
+  stack.push(v);
+  document.getElementById('stack-log').innerHTML='<span style="color:var(--ha)">push "'+v+'" → stack size: '+stack.length+'</span>';
+  renderStack();
+}
+function stackPop(){
+  if(!stack.length){document.getElementById('stack-log').innerHTML='<span style="color:#f87171">Stack is empty!</span>';return;}
+  const v=stack.pop();
+  document.getElementById('stack-log').innerHTML='<span style="color:var(--dr)">pop → removed "'+v+'" → stack size: '+stack.length+'</span>';
+  renderStack();
+}
+
+// ── QUEUE ──
+let queue=[];
+function renderQueue(){
+  const c=document.getElementById('queue-viz');
+  const arrow=c.querySelector('div');
+  c.innerHTML='';c.appendChild(arrow);
+  queue.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:.6rem;padding:.42rem .75rem;background:var(--c2);border:1.5px solid rgba(78,201,240,'+(0.3+i*0.1)+');border-radius:6px;font-family:Inconsolata,monospace;font-size:.75rem;animation:pop .25s ease;';
+    d.innerHTML=(i===0?'<span style="color:var(--ar);font-size:.55rem;font-family:Space Mono,monospace">FRONT→</span>':'<span style="color:var(--mu);font-size:.55rem;font-family:Space Mono,monospace">['+i+']</span>')+'<span style="color:var(--wh);font-weight:600">'+v+'</span>'+(i===queue.length-1?'<span style="color:var(--mu);font-size:.55rem;margin-left:auto;font-family:Space Mono,monospace">←BACK</span>':'');
+    c.appendChild(d);
+  });
+}
+function queuePush(){
+  const v=document.getElementById('queue-val').value||'task';
+  queue.push(v);
+  document.getElementById('queue-log').innerHTML='<span style="color:var(--ha)">enqueue "'+v+'" → queue size: '+queue.length+'</span>';
+  renderQueue();
+}
+function queueShift(){
+  if(!queue.length){document.getElementById('queue-log').innerHTML='<span style="color:#f87171">Queue is empty!</span>';return;}
+  const v=queue.shift();
+  document.getElementById('queue-log').innerHTML='<span style="color:var(--dr)">dequeue → removed "'+v+'" (first in) → size: '+queue.length+'</span>';
+  renderQueue();
+}
+// init
+['a','b','c'].forEach(v=>stack.push(v)); renderStack();
+['task1','task2','task3'].forEach(v=>queue.push(v)); renderQueue();
+
+</script>
+</body>
+</html>
