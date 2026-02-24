@@ -1005,8 +1005,6 @@ html.font-xl body{font-size:20px;}
 </div>
 <script>
 if(localStorage.getItem('guide-theme')==='light')document.documentElement.classList.add('light-theme');
-var fSizes=['','font-lg','font-xl'];var fIdx=fSizes.indexOf(localStorage.getItem('guide-font')||'');if(fIdx<0)fIdx=0;if(fSizes[fIdx])document.documentElement.classList.add(fSizes[fIdx]);
-function cycleFontSize(){document.documentElement.classList.remove(...fSizes.filter(Boolean));fIdx=(fIdx+1)%fSizes.length;if(fSizes[fIdx])document.documentElement.classList.add(fSizes[fIdx]);localStorage.setItem('guide-font',fSizes[fIdx]);}
 </script>
 <div class="page">
 
