@@ -71,7 +71,7 @@ const GuideCard = ({ guide, index }: { guide: typeof guides[0]; index: number })
         <motion.div whileHover={{ rotate: 12, scale: 1.15 }} transition={{ type: "spring", stiffness: 300 }}>
           <Icon className={`h-6 w-6 ${guide.accentClass}`} />
         </motion.div>
-        <span className={`font-mono text-[0.6rem] tracking-[0.2em] uppercase ${guide.accentClass} opacity-70`}>
+        <span className={`font-mono text-xs tracking-[0.2em] uppercase ${guide.accentClass} opacity-70`}>
           {guide.tag}
         </span>
       </div>
