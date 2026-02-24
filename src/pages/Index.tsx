@@ -81,7 +81,7 @@ const GuideCard = ({ guide, index }: { guide: typeof guides[0]; index: number })
       <p className="text-base leading-relaxed text-muted-foreground">
         {guide.description}
       </p>
-      <div className={`mt-4 font-mono text-xs ${guide.accentClass} opacity-0 transition-all duration-300 translate-x-[-8px] group-hover:opacity-100 group-hover:translate-x-0`}>
+      <div className={`mt-4 font-mono text-sm ${guide.accentClass} opacity-0 transition-all duration-300 translate-x-[-8px] group-hover:opacity-100 group-hover:translate-x-0`}>
         Open guide →
       </div>
     </motion.a>
