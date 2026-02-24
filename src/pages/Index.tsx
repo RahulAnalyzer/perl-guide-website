@@ -144,7 +144,7 @@ const Index = () => {
           <h1 className="mb-4 text-gradient-hero text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
             Perl Programming Guides
           </h1>
-          <p className="mx-auto max-w-xl font-mono text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto max-w-xl font-mono text-base leading-relaxed text-muted-foreground">
             Five comprehensive visual guides covering data structures, databases,
             file I/O, object-oriented programming, and threading.
           </p>
