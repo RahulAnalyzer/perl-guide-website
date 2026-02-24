@@ -185,7 +185,7 @@ const Index = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          <p className="font-mono text-xs text-muted-foreground/50">
+          <p className="font-mono text-sm text-muted-foreground/50">
             Built with Perl · Visual learning for developers
           </p>
         </motion.footer>
