@@ -75,10 +75,10 @@ const GuideCard = ({ guide, index }: { guide: typeof guides[0]; index: number })
           {guide.tag}
         </span>
       </div>
-      <h3 className="mb-2 text-lg font-bold text-foreground group-hover:text-foreground/90">
+      <h3 className="mb-2 text-xl font-bold text-foreground group-hover:text-foreground/90">
         {guide.title}
       </h3>
-      <p className="text-sm leading-relaxed text-muted-foreground">
+      <p className="text-base leading-relaxed text-muted-foreground">
         {guide.description}
       </p>
       <div className={`mt-4 font-mono text-xs ${guide.accentClass} opacity-0 transition-all duration-300 translate-x-[-8px] group-hover:opacity-100 group-hover:translate-x-0`}>
