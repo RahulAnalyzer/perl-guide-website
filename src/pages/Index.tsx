@@ -163,7 +163,7 @@ const Index = () => {
             ].map((pill) => (
               <span
                 key={pill.label}
-                className="flex items-center gap-2 rounded-full border border-border px-3 py-1 font-mono text-[0.6rem] tracking-wider text-muted-foreground"
+                className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 font-mono text-xs tracking-wider text-muted-foreground"
               >
                 <span className={`h-1.5 w-1.5 rounded-full ${pill.color}`} />
                 {pill.label}
