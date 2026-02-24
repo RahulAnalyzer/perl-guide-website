@@ -134,7 +134,7 @@ const Index = () => {
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <motion.span
-            className="mb-4 inline-block font-mono text-[0.65rem] tracking-[0.28em] uppercase text-primary"
+            className="mb-4 inline-block font-mono text-xs tracking-[0.28em] uppercase text-primary"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
